@@ -3,20 +3,29 @@ import { devtools, persist } from "zustand/middleware";
 
 interface ReporteState {
   html: string;
+  htmlProcessed: string;
   css: string;
   jsonData: string;
+
   setHtml: (html: string) => void;
+  setHtmlProcessed: (html: string) => void;
   setCss: (css: string) => void;
   setJsonData: (json: string) => void;
 }
 
 const storeReportes: StateCreator<ReporteState> = ((set) => ({
   html: "<h1>Reporte de Ventas</h1><p>Total: ${total}</p>",
+  htmlProcessed: "",
   css: "h1 { color: blue; } p { font-size: 16px; }",
   jsonData: JSON.stringify({ total: "$500" }, null, 2),
 
   setHtml: (html) => set((state) => {
     localStorage.setItem("html", JSON.stringify(html));
+    return { html };
+  }),
+
+  setHtmlProcessed: (html) => set((state) => {
+    localStorage.setItem("htmlProcessed", JSON.stringify(html));
     return { html };
   }),
 
@@ -63,7 +72,7 @@ export const useReporteStore = create<ReporteState>()(
 
 // Sincronización con otras pestañas
 window.addEventListener("storage", (event) => {
-  if (["html", "css", "jsonData"].includes(event.key!)) {
+  if (["html","htmlProcessed", "css", "jsonData"].includes(event.key!)) {
     useReporteStore.setState((state) => ({
       ...state,
       [event.key!]: event.newValue ? JSON.parse(event.newValue) : ""
