@@ -1,0 +1,30 @@
+@use '../base/variables';
+
+.studio-container {
+  padding: variables.$spacing-lg;
+  background-color: variables.$color-bg-light;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  .studio-header {
+    margin-bottom: variables.$spacing;
+    h2 {
+      font-size: 20px;
+      font-weight: variables.$font-weight-bold;
+      color: variables.$color-text;
+    }
+  }
+
+  .studio-tabs {
+    //background-color: variables.$color-surface;
+    background: red;
+    border-radius: variables.$border-radius;
+    box-shadow: variables.$shadow;
+    height: 100%;
+    padding: variables.$spacing;
+    .ant-tabs-nav {
+      margin-bottom: variables.$spacing;
+    }
+  }
+}

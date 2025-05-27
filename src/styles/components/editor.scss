@@ -1,0 +1,37 @@
+@use '../base/variables';
+
+.editor-container {
+  background-color: variables.$color-surface;
+  border-radius: variables.$border-radius;
+  box-shadow: variables.$shadow;
+  padding: variables.$spacing-lg;
+  margin-bottom: variables.$spacing-lg;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  h2 {
+    font-size: variables.$font-size-lg;
+    font-weight: variables.$font-weight-medium;
+    margin-bottom: variables.$spacing;
+    color: variables.$color-text;
+  }
+
+  .cm-theme {
+    flex-grow: 1;
+    border-radius: variables.$border-radius-sm;
+    overflow: hidden;
+  }
+
+  .cm-editor {
+    height: 400px;
+    border: 1px solid variables.$color-border;
+    border-radius: variables.$border-radius-sm;
+  }
+
+  .error-message {
+    margin-top: variables.$spacing-sm;
+    color: red;
+    font-size: variables.$font-size-sm;
+  }
+}

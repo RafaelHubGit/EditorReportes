@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import CodeMirror from '@uiw/react-codemirror';
-import { html } from "@codemirror/lang-html";
 import { useReporteStore } from '../store/useReportStore';
 import Handlebars from 'handlebars';
 import * as justHelpers from "just-handlebars-helpers";
 import moment from 'moment';
+import { EditorBaseComponent } from './EditorBaseComponent';
+import { getExtensions } from '../utils/codeMirrorExtensions';
 
 
 
@@ -17,16 +17,20 @@ export const EditorHtmlComponent = () => {
     const [error, setError] = useState("");
 
     useEffect(() => {
-      for (const [name, helper] of Object.entries(justHelpers)) {
-        if (typeof helper === 'function') {
-          Handlebars.registerHelper(name, helper);
-        }
-      }   
+
+      // Registrar todos los helpers disponibles en just-handlebars-helpers
+      if (justHelpers.default && typeof justHelpers.default.registerHelpers === "function") {
+        justHelpers.default.registerHelpers(Handlebars);
+        console.log("✔ Helpers registrados correctamente en Handlebars");
+      } else {
+        console.error("⚠ No se pudo registrar los helpers, la librería no está exportando correctamente.");
+      }  
 
       // Registrar manualmente el helper dateFormat
-    Handlebars.registerHelper('dateFormat', function(date, format) {
-      return moment(date).format(format);
-    });
+      Handlebars.registerHelper('dateFormat', function(date, format) {
+        return moment(date).format(format);
+      });
+
     }, []);
 
     useEffect(() => {
@@ -78,8 +82,6 @@ export const EditorHtmlComponent = () => {
         // Compilar la plantilla Handlebars
         const template = Handlebars.compile(value);
         const htmlProcesado = template(jsonData);
-    
-        console.log("HTML Procesado:", htmlProcesado);
         
         setHtmlProcessed(htmlProcesado);
         setHtml(value);
@@ -89,48 +91,31 @@ export const EditorHtmlComponent = () => {
         setError(error.message);
       }
     };
-    
-
-    Handlebars.registerHelper("compare", function (a, operator, b, options) {
-      switch (operator) {
-        case ">":
-          return a > b ? options.fn(this) : options.inverse(this);
-        case "<":
-          return a < b ? options.fn(this) : options.inverse(this);
-        case ">=":
-          return a >= b ? options.fn(this) : options.inverse(this);
-        case "<=":
-          return a <= b ? options.fn(this) : options.inverse(this);
-        case "==":
-          return a == b ? options.fn(this) : options.inverse(this);
-        case "!=":
-          return a != b ? options.fn(this) : options.inverse(this);
-        case "===":
-          return a === b ? options.fn(this) : options.inverse(this);
-        case "!==":
-          return a !== b ? options.fn(this) : options.inverse(this);
-        default:
-          console.error(`Operador "${operator}" no soportado.`);
-          return options.inverse(this);
-      }
-    });
-    
-    
 
     return (
-      <div>
-        <h2>Editor HTML</h2>
-        <CodeMirror 
-          value={htmlCode} 
-          extensions={[html()]} 
-          // onChange={setHtml}
-          onChange={handleChange} 
-          theme="dark" 
-          basicSetup={{ lineNumbers: true }} 
-        />
-        <div>
-          {error && <p style={{ color: "red" }}>{error}</p>}
-        </div>
-      </div>
+      <EditorBaseComponent
+        label="Editor HTML"
+        value={htmlCode}
+        onChange={handleChange}
+        extensions={getExtensions.html()}
+        error={error}
+      />
     );
+
+    // return (
+    //   <div className="editor-container">
+    //     <h2>Editor HTML</h2>
+    //     <CodeMirror 
+    //       value={htmlCode} 
+    //       extensions={[html()]} 
+    //       // onChange={setHtml}
+    //       onChange={handleChange} 
+    //       theme="dark" 
+    //       basicSetup={{ lineNumbers: true }} 
+    //     />
+    //     <div>
+    //       {error && <p className="error-message">{error}</p>}
+    //     </div>
+    //   </div>
+    // );
   };

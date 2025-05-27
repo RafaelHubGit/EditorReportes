@@ -36,7 +36,7 @@ export const VistaPreviaComponent = () => {
         margin: "10px 0",
       }}
     >
-      <h2
+      {/* <h2
         style={{
           fontSize: "24px",
           fontWeight: "600",
@@ -47,7 +47,7 @@ export const VistaPreviaComponent = () => {
         }}
       >
         Vista Previa
-      </h2>
+      </h2> */}
       <iframe
         title="preview"
         style={{
