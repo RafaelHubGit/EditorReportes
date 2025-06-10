@@ -11,7 +11,7 @@ export const EditorStudioComponent: React.FC = () => {
     {
       label: 'HTML',
       key: 'html',
-      children: <EditorHtmlComponent />,
+      children: <EditorHtmlComponent />
     },
     {
       label: 'CSS',
@@ -32,10 +32,14 @@ export const EditorStudioComponent: React.FC = () => {
 
   return (
     <div className="studio-container">
-      {/* <div className="studio-header">
+      <div className="studio-header">
         <h2>Editor de Reportes</h2>
-      </div> */}
-      <Tabs defaultActiveKey="html" items={items} className="studio-tabs" />
+      </div> 
+      <Tabs 
+        defaultActiveKey="html" 
+        items={items} 
+        className="studio-tabssss " 
+      />
     </div>
   );
 };

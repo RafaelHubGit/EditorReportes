@@ -15,7 +15,7 @@ export const EditorBaseComponent = ({ label, value, onChange, extensions, error 
       {/* <div className="editor-header">
         <h3>{label}</h3>
       </div> */}
-      <div className="editor-wrapper">
+      {/* <div className="editor-wrapper"> */}
         <CodeMirror
           value={value}
           extensions={extensions}
@@ -23,7 +23,7 @@ export const EditorBaseComponent = ({ label, value, onChange, extensions, error 
         //   theme="dark"
           basicSetup={{ lineNumbers: true }}
         />
-      </div>
+      {/* </div> */}
       {error && <div className="editor-error">{error}</div>}
     </div>
   );

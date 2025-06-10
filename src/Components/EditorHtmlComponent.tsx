@@ -93,13 +93,17 @@ export const EditorHtmlComponent = () => {
     };
 
     return (
-      <EditorBaseComponent
-        label="Editor HTML"
-        value={htmlCode}
-        onChange={handleChange}
-        extensions={getExtensions.html()}
-        error={error}
-      />
+      // <div className="editor-container" >
+
+        <EditorBaseComponent
+          label="Editor HTML"
+          value={htmlCode}
+          onChange={handleChange}
+          extensions={getExtensions.html()}
+          error={error}
+        />
+
+      // </div>
     );
 
     // return (

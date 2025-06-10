@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useReporteStore } from "../store/useReportStore";
 
 export const VistaPreviaComponent = () => {
@@ -7,9 +7,12 @@ export const VistaPreviaComponent = () => {
   const cssCode = useReporteStore((state) => state.css);
   const jsonData = useReporteStore((state) => state.jsonData);
 
+    const [iframeKey, setIframeKey] = useState(0); // Para forzar re-render
+
+
   useEffect(() => {
-    console.log("HTML : ", htmlProcessed);
-  }, [htmlProcessed]);
+    console.log("HTML PROCESADO");
+  }, [htmlProcessed, jsonData]);
 
   const processHtml = (html: string, json: string) => {
     try {
@@ -25,41 +28,25 @@ export const VistaPreviaComponent = () => {
     }
   };
 
+  // Actualiza cuando cambien las dependencias
+  useEffect(() => {
+    setIframeKey(prev => prev + 1); // Forzar re-render del iframe
+  }, [htmlCode, htmlProcessed, cssCode, jsonData]);
+
   return (
-    <div
+    <iframe
+      key={iframeKey}
+      title="preview"
       style={{
         width: "100%",
-        padding: "20px",
-        backgroundColor: "#fff",
-        borderRadius: "12px",
-        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-        margin: "10px 0",
+        height: "100%",
+        overflow: "auto",
+        border: "1px solid #e0e0e0",
+        borderRadius: "8px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+        backgroundColor: "#ccc",
       }}
-    >
-      {/* <h2
-        style={{
-          fontSize: "24px",
-          fontWeight: "600",
-          color: "#333",
-          marginBottom: "16px",
-          borderBottom: "2px solid #eee",
-          paddingBottom: "8px",
-        }}
-      >
-        Vista Previa
-      </h2> */}
-      <iframe
-        title="preview"
-        style={{
-          width: "100%",
-          height: "600px",
-          border: "1px solid #e0e0e0",
-          borderRadius: "8px",
-          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-          backgroundColor: "#fff",
-        }}
-        srcDoc={`<style>${cssCode}</style>${processHtml(htmlProcessed, jsonData)}`}
-      />
-    </div>
+      srcDoc={`<style>${cssCode}</style>${processHtml(htmlProcessed, jsonData)}`}
+    />
   );
 };

@@ -1,11 +1,27 @@
 @use '../base/variables';
 
+
+// Scoped fix: solo para tus tabs del estudio
+.scoped-tabs {
+  .ant-tabs-content-holder {
+    overflow: auto;
+    height: 100%; // Asegura que el hijo pueda usar 100%
+  }
+
+  .ant-tabs-tabpane {
+    height: 100%; // Permite que el contenido (editor-premium) crezca correctamente
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+
 .editor-premium {
   display: flex;
   flex-direction: column;
   height: 100%; // importante si el contenedor padre tiene altura controlada
   max-height: 100%; // evita que lo exceda
-  overflow: hidden;
+  overflow: auto;
 
   .editor-header {
     margin-bottom: variables.$spacing-sm;
@@ -19,9 +35,9 @@
 
   .editor-wrapper {
     flex-grow: 1; // esto permite que ocupe todo el espacio restante
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
 
     .cm-editor {
       flex-grow: 1;
