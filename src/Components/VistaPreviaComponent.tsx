@@ -1,30 +1,50 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useReporteStore } from "../store/useReportStore";
 import Handlebars from "handlebars";
 
-
 export const VistaPreviaComponent = () => {
-  const htmlCode = useReporteStore((state) => state.html);        // HTML template
-  const cssCode  = useReporteStore((state) => state.css);         // CSS
-  const jsonData = useReporteStore((state) => state.jsonData);    // JSON string
+  const htmlCode = useReporteStore((s) => s.html);
+  const cssCode  = useReporteStore((s) => s.css);
+  const jsonData = useReporteStore((s) => s.jsonData);
 
-  const finalHtml = useMemo(() => {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const scrollYRef = useRef(0);
+  const [srcDoc, setSrcDoc] = useState("");
+
+  const compiledHtml = useMemo(() => {
     try {
       const data = JSON.parse(jsonData || "{}");
-      const template = Handlebars.compile(htmlCode);
-      return template(data);
-    } catch (err) {
-      return `<p style='color:red;'>Invalid JSON provided</p>`;
+      return Handlebars.compile(htmlCode)(data);
+    } catch {
+      return `<p style='color:red;'>Invalid JSON</p>`;
     }
   }, [htmlCode, jsonData]);
 
+  useEffect(() => {
+    const win = iframeRef.current?.contentWindow;
+    if (win) scrollYRef.current = win.scrollY;
+
+    const timeout = setTimeout(() => {
+      const full = `<style>${cssCode} body{white-space:pre-wrap;}</style>${compiledHtml}`;
+      setSrcDoc(full);
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [compiledHtml, cssCode]);
+
+  const handleLoad = () => {
+    const win = iframeRef.current?.contentWindow;
+    if (win) win.scrollTo(0, scrollYRef.current);
+  };
+
   return (
     <iframe
+      ref={iframeRef}
       title="preview"
+      srcDoc={srcDoc}
+      onLoad={handleLoad}
       style={{ width: "100%", height: "100%", border: "none" }}
-      srcDoc={`<style>${cssCode}</style>${finalHtml}`}
     />
   );
 };
 
-export default VistaPreviaComponent;
