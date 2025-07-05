@@ -13,7 +13,7 @@ const routes: RouteObject[] = [
     element: <HomeComponent />, // Ruta sin LayoutApp
   },
   {
-    path: "/app", // Ruta base para las rutas con LayoutApp
+    path: "/app/editor", // Ruta base para las rutas con LayoutApp
     element: <LayoutApp />, // LayoutApp se aplica a todas las rutas hijas
     children: [
       {
@@ -34,6 +34,9 @@ const routes: RouteObject[] = [
       },
     ],
   },
+  {
+    path: "/app/configuracion"
+  }
 ];
 
 export default routes;

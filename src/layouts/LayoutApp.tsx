@@ -1,57 +1,88 @@
 import React from "react";
-import { Layout, Menu, Tabs, TabsProps } from "antd";
-import { Link, Outlet } from "react-router-dom";
-import { EditorHtmlComponent } from '../Components/EditorHtmlComponent';
-import { EditorCssComponent } from '../Components/EditorCssComponent';
-import { EditorJsonComponent } from '../Components/EditorJsonComponent';
-import { VistaPreviaComponent } from '../Components/VistaPreviaComponent';
+import { Avatar, Col, Dropdown, Layout, MenuProps, Row } from "antd";
 import { EditorStudioComponent } from "../Components/EditorStudioComponent";
+import { MenuComponent } from '../Components/MenuComponent';
 
-const { Header, Content, Sider } = Layout;
+import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
+
+
 
 const LayoutApp: React.FC = () => {
 
-  const itemsTab: TabsProps['items'] = [
-      {
-        label: 'HTML',
-        key: 'html',
-        children: <EditorHtmlComponent />,
-      },
-      {
-        label: 'CSS',
-        key: 'css',
-        children: <EditorCssComponent />,
-      },
-      {
-        label: 'JSON',
-        key: 'json',
-        children: <EditorJsonComponent />,
-      },
-      {
-        label: 'Vista Previa',
-        key: 'vista',
-        children: <VistaPreviaComponent />,
-      },
-    ];
+
+  const items: MenuProps['items'] = [
+    {
+      key: '1',
+      label: (
+        <div>
+          <UserOutlined style={{ marginRight:'10px' }} />
+          rafael.nava.1403@gmail.com
+        </div>
+      ),
+      disabled: true
+    },
+    // {
+    //   key: '2',
+    //   label: (
+    //     <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
+    //       2nd menu item (disabled)
+    //     </a>
+    //   ),
+    //   icon: <SmileOutlined />,
+    //   disabled: true,
+    // },
+    // {
+    //   key: '3',
+    //   label: (
+    //     <a target="_blank" rel="noopener noreferrer" href="https://www.luohanacademy.com">
+    //       3rd menu item (disabled)
+    //     </a>
+    //   ),
+    //   disabled: true,
+    // },
+    {
+      key: '4',
+      danger: true,
+      icon: <LogoutOutlined />,
+      label: 'Log out',
+    },
+  ];
+
 
   return (
     <Layout className="layout-app" >
-      
+      <MenuComponent />
+
       {/* Contenido Principal */}
       <Layout className="layout-app__content">
+        
+        <section
+          style={{
+            height: '65px'
+          }}
+        >
+          <Row style={{ height: '100%' }}>
+            <Col md={20}>
+            </Col>
+            <Col 
+              md={4}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <Dropdown
+                menu={{ items }}
+              >
+                <Avatar size={44} icon={<UserOutlined />} />
+              </Dropdown>
+            </Col>
+          </Row>
+        </section>
+
         <div className="tabs-container">
           <EditorStudioComponent />
-          {/* <Tabs 
-            defaultActiveKey="studio"
-            items={[
-              {
-                key: 'studio',
-                label: 'Workspace',
-                children: <EditorStudioComponent />
-              }
-            ]}
-          >
-          </Tabs> */}
         </div>
       </Layout>
     </Layout>
