@@ -6,11 +6,16 @@ import { EditorCssComponent } from "../Components/EditorCssComponent";
 import { EditorJsonComponent } from "../Components/EditorJsonComponent";
 import { VistaPreviaComponent } from "../Components/VistaPreviaComponent";
 import HomeComponent from "../Components/HomeComponent";
+import { LoginComponent } from "../login/LoginComponent";
 
 const routes: RouteObject[] = [
   {
     path: "/",
     element: <HomeComponent />, // Ruta sin LayoutApp
+  },
+  {
+    path: "/login",
+    element: <LoginComponent />
   },
   {
     path: "/app/editor", // Ruta base para las rutas con LayoutApp
