@@ -5,18 +5,15 @@ import routes from "./router/router"
 
 import '../src/styles/index.scss';
 
-
-const AppRoutes = () => {
+export const App = () => {
   return useRoutes( routes );
 }
 
-function App() {
+// function App() {
 
-  return (
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
-  )
-}
-
-export default App
+//   return (
+//     <BrowserRouter>
+//       <AppRoutes />
+//     </BrowserRouter>
+//   )
+// }

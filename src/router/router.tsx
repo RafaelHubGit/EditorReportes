@@ -1,47 +1,40 @@
-import React from "react";
-import { RouteObject } from "react-router-dom";
-import LayoutApp from "../layouts/LayoutApp";
-import { EditorHtmlComponent } from "../Components/EditorHtmlComponent";
+import { Navigate, RouteObject } from "react-router-dom";
+import { LoginComponent } from "../auth/LoginComponent";
 import { EditorCssComponent } from "../Components/EditorCssComponent";
+import { EditorHtmlComponent } from "../Components/EditorHtmlComponent";
 import { EditorJsonComponent } from "../Components/EditorJsonComponent";
-import { VistaPreviaComponent } from "../Components/VistaPreviaComponent";
 import HomeComponent from "../Components/HomeComponent";
-import { LoginComponent } from "../login/LoginComponent";
+import { VistaPreviaComponent } from "../Components/VistaPreviaComponent";
+import LayoutApp from "../layouts/LayoutApp";
+import { RequireAuth } from "../auth/RequireAuth";
+
 
 const routes: RouteObject[] = [
   {
     path: "/",
-    element: <HomeComponent />, // Ruta sin LayoutApp
+    element: <Navigate to="/app" replace />,
+    // element: <HomeComponent />,            // public
   },
   {
     path: "/login",
-    element: <LoginComponent />
+    element: <LoginComponent />,           // public
   },
   {
-    path: "/app/editor", // Ruta base para las rutas con LayoutApp
-    element: <LayoutApp />, // LayoutApp se aplica a todas las rutas hijas
+    path: "/app",                          // everything after /app needs auth
+    element: (
+      <RequireAuth>
+        <LayoutApp />
+      </RequireAuth>
+    ),
     children: [
-      {
-        path: "editorHtml", // Ruta relativa: /app/editorHtml
-        element: <EditorHtmlComponent />,
-      },
-      {
-        path: "editorCss", // Ruta relativa: /app/editorCss
-        element: <EditorCssComponent />,
-      },
-      {
-        path: "editorJson", // Ruta relativa: /app/editorJson
-        element: <EditorJsonComponent />,
-      },
-      {
-        path: "vistaPrevia", // Ruta relativa: /app/vistaPrevia
-        element: <VistaPreviaComponent />,
-      },
+      { path: "editor", element: <EditorHtmlComponent /> },
+      { path: "editor/editorCss",  element: <EditorCssComponent /> },
+      { path: "editor/editorJson", element: <EditorJsonComponent /> },
+      { path: "editor/vistaPrevia", element: <VistaPreviaComponent /> },
+      // { path: "configuracion", element: <div>Configuración</div> },
     ],
   },
-  {
-    path: "/app/configuracion"
-  }
+  /* 👇 Catch-all: anything not matched above → /app */
+  { path: '*', element: <Navigate to="/app" replace /> },
 ];
-
 export default routes;
