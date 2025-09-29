@@ -1,125 +1,123 @@
-import React, { useEffect, useState } from 'react'
-import { useReporteStore } from '../store/useReportStore';
-import Handlebars from 'handlebars';
+// EditorHtmlComponent.tsx
+import React, { useCallback, useEffect, useState } from "react";
+import { useReporteStore } from "../store/useReportStore";
+import Handlebars from "handlebars";
 import * as justHelpers from "just-handlebars-helpers";
-import moment from 'moment';
-import { EditorBaseComponent } from './EditorBaseComponent';
-import { getExtensions } from '../utils/codeMirrorExtensions';
+import moment from "moment";
+import { EditorBaseComponent } from "./EditorBaseComponent";
 
 
+type Props = {
+  htmlCodeprop: string;
+  setHtmlCodeProp: ( html: string ) => void;
 
-export const EditorHtmlComponent = () => {
-    const setHtml  = useReporteStore( state => state.setHtml);
-    const setHtmlProcessed  = useReporteStore( state => state.setHtmlProcessed);
-    const htmlCode  = useReporteStore( state => state.html);
-    const jsonString = useReporteStore((state) => state.jsonData); // Obtener los datos del store
+  jsonStringProp: string;
+}
 
-    const [error, setError] = useState("");
+export const EditorHtmlComponent = React.memo(({ htmlCodeprop, setHtmlCodeProp, jsonStringProp }: Props) => {
+  // const setHtml = useReporteStore((s) => s.setHtml);
+  const setHtmlProcessed = useReporteStore((s) => s.setHtmlProcessed);
+  // const htmlCode = useReporteStore((s) => s.html);
+  // const jsonString = useReporteStore((s) => s.jsonData);
+  // const docId = useReporteStore((s) => s.documentId) ?? "current";  
 
-    useEffect(() => {
+  const [error, setError] = useState("");
 
-      // Registrar todos los helpers disponibles en just-handlebars-helpers
-      if (justHelpers.default && typeof justHelpers.default.registerHelpers === "function") {
-        justHelpers.default.registerHelpers(Handlebars);
-        console.log("✔ Helpers registrados correctamente en Handlebars");
-      } else {
-        console.error("⚠ No se pudo registrar los helpers, la librería no está exportando correctamente.");
-      }  
+  // Register helpers once
+  useEffect(() => {
+    if (justHelpers.default && typeof justHelpers.default.registerHelpers === "function") {
+      justHelpers.default.registerHelpers(Handlebars);
+    }
+    Handlebars.registerHelper("dateFormat", (date, format) => moment(date).format(format));
+  }, []);
 
-      // Registrar manualmente el helper dateFormat
-      Handlebars.registerHelper('dateFormat', function(date, format) {
-        return moment(date).format(format);
-      });
-
-    }, []);
-
-    useEffect(() => {
-      Handlebars.registerHelper("compare", function (a, operator, b, options) {
+  // Optional: compare helper (kept from your original)
+  // useEffect(() => {
+  //   Handlebars.registerHelper("compare", function (a, operator, b, options) {
+  //     switch (operator) {
+  //       case ">":  return a >  b ? options.fn(this) : options.inverse(this);
+  //       case "<":  return a <  b ? options.fn(this) : options.inverse(this);
+  //       case ">=": return a >= b ? options.fn(this) : options.inverse(this);
+  //       case "<=": return a <= b ? options.fn(this) : options.inverse(this);
+  //       case "==": return a ==  b ? options.fn(this) : options.inverse(this);
+  //       case "!=": return a !=  b ? options.fn(this) : options.inverse(this);
+  //       case "===":return a === b ? options.fn(this) : options.inverse(this);
+  //       case "!==":return a !== b ? options.fn(this) : options.inverse(this);
+  //       default:
+  //         setError(`Operador "${operator}" no soportado.`);
+  //         return options.inverse(this);
+  //     }
+  //   });
+  // }, []);
+  useEffect(() => {
+    Handlebars.registerHelper(
+      "compare",
+      function (
+        this: any,
+        a: any,
+        operator: string,
+        b: any,
+        options: Handlebars.HelperOptions
+      ) {
         switch (operator) {
-          case ">":
-            return a > b ? options.fn(this) : options.inverse(this);
-          case "<":
-            return a < b ? options.fn(this) : options.inverse(this);
-          case ">=":
-            return a >= b ? options.fn(this) : options.inverse(this);
-          case "<=":
-            return a <= b ? options.fn(this) : options.inverse(this);
-          case "==":
-            return a == b ? options.fn(this) : options.inverse(this);
-          case "!=":
-            return a != b ? options.fn(this) : options.inverse(this);
-          case "===":
-            return a === b ? options.fn(this) : options.inverse(this);
-          case "!==":
-            return a !== b ? options.fn(this) : options.inverse(this);
+          case ">":   return a >  b ? options.fn(this) : options.inverse(this);
+          case "<":   return a <  b ? options.fn(this) : options.inverse(this);
+          case ">=":  return a >= b ? options.fn(this) : options.inverse(this);
+          case "<=":  return a <= b ? options.fn(this) : options.inverse(this);
+          case "==":  return a ==  b ? options.fn(this) : options.inverse(this);
+          case "!=":  return a !=  b ? options.fn(this) : options.inverse(this);
+          case "===": return a === b ? options.fn(this) : options.inverse(this);
+          case "!==": return a !== b ? options.fn(this) : options.inverse(this);
           default:
-            console.error(`Operador "${operator}" no soportado.`);
             setError(`Operador "${operator}" no soportado.`);
             return options.inverse(this);
         }
-      });
-    }, []);
-
-    // Función para procesar la plantilla cuando cambia el código
-    const handleChange = (value: string) => {
-      try {
-        const jsonData = typeof jsonString === "string" ? JSON.parse(jsonString) : jsonString;
-    
-        if (!jsonData || typeof jsonData !== "object") {
-          console.warn("jsonData está vacío o no es un objeto válido.");
-          return;
-        }
-    
-        // Validar si hay '{{' sin cerrar correctamente
-        const openBraces = (value.match(/{{/g) || []).length;
-        const closeBraces = (value.match(/}}/g) || []).length;
-    
-        if (openBraces !== closeBraces) {
-          console.warn("Plantilla incompleta, esperando...");
-          return;
-        }
-    
-        // Compilar la plantilla Handlebars
-        const template = Handlebars.compile(value);
-        const htmlProcesado = template(jsonData);
-        
-        setHtmlProcessed(htmlProcesado);
-        setHtml(value);
-        setError(""); // Limpiar error si todo está bien
-      } catch (error) {
-        console.error("Error al procesar la plantilla:", error);
-        setError(error.message);
       }
-    };
-
-    return (
-      // <div className="editor-container" >
-
-        <EditorBaseComponent
-          label="Editor HTML"
-          value={htmlCode}
-          onChange={handleChange}
-          extensions={getExtensions.html()}
-          error={error}
-        />
-
-      // </div>
     );
+  }, []);
 
-    // return (
-    //   <div className="editor-container">
-    //     <h2>Editor HTML</h2>
-    //     <CodeMirror 
-    //       value={htmlCode} 
-    //       extensions={[html()]} 
-    //       // onChange={setHtml}
-    //       onChange={handleChange} 
-    //       theme="dark" 
-    //       basicSetup={{ lineNumbers: true }} 
-    //     />
-    //     <div>
-    //       {error && <p className="error-message">{error}</p>}
-    //     </div>
-    //   </div>
-    // );
-  };
+
+  const handleChange = useCallback((value: string) => {
+    try {
+      // Parse jsonData from store (string or object)
+      const jsonData = typeof jsonStringProp === "string" ? JSON.parse(jsonStringProp) : jsonStringProp;
+      if (!jsonData || typeof jsonData !== "object") {
+        // still save the raw html so user doesn’t “lose” edits
+        setHtmlCodeProp(value);
+        setError("");
+        return;
+      }
+
+      // Brace sanity check to avoid compiling half-written templates
+      const openBraces = (value.match(/{{/g) || []).length;
+      const closeBraces = (value.match(/}}/g) || []).length;
+      if (openBraces !== closeBraces) {
+        setHtmlCodeProp(value);     // save current text
+        setError("");       // no hard error; just incomplete
+        return;
+      }
+
+      const template = Handlebars.compile(value);
+      const processed = template(jsonData);
+
+      setHtmlProcessed(processed);
+      setHtmlCodeProp(value);
+      setError("");
+    } catch (e: any) {
+      setHtmlCodeProp(value);       // keep user input
+      setError(e?.message ?? "Template error");
+    }
+  }, [jsonStringProp, setHtmlProcessed, setHtmlCodeProp]);
+
+  return (
+    <EditorBaseComponent
+      label="HTML"
+      value={htmlCodeprop}
+      onChange={handleChange}
+      // onChange={setHtmlCodeProp}
+      language="html"
+      error={error}
+      path="file:///editor-html.html"
+    />
+  );
+});

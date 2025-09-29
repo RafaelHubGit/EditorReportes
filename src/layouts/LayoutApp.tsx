@@ -3,6 +3,7 @@ import { Avatar, Col, Dropdown, Layout, MenuProps, Row } from "antd";
 import { EditorStudioComponent } from "../Components/EditorStudioComponent";
 import { MenuComponent } from '../Components/MenuComponent';
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
+import { Outlet } from "react-router-dom";
 
 
 
@@ -55,7 +56,7 @@ const LayoutApp: React.FC = () => {
       {/* Contenido Principal */}
       <Layout className="layout-app__content">
         
-        <section
+        {/* <section
           style={{
             height: '65px'
           }}
@@ -78,10 +79,13 @@ const LayoutApp: React.FC = () => {
               </Dropdown>
             </Col>
           </Row>
-        </section>
+        </section> */}
 
-        <div className="tabs-container">
+        {/* <div className="tabs-container">
           <EditorStudioComponent />
+        </div> */}
+        <div className="tabs-container">
+          <Outlet />
         </div>
       </Layout>
     </Layout>

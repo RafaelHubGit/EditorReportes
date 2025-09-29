@@ -35,3 +35,80 @@
     font-size: variables.$font-size-sm;
   }
 }
+
+
+
+
+
+
+/* Full-height page area, no outer scroll */
+.studio-container {
+  height: 100dvh;              /* full viewport height, mobile-safe */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;            /* prevent page scroll */
+  background: #fff;            /* optional */
+}
+
+/* Header remains fixed height; body fills the rest */
+.studio-header {
+  flex: 0 0 auto;
+  border-bottom: 1px solid #f0f0f0; /* optional divider */
+}
+
+/* The main area grows and can house internal scrolls */
+.studio-body {
+  flex: 1 1 auto;
+  min-height: 0;               /* CRUCIAL: allow children to compute height */
+  padding: 16px;
+  overflow: hidden;            /* no body scroll */
+}
+
+/* Make AntD Tabs fill the available vertical space */
+.studio-tabs,
+.studio-tabs .ant-tabs-content,
+.studio-tabs .ant-tabs-content-holder {
+  height: 100%;
+}
+
+/* Each tab pane becomes a flex column */
+.studio-tabs .ant-tabs-tabpane {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Unified & split panes scroll internally */
+.pane-scroll, .preview-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: none;              /* internal scroll, not page scroll */
+}
+
+/* Split view container fills vertically */
+.studio-split {
+  height: 100%;
+  min-height: 0;
+}
+
+/* Each split column fills height and hosts internal scrollable content */
+.split-col {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Preview panel (title + scroll area) */
+.preview-panel {
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  padding: 12px;
+  height: 100%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}

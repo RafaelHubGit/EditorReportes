@@ -15,6 +15,45 @@ export const MenuComponent = () => {
     const [collapsed, setCollapsed] = useState(false);
     const menuItems:  MenuProps['items'] = [
         {
+            key: 'user',
+            icon: <AppstoreOutlined />,
+            label: "Nombre del usuario",
+            children: [
+                {
+                    key: 'nu1',
+                    label: "Mi cuenta"
+                },
+                {
+                    key: 'nu2',
+                    label: 'Planes y Pagos'
+                },
+                {
+                    key: 'nu3',
+                    label: 'Mi estatus'
+                },
+                {
+                    key: 'nu4',
+                    label: 'Salir de mi cuenta'
+                }
+            ]
+        },
+        {
+            key: 'documents',
+            label: <Link to="/app/documents">Documentos</Link>
+        },
+        {
+            key: 'snippets',
+            label: 'Fragmentos segunda version'
+        },
+        {
+            key: 'team',
+            label: 'Equipo de trabajo 2da version'
+        },
+        {
+            key: 'apyKey',
+            label: 'API Key'
+        },
+        {
             key: 'studio',
             icon: <AppstoreOutlined />,
             label: <Link to="/app/editor">Nuevo Documento</Link>,
@@ -44,6 +83,10 @@ export const MenuComponent = () => {
                 }
             ]
         },
+        {
+            key: 'documentation',
+            label: 'Documentación'
+        },
         // {
         //     key: 'ajustes',
         //     icon: <SettingOutlined />,
@@ -52,7 +95,7 @@ export const MenuComponent = () => {
     ];
 
     return (
-            <Sider
+        <Sider
             width={220}
             collapsible
             collapsed={collapsed}
@@ -64,10 +107,10 @@ export const MenuComponent = () => {
             {collapsed ? '' : 'Reportes'}
             </div> */}
             <Menu
-            theme="light"
-            mode="inline"
-            defaultSelectedKeys={['studio']}
-            items={menuItems}
+                theme="light"
+                mode="inline"
+                defaultSelectedKeys={['studio']}
+                items={menuItems}
             />
         </Sider>
 

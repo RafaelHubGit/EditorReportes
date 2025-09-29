@@ -7,6 +7,8 @@ import HomeComponent from "../Components/HomeComponent";
 import { VistaPreviaComponent } from "../Components/VistaPreviaComponent";
 import LayoutApp from "../layouts/LayoutApp";
 import { RequireAuth } from "../auth/RequireAuth";
+import { DocumentPage } from "../Components/Documents/DocumentPage";
+import { EditorStudioComponent } from "../Components/EditorStudioComponent";
 
 
 const routes: RouteObject[] = [
@@ -27,10 +29,11 @@ const routes: RouteObject[] = [
       </RequireAuth>
     ),
     children: [
-      { path: "editor", element: <EditorHtmlComponent /> },
+      { path: "editor", element: <EditorStudioComponent /> },
       { path: "editor/editorCss",  element: <EditorCssComponent /> },
       { path: "editor/editorJson", element: <EditorJsonComponent /> },
       { path: "editor/vistaPrevia", element: <VistaPreviaComponent /> },
+      { path: "documents", element: <DocumentPage /> },
       // { path: "configuracion", element: <div>Configuración</div> },
     ],
   },

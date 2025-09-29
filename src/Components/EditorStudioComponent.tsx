@@ -1,105 +1,328 @@
-import React, { useState } from 'react';
-import { Button, Dropdown, Input, MenuProps, Modal, Tabs, TabsProps } from 'antd';
-import { EditorHtmlComponent } from './EditorHtmlComponent';
-import { EditorCssComponent } from './EditorCssComponent';
-import { EditorJsonComponent } from './EditorJsonComponent';
-import { VistaPreviaComponent } from './VistaPreviaComponent';
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Button,
+  Dropdown,
+  Input,
+  MenuProps,
+  Modal,
+  Row,
+  Col,
+  Tabs,
+  TabsProps,
+  Typography,
+  Space,
+  theme,
+} from "antd";
+import {
+  ColumnWidthOutlined,
+  ColumnHeightOutlined,
+  MoreOutlined,
+} from "@ant-design/icons";
+import { EditorHtmlComponent } from "./EditorHtmlComponent";
+import { EditorCssComponent } from "./EditorCssComponent";
+import { EditorJsonComponent } from "./EditorJsonComponent";
+import { VistaPreviaComponent } from "./VistaPreviaComponent";
 
+const { Title } = Typography;
 
 export const EditorStudioComponent: React.FC = () => {
-
+  const { token } = theme.useToken();
   const [openModal, setOpenModal] = useState(false);
+  const [isSplit, setIsSplit] = useState(false);
+  const [activeTab, setActiveTab] = useState("html"); // NUEVO: estado para tab activo
 
-  const items: TabsProps['items'] = [
-    {
-      label: 'HTML',
-      key: 'html',
-      children: <EditorHtmlComponent />
-    },
-    {
-      label: 'CSS',
-      key: 'css',
-      children: <EditorCssComponent />,
-    },
-    {
-      label: 'JSON',
-      key: 'json',
-      children: <EditorJsonComponent />,
-    },
-    {
-      label: 'Vista Previa',
-      key: 'preview',
-      children: <VistaPreviaComponent />,
-    },
-  ];
+  const [html, setHtml] = useState(" el html es este ");
+  const [css, setCss] = useState(" el css es este");
+  const [json, setJson] = useState("");
 
-  const itemsDrop: MenuProps['items'] = [
-    {
-      key: '1',
-      label: (
-        <a target="_blank" rel="noopener noreferrer" href="">
-          Exportar a PDF
-        </a>
-      ),
-    },
-    {
-      key: '2',
-      label: (
-        <a target="_blank" rel="noopener noreferrer" href="">
-          2nd menu item
-        </a>
-      ),
-    },
-    {
-      key: '3',
-      label: (
-        <a target="_blank" rel="noopener noreferrer" href="">
-          3rd menu item
-        </a>
-      ),
-    },
+  const documentTitle = "Untitled document";
+
+  // ELIMINA todos los useEffect de console.log
+  // ELIMINA itemsUnified y itemsEditorOnly
+
+  // NUEVO: función para renderizar contenido activo
+  const renderActiveContent = () => {
+    switch (activeTab) {
+      case "html":
+        return (
+          <div className="pane-scroll" style={{ height: "100%" }}>
+            <EditorHtmlComponent 
+              htmlCodeprop={html} 
+              setHtmlCodeProp={setHtml} // CAMBIA: usa setHtml directamente
+              jsonStringProp={json}
+            />
+          </div>
+        );
+      case "css":
+        return (
+          <div className="pane-scroll" style={{ height: "100%" }}>
+            <EditorCssComponent 
+              cssProp={css}
+              setCssProp={setCss} // CAMBIA: usa setCss directamente
+            />
+          </div>
+        );
+      case "json":
+        return <div className="pane-scroll" style={{ height: "100%" }}><EditorJsonComponent /></div>;
+      case "preview":
+        return <div className="preview-scroll" style={{ height: "100%" }}><VistaPreviaComponent /></div>;
+      default:
+        return null;
+    }
+  };
+
+  // REEMPLAZA solo los arrays itemsUnified y itemsEditorOnly:
+
+const itemsUnified: TabsProps["items"] = [
+  { 
+    label: "HTML", 
+    key: "html", 
+    forceRender: true,  // ← MANTIENE esto
+    children: (
+      <div className="pane-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
+        <EditorHtmlComponent 
+          htmlCodeprop={html} 
+          setHtmlCodeProp={setHtml}
+          jsonStringProp={json}
+        />
+      </div>
+    ) 
+  },
+  { 
+    label: "CSS", 
+    key: "css", 
+    forceRender: true,  // ← MANTIENE esto
+    children: (
+      <div className="pane-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
+        <EditorCssComponent 
+          cssProp={css}
+          setCssProp={setCss}
+        />
+      </div>
+    ) 
+  },
+  { 
+    label: "JSON", 
+    key: "json", 
+    forceRender: true,  // ← AGREGA esto
+    children: (
+      <div className="pane-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
+        <EditorJsonComponent />
+      </div>
+    ) 
+  },
+  { 
+    label: "Vista Previa", 
+    key: "preview", 
+    forceRender: true,  // ← AGREGA esto
+    children: (
+      <div className="preview-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
+        <VistaPreviaComponent />
+      </div>
+    )
+  },
+];
+
+const itemsEditorOnly: TabsProps["items"] = [
+  { 
+    label: "HTML", 
+    key: "html",
+    forceRender: true,  // ← MANTIENE esto
+    children: (
+      <div className="pane-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
+        <EditorHtmlComponent 
+          htmlCodeprop={html} 
+          setHtmlCodeProp={setHtml}
+          jsonStringProp={json}
+        />
+      </div>
+    ) 
+  },
+  { 
+    label: "CSS", 
+    key: "css", 
+    forceRender: true,  // ← MANTIENE esto
+    children: (
+      <div className="pane-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
+        <EditorCssComponent 
+          cssProp={css}
+          setCssProp={setCss}
+        />
+      </div>
+    ) 
+  },
+  { 
+    label: "JSON", 
+    key: "json", 
+    forceRender: true,  // ← AGREGA esto
+    children: (
+      <div className="pane-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
+        <EditorJsonComponent />
+      </div>
+    ) 
+  },
+];
+
+
+  const itemsDrop: MenuProps["items"] = [
+    { key: "export", label: "Exportar a PDF" },
+    { key: "share", label: "Compartir (próximamente)" },
   ];
 
   const handleSave = () => {
     setOpenModal(false);
-  }
+    // TODO: persist
+  };
 
   return (
     <div className="studio-container">
-      {/* <div className="studio-header">
-        <h2>Editor de Reportes</h2>
+      {/* Header - mantén igual */}
+      <Row justify="space-between" align="middle" className="studio-header" style={{ paddingInline: 16, paddingBlock: 8 }}>
+        <Col>
+          <Space size="middle" align="center">
+            <Title level={3} style={{ margin: 0 }}>
+              {documentTitle}
+            </Title>
+          </Space>
+        </Col>
 
-      </div>  */}
-      <Tabs 
-        defaultActiveKey="html" 
-        items={items} 
-        className="studio-tabssss "
-        tabBarExtraContent={{
-          right: ((
-            <div
-              
+        <Col>
+          <Space>
+            <Button
+              icon={isSplit ? <ColumnHeightOutlined /> : <ColumnWidthOutlined />}
+              onClick={() => setIsSplit((v) => !v)}
             >
-              <Dropdown menu={{ items: itemsDrop }} placement="bottomLeft">
-                <Button>:)</Button>
-              </Dropdown>
-              <Button type="primary" onClick={ () => setOpenModal(true) }>
-                Guardar
-              </Button>
-            </div>
-          ))
-        }}
-      />
+              {isSplit ? "Unificar vista" : "Dividir vista"}
+            </Button>
 
+            <Dropdown menu={{ items: itemsDrop }} placement="bottomRight">
+              <Button icon={<MoreOutlined />} />
+            </Dropdown>
+
+            <Button type="primary" onClick={() => setOpenModal(true)}>
+              Guardar
+            </Button>
+          </Space>
+        </Col>
+      </Row>
+
+      {/* Body - Versión que funciona */}
+      <div className="studio-body" style={{ height: 'calc(100vh - 100px)' }}>
+        {!isSplit ? (
+          <Tabs 
+            defaultActiveKey="html"
+            items={[
+              { 
+                label: "HTML", 
+                key: "html", 
+                children: (
+                  <div style={{ height: 'calc(100vh - 150px)' }}>
+                    <EditorHtmlComponent 
+                      htmlCodeprop={html} 
+                      setHtmlCodeProp={setHtml}
+                      jsonStringProp={json}
+                    />
+                  </div>
+                )
+              },
+              { 
+                label: "CSS", 
+                key: "css", 
+                children: (
+                  <div style={{ height: 'calc(100vh - 150px)' }}>
+                    <EditorCssComponent 
+                      cssProp={css}
+                      setCssProp={setCss}
+                    />
+                  </div>
+                )
+              },
+              { 
+                label: "JSON", 
+                key: "json", 
+                children: (
+                  <div style={{ height: 'calc(100vh - 150px)' }}>
+                    <EditorJsonComponent />
+                  </div>
+                )
+              },
+              { 
+                label: "Vista Previa", 
+                key: "preview", 
+                children: (
+                  <div style={{ height: 'calc(100vh - 150px)' }}>
+                    <VistaPreviaComponent />
+                  </div>
+                )
+              },
+            ]}
+          />
+        ) : (
+          <Row gutter={16} style={{ height: '100%', margin: 0 }}>
+            <Col span={14} style={{ height: '100%' }}>
+              <Tabs 
+                defaultActiveKey="html"
+                items={[
+                  { 
+                    label: "HTML", 
+                    key: "html", 
+                    children: (
+                      <div style={{ height: 'calc(100vh - 150px)' }}>
+                        <EditorHtmlComponent 
+                          htmlCodeprop={html} 
+                          setHtmlCodeProp={setHtml}
+                          jsonStringProp={json}
+                        />
+                      </div>
+                    )
+                  },
+                  { 
+                    label: "CSS", 
+                    key: "css", 
+                    children: (
+                      <div style={{ height: 'calc(100vh - 150px)' }}>
+                        <EditorCssComponent 
+                          cssProp={css}
+                          setCssProp={setCss}
+                        />
+                      </div>
+                    )
+                  },
+                  { 
+                    label: "JSON", 
+                    key: "json", 
+                    children: (
+                      <div style={{ height: 'calc(100vh - 150px)' }}>
+                        <EditorJsonComponent />
+                      </div>
+                    )
+                  },
+                ]}
+              />
+            </Col>
+            <Col span={10} style={{ height: '100%' }}>
+              <div style={{ height: 'calc(100vh - 150px)' }}>
+                <Title level={5} style={{ marginTop: 0, marginBottom: 12 }}>
+                  Vista Previa
+                </Title>
+                <VistaPreviaComponent />
+              </div>
+            </Col>
+          </Row>
+        )}
+      </div>
+
+      {/* Modal - mantén igual */}
       <Modal
         title="Nombre del Reporte"
         open={openModal}
-        onOk={ handleSave }
+        onOk={handleSave}
         onCancel={() => setOpenModal(false)}
         okText="Aceptar"
         cancelText="Cancelar"
         width={800}
       >
-        <Input placeholder="Nombre del reporte" />
+        <Input placeholder="Nombre del reporte" defaultValue={documentTitle} />
       </Modal>
     </div>
   );

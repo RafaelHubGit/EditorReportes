@@ -13,7 +13,9 @@ export const EditorJsonComponent = () => {
       label="Editor JSON"
       value={jsonData}
       onChange={setJsonData}
-      extensions={ getExtensions.json() }
+      language='json'
+      // jsonSchema={schema}
+      // extensions={ getExtensions.json() }
     />
   );
 };

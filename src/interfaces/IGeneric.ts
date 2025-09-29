@@ -2,12 +2,20 @@
 
 
 
-const IDocument = {
-    title: String,
-    html: String,
-    css: String,
-    jsonStructure: String, // Estructura del json que van a usar
-    jsonData: String // Si quieren hacer cambios seria tedioso meter de nuevo los datos, es bueno que se haga un respaldo de los datas que estan trabajando
+export interface IDocument {
+  id: string;             // Unique identifier for the document
+  title: string;          // Human-readable title
+  html: string;           // HTML content
+  css: string;            // CSS styles
+  jsonStructure: Record<string, any>;  // JSON schema/structure
+  jsonData: Record<string, any>;       // JSON with current data (backup or live content)
 }
+
+export interface IFolder {
+    id: string;
+    name: string;
+    idDocuments: string[];
+}
+
 
 // const IDocuments: IDocument[] = [];

@@ -1,30 +1,53 @@
-import React from 'react';
-import CodeMirror from '@uiw/react-codemirror';
+import { memo, useEffect } from 'react';
+import MonacoCodeEditor from './MonacoEditor/MonacoCodeEditor';
 
 interface Props {
   label: string;
   value: string;
   onChange: (value: string) => void;
-  extensions: any[];
+  language: "html" | "css" | "json";
+  jsonSchema?: object;
   error?: string;
+  path?: string;
 }
 
-export const EditorBaseComponent = ({ label, value, onChange, extensions, error }: Props) => {
+export const EditorBaseComponent = memo(({
+  label,
+  value,
+  onChange,
+  language,
+  jsonSchema,
+  error,
+  path, 
+}: Props) => {
+  // return (
+  //   <div className="editor-premium">
+  //     {/* <div className="editor-header">
+  //       <h3>{label}</h3>
+  //     </div> */}
+  //     {/* <div className="editor-wrapper"> */}
+  //       <CodeMirror
+  //         value={value}
+  //         extensions={extensions}
+  //         onChange={onChange}
+  //       //   theme="dark"
+  //         basicSetup={{ lineNumbers: true }}
+  //       />
+  //     {/* </div> */}
+  //     {error && <div className="editor-error">{error}</div>}
+  //   </div>
+  // );
+
   return (
-    <div className="editor-premium">
-      {/* <div className="editor-header">
-        <h3>{label}</h3>
-      </div> */}
-      {/* <div className="editor-wrapper"> */}
-        <CodeMirror
+    <div className="editor-host" style={{ height: "100%", minHeight: 0 }}>
+        <MonacoCodeEditor
           value={value}
-          extensions={extensions}
           onChange={onChange}
-        //   theme="dark"
-          basicSetup={{ lineNumbers: true }}
+          language={language}
+          // schema={language === "json" ? jsonSchema : undefined}
+          path={path}
         />
-      {/* </div> */}
-      {error && <div className="editor-error">{error}</div>}
+        {error && <div className="editor-error">{error}</div>}
     </div>
-  );
-};
+  )
+});
