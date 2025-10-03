@@ -1,113 +1,126 @@
 // EditorHtmlComponent.tsx
 import React, { useCallback, useEffect, useState } from "react";
-import { useReporteStore } from "../store/useReportStore";
+import Swal from 'sweetalert2';
 import Handlebars from "handlebars";
-import * as justHelpers from "just-handlebars-helpers";
+import { debounce } from 'lodash';
+
+// import registerHelpers from "just-handlebars-helpers";
 import moment from "moment";
 import { EditorBaseComponent } from "./EditorBaseComponent";
+// import registerHelpers from "just-handlebars-helpers";
+import { useHandlebarsSetup } from "../hooks/useHandlebarsSetup";
 
 
 type Props = {
   htmlCodeprop: string;
   setHtmlCodeProp: ( html: string ) => void;
 
+  setHtmlProcesedProp: ( html: string ) => void;
+
   jsonStringProp: string;
 }
 
-export const EditorHtmlComponent = React.memo(({ htmlCodeprop, setHtmlCodeProp, jsonStringProp }: Props) => {
+export const EditorHtmlComponent = React.memo(({ 
+  htmlCodeprop, 
+  setHtmlCodeProp,
+  setHtmlProcesedProp,
+  jsonStringProp 
+}: Props) => {
   // const setHtml = useReporteStore((s) => s.setHtml);
-  const setHtmlProcessed = useReporteStore((s) => s.setHtmlProcessed);
+  // const setHtmlProcessed = useReporteStore((s) => s.setHtmlProcessed);
   // const htmlCode = useReporteStore((s) => s.html);
   // const jsonString = useReporteStore((s) => s.jsonData);
   // const docId = useReporteStore((s) => s.documentId) ?? "current";  
 
   const [error, setError] = useState("");
 
-  // Register helpers once
+  useHandlebarsSetup();
+
+  
   useEffect(() => {
-    if (justHelpers.default && typeof justHelpers.default.registerHelpers === "function") {
-      justHelpers.default.registerHelpers(Handlebars);
-    }
-    Handlebars.registerHelper("dateFormat", (date, format) => moment(date).format(format));
-  }, []);
+    // Reprocesar el HTML cuando el JSON cambie
+    handleChange(htmlCodeprop);
+  }, [jsonStringProp]);
 
-  // Optional: compare helper (kept from your original)
-  // useEffect(() => {
-  //   Handlebars.registerHelper("compare", function (a, operator, b, options) {
-  //     switch (operator) {
-  //       case ">":  return a >  b ? options.fn(this) : options.inverse(this);
-  //       case "<":  return a <  b ? options.fn(this) : options.inverse(this);
-  //       case ">=": return a >= b ? options.fn(this) : options.inverse(this);
-  //       case "<=": return a <= b ? options.fn(this) : options.inverse(this);
-  //       case "==": return a ==  b ? options.fn(this) : options.inverse(this);
-  //       case "!=": return a !=  b ? options.fn(this) : options.inverse(this);
-  //       case "===":return a === b ? options.fn(this) : options.inverse(this);
-  //       case "!==":return a !== b ? options.fn(this) : options.inverse(this);
-  //       default:
-  //         setError(`Operador "${operator}" no soportado.`);
-  //         return options.inverse(this);
-  //     }
-  //   });
-  // }, []);
-  useEffect(() => {
-    Handlebars.registerHelper(
-      "compare",
-      function (
-        this: any,
-        a: any,
-        operator: string,
-        b: any,
-        options: Handlebars.HelperOptions
-      ) {
-        switch (operator) {
-          case ">":   return a >  b ? options.fn(this) : options.inverse(this);
-          case "<":   return a <  b ? options.fn(this) : options.inverse(this);
-          case ">=":  return a >= b ? options.fn(this) : options.inverse(this);
-          case "<=":  return a <= b ? options.fn(this) : options.inverse(this);
-          case "==":  return a ==  b ? options.fn(this) : options.inverse(this);
-          case "!=":  return a !=  b ? options.fn(this) : options.inverse(this);
-          case "===": return a === b ? options.fn(this) : options.inverse(this);
-          case "!==": return a !== b ? options.fn(this) : options.inverse(this);
-          default:
-            setError(`Operador "${operator}" no soportado.`);
-            return options.inverse(this);
-        }
-      }
-    );
-  }, []);
-
-
-  const handleChange = useCallback((value: string) => {
-    try {
-      // Parse jsonData from store (string or object)
-      const jsonData = typeof jsonStringProp === "string" ? JSON.parse(jsonStringProp) : jsonStringProp;
-      if (!jsonData || typeof jsonData !== "object") {
-        // still save the raw html so user doesn’t “lose” edits
+  const handleChange = useCallback(
+    debounce((value: string) => {
+      try {
+        // Siempre guardar el HTML original
         setHtmlCodeProp(value);
-        setError("");
-        return;
+        
+        let jsonData = {};
+        
+        // Intentar parsear JSON, si falla usar objeto vacío
+        try {
+          if (jsonStringProp && jsonStringProp.trim() !== "") {
+            jsonData = typeof jsonStringProp === "string" 
+              ? JSON.parse(jsonStringProp) 
+              : jsonStringProp;
+          }
+        } catch (jsonError) {
+          console.warn("JSON inválido, usando objeto vacío:", jsonError);
+          jsonData = {};
+          Swal.fire({
+            icon: 'warning',
+            title: 'Error en el template',
+            text: `${jsonError}`,
+            timer: 3000,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+          });
+        }
+  
+        // Asegurarnos de que jsonData es un objeto
+        if (!jsonData || typeof jsonData !== 'object') {
+          jsonData = {};
+        }
+  
+        // Procesar el template con los datos disponibles
+        try {
+          const template = Handlebars.compile(value);
+          const processed = template(jsonData);
+          setHtmlProcesedProp(processed);
+          setError("");
+        } catch (templateError) {
+          // Si hay error en el template, mostrar el HTML crudo como fallback
+          console.warn("Error compilando template:", templateError);
+          Swal.fire({
+            icon: 'warning',
+            title: 'Error en el template',
+            text: `${templateError}`,
+            timer: 3000,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+          });
+          setHtmlProcesedProp(value);
+          const errorMessage = templateError instanceof Error 
+            ? templateError.message 
+            : "Template error";
+          setError(errorMessage);
+        }
+        
+      } catch (e: any) {
+        console.log("Error general:", e);
+        Swal.fire({
+          icon: 'warning',
+          title: 'Error en el template',
+          text: 'Se mostró HTML sin procesar por error en la plantilla',
+          timer: 3000,
+          showConfirmButton: false,
+          toast: true,
+          position: 'top-end'
+        });
+        setHtmlCodeProp(value);
+        setError(e?.message ?? "Template error");
+        // Fallback: mostrar HTML crudo
+        setHtmlProcesedProp(value);
+
       }
-
-      // Brace sanity check to avoid compiling half-written templates
-      const openBraces = (value.match(/{{/g) || []).length;
-      const closeBraces = (value.match(/}}/g) || []).length;
-      if (openBraces !== closeBraces) {
-        setHtmlCodeProp(value);     // save current text
-        setError("");       // no hard error; just incomplete
-        return;
-      }
-
-      const template = Handlebars.compile(value);
-      const processed = template(jsonData);
-
-      setHtmlProcessed(processed);
-      setHtmlCodeProp(value);
-      setError("");
-    } catch (e: any) {
-      setHtmlCodeProp(value);       // keep user input
-      setError(e?.message ?? "Template error");
-    }
-  }, [jsonStringProp, setHtmlProcessed, setHtmlCodeProp]);
+    }, 500),
+    [htmlCodeprop, jsonStringProp, setHtmlCodeProp, setHtmlProcesedProp]
+  );
 
   return (
     <EditorBaseComponent
@@ -117,7 +130,7 @@ export const EditorHtmlComponent = React.memo(({ htmlCodeprop, setHtmlCodeProp, 
       // onChange={setHtmlCodeProp}
       language="html"
       error={error}
-      path="file:///editor-html.html"
+      // path="file:///editor-html.html"
     />
   );
 });

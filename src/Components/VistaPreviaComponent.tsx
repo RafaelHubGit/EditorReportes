@@ -2,35 +2,41 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useReporteStore } from "../store/useReportStore";
 import Handlebars from "handlebars";
 
-export const VistaPreviaComponent = () => {
-  const htmlCode = useReporteStore((s) => s.html);
-  const cssCode  = useReporteStore((s) => s.css);
-  const jsonData = useReporteStore((s) => s.jsonData);
+type Props = {
+  htmlProp: string;
+  cssProp: string;
+}
+
+export const VistaPreviaComponent = ({ htmlProp, cssProp }: Props) => {
+  // const htmlCode = useReporteStore((s) => s.html);
+  // const cssCode  = useReporteStore((s) => s.css);
+  // const jsonData = useReporteStore((s) => s.jsonData);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const scrollYRef = useRef(0);
   const [srcDoc, setSrcDoc] = useState("");
 
-  const compiledHtml = useMemo(() => {
-    try {
-      const data = JSON.parse(jsonData || "{}");
-      return Handlebars.compile(htmlCode)(data);
-    } catch {
-      return `<p style='color:red;'>Invalid JSON</p>`;
-    }
-  }, [htmlCode, jsonData]);
+  // const compiledHtml = useMemo(() => {
+  //   try {
+  //     const data = JSON.parse(jsonData || "{}");
+  //     return Handlebars.compile(htmlCode)(data);
+  //   } catch {
+  //     return `<p style='color:red;'>Invalid JSON</p>`;
+  //   }
+  // }, [htmlCode, jsonData]);
 
   useEffect(() => {
     const win = iframeRef.current?.contentWindow;
     if (win) scrollYRef.current = win.scrollY;
 
+    // Reducir el timeout para mayor responsividad
     const timeout = setTimeout(() => {
-      const full = `<style>${cssCode} body{white-space:pre-wrap;}</style>${compiledHtml}`;
+      const full = `<style>${cssProp}</style>${htmlProp}`;
       setSrcDoc(full);
-    }, 500);
+    }, 300); // Reducido de 500ms a 300ms
 
     return () => clearTimeout(timeout);
-  }, [compiledHtml, cssCode]);
+  }, [htmlProp, cssProp]);
 
   const handleLoad = () => {
     const win = iframeRef.current?.contentWindow;

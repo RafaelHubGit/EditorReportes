@@ -1,4 +1,4 @@
-import { Navigate, RouteObject } from "react-router-dom";
+import { Navigate, type RouteObject } from "react-router-dom";
 import { LoginComponent } from "../auth/LoginComponent";
 import { EditorCssComponent } from "../Components/EditorCssComponent";
 import { EditorHtmlComponent } from "../Components/EditorHtmlComponent";

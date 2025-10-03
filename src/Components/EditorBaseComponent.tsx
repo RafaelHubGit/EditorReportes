@@ -1,5 +1,6 @@
-import { memo, useEffect } from 'react';
+import { memo } from 'react';
 import MonacoCodeEditor from './MonacoEditor/MonacoCodeEditor';
+
 
 interface Props {
   label: string;
@@ -45,7 +46,7 @@ export const EditorBaseComponent = memo(({
           onChange={onChange}
           language={language}
           // schema={language === "json" ? jsonSchema : undefined}
-          path={path}
+          // path={path}
         />
         {error && <div className="editor-error">{error}</div>}
     </div>

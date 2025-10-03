@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
+import type { IDocument } from "../interfaces/IGeneric";
 
-import { IDocument } from "../interfaces/IGeneric";
+
 
 
 export const initDocument:IDocument = {

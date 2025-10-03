@@ -1,4 +1,4 @@
-import { StateCreator, create } from "zustand";
+import { create, type StateCreator } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 
 interface ReporteState {

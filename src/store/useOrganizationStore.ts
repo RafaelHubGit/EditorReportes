@@ -1,8 +1,8 @@
-import { create, StateCreator } from "zustand";
+import { create, type StateCreator } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import { IDocument, IFolder } from "../interfaces/IGeneric";
 import { initDocument } from "./initOrganization";
+import type { IDocument, IFolder } from "../interfaces/IGeneric";
 
 
 interface OrgState {

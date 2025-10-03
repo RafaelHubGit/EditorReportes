@@ -1,17 +1,16 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Dropdown,
   Input,
-  MenuProps,
   Modal,
   Row,
   Col,
   Tabs,
-  TabsProps,
   Typography,
   Space,
   theme,
+  type MenuProps,
 } from "antd";
 import {
   ColumnWidthOutlined,
@@ -33,9 +32,11 @@ export const EditorStudioComponent: React.FC = () => {
 
   const [html, setHtml] = useState(" el html es este ");
   const [css, setCss] = useState(" el css es este");
-  const [json, setJson] = useState("");
+  const [json, setJson] = useState("{}");
+  const [htmlProcesed, setHtmlProcesed] = useState("");
 
   const documentTitle = "Untitled document";
+  
 
   // ELIMINA todos los useEffect de console.log
   // ELIMINA itemsUnified y itemsEditorOnly
@@ -49,6 +50,7 @@ export const EditorStudioComponent: React.FC = () => {
             <EditorHtmlComponent 
               htmlCodeprop={html} 
               setHtmlCodeProp={setHtml} // CAMBIA: usa setHtml directamente
+              setHtmlProcesedProp={setHtmlProcesed}
               jsonStringProp={json}
             />
           </div>
@@ -63,9 +65,9 @@ export const EditorStudioComponent: React.FC = () => {
           </div>
         );
       case "json":
-        return <div className="pane-scroll" style={{ height: "100%" }}><EditorJsonComponent /></div>;
+        return <div className="pane-scroll" style={{ height: "100%" }}><EditorJsonComponent jsonProp={ json } setJsonProp={ setJson } /></div>;
       case "preview":
-        return <div className="preview-scroll" style={{ height: "100%" }}><VistaPreviaComponent /></div>;
+        return <div className="preview-scroll" style={{ height: "100%" }}><VistaPreviaComponent htmlProp={ htmlProcesed} cssProp={css} /></div>;
       default:
         return null;
     }
@@ -73,95 +75,97 @@ export const EditorStudioComponent: React.FC = () => {
 
   // REEMPLAZA solo los arrays itemsUnified y itemsEditorOnly:
 
-const itemsUnified: TabsProps["items"] = [
-  { 
-    label: "HTML", 
-    key: "html", 
-    forceRender: true,  // ← MANTIENE esto
-    children: (
-      <div className="pane-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
-        <EditorHtmlComponent 
-          htmlCodeprop={html} 
-          setHtmlCodeProp={setHtml}
-          jsonStringProp={json}
-        />
-      </div>
-    ) 
-  },
-  { 
-    label: "CSS", 
-    key: "css", 
-    forceRender: true,  // ← MANTIENE esto
-    children: (
-      <div className="pane-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
-        <EditorCssComponent 
-          cssProp={css}
-          setCssProp={setCss}
-        />
-      </div>
-    ) 
-  },
-  { 
-    label: "JSON", 
-    key: "json", 
-    forceRender: true,  // ← AGREGA esto
-    children: (
-      <div className="pane-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
-        <EditorJsonComponent />
-      </div>
-    ) 
-  },
-  { 
-    label: "Vista Previa", 
-    key: "preview", 
-    forceRender: true,  // ← AGREGA esto
-    children: (
-      <div className="preview-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
-        <VistaPreviaComponent />
-      </div>
-    )
-  },
-];
+// const itemsUnified: TabsProps["items"] = [
+//   { 
+//     label: "HTML", 
+//     key: "html", 
+//     forceRender: true,  // ← MANTIENE esto
+//     children: (
+//       <div className="pane-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
+//         <EditorHtmlComponent 
+//           htmlCodeprop={html} 
+//           setHtmlCodeProp={setHtml}
+//           setHtmlProcesedProp={setHtmlProcesed}
+//           jsonStringProp={json}
+//         />
+//       </div>
+//     ) 
+//   },
+//   { 
+//     label: "CSS", 
+//     key: "css", 
+//     forceRender: true,  // ← MANTIENE esto
+//     children: (
+//       <div className="pane-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
+//         <EditorCssComponent 
+//           cssProp={css}
+//           setCssProp={setCss}
+//         />
+//       </div>
+//     ) 
+//   },
+//   { 
+//     label: "JSON", 
+//     key: "json", 
+//     forceRender: true,  // ← AGREGA esto
+//     children: (
+//       <div className="pane-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
+//         <EditorJsonComponent />
+//       </div>
+//     ) 
+//   },
+//   { 
+//     label: "Vista Previa", 
+//     key: "preview", 
+//     forceRender: true,  // ← AGREGA esto
+//     children: (
+//       <div className="preview-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
+//         <VistaPreviaComponent />
+//       </div>
+//     )
+//   },
+// ];
 
-const itemsEditorOnly: TabsProps["items"] = [
-  { 
-    label: "HTML", 
-    key: "html",
-    forceRender: true,  // ← MANTIENE esto
-    children: (
-      <div className="pane-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
-        <EditorHtmlComponent 
-          htmlCodeprop={html} 
-          setHtmlCodeProp={setHtml}
-          jsonStringProp={json}
-        />
-      </div>
-    ) 
-  },
-  { 
-    label: "CSS", 
-    key: "css", 
-    forceRender: true,  // ← MANTIENE esto
-    children: (
-      <div className="pane-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
-        <EditorCssComponent 
-          cssProp={css}
-          setCssProp={setCss}
-        />
-      </div>
-    ) 
-  },
-  { 
-    label: "JSON", 
-    key: "json", 
-    forceRender: true,  // ← AGREGA esto
-    children: (
-      <div className="pane-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
-        <EditorJsonComponent />
-      </div>
-    ) 
-  },
-];
+// const itemsEditorOnly: TabsProps["items"] = [
+//   { 
+//     label: "HTML", 
+//     key: "html",
+//     forceRender: true,  // ← MANTIENE esto
+//     children: (
+//       <div className="pane-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
+//         <EditorHtmlComponent 
+//           htmlCodeprop={html} 
+//           setHtmlCodeProp={setHtml}
+//           setHtmlProcesedProp={setHtmlProcesed}
+//           jsonStringProp={json}
+//         />
+//       </div>
+//     ) 
+//   },
+//   { 
+//     label: "CSS", 
+//     key: "css", 
+//     forceRender: true,  // ← MANTIENE esto
+//     children: (
+//       <div className="pane-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
+//         <EditorCssComponent 
+//           cssProp={css}
+//           setCssProp={setCss}
+//         />
+//       </div>
+//     ) 
+//   },
+//   { 
+//     label: "JSON", 
+//     key: "json", 
+//     forceRender: true,  // ← AGREGA esto
+//     children: (
+//       <div className="pane-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
+//         <EditorJsonComponent />
+//       </div>
+//     ) 
+//   },
+// ];
 
 
   const itemsDrop: MenuProps["items"] = [
@@ -220,6 +224,7 @@ const itemsEditorOnly: TabsProps["items"] = [
                     <EditorHtmlComponent 
                       htmlCodeprop={html} 
                       setHtmlCodeProp={setHtml}
+                      setHtmlProcesedProp={setHtmlProcesed}
                       jsonStringProp={json}
                     />
                   </div>
@@ -242,7 +247,7 @@ const itemsEditorOnly: TabsProps["items"] = [
                 key: "json", 
                 children: (
                   <div style={{ height: 'calc(100vh - 150px)' }}>
-                    <EditorJsonComponent />
+                    <EditorJsonComponent jsonProp={ json } setJsonProp={ setJson } />
                   </div>
                 )
               },
@@ -251,7 +256,7 @@ const itemsEditorOnly: TabsProps["items"] = [
                 key: "preview", 
                 children: (
                   <div style={{ height: 'calc(100vh - 150px)' }}>
-                    <VistaPreviaComponent />
+                    <VistaPreviaComponent htmlProp={ htmlProcesed} cssProp={css} />
                   </div>
                 )
               },
@@ -271,6 +276,7 @@ const itemsEditorOnly: TabsProps["items"] = [
                         <EditorHtmlComponent 
                           htmlCodeprop={html} 
                           setHtmlCodeProp={setHtml}
+                          setHtmlProcesedProp={setHtmlProcesed}
                           jsonStringProp={json}
                         />
                       </div>
@@ -293,7 +299,7 @@ const itemsEditorOnly: TabsProps["items"] = [
                     key: "json", 
                     children: (
                       <div style={{ height: 'calc(100vh - 150px)' }}>
-                        <EditorJsonComponent />
+                        <EditorJsonComponent jsonProp={ json } setJsonProp={ setJson } />
                       </div>
                     )
                   },
@@ -305,7 +311,7 @@ const itemsEditorOnly: TabsProps["items"] = [
                 <Title level={5} style={{ marginTop: 0, marginBottom: 12 }}>
                   Vista Previa
                 </Title>
-                <VistaPreviaComponent />
+                <VistaPreviaComponent htmlProp={ htmlProcesed} cssProp={css} />
               </div>
             </Col>
           </Row>

@@ -1,6 +1,7 @@
 // components/MonacoCodeEditor.tsx
-import React from "react";
-import Editor, { OnMount } from "@monaco-editor/react";
+// import Editor, { OnMount } from "@monaco-editor/react";
+import Editor from "@monaco-editor/react";
+import type { OnMount } from "@monaco-editor/react";
 
 type MonacoLang = "html" | "css" | "json";
 
@@ -68,7 +69,7 @@ export default function MonacoCodeEditor({
                 onChange={(v) => onChange(v ?? "")}
                 onMount={handleMount}
                 height="100%"
-                path={path}
+                {...(path ? { path } : {})}
                 keepCurrentModel={false}
                 options={{
                     automaticLayout: true,

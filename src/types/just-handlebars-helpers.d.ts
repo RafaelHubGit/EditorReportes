@@ -1,11 +1,12 @@
-// declare module "just-handlebars-helpers" {
-//   import type * as Handlebars from "handlebars";
-//     export function registerHelpers(hb: typeof Handlebars): void;
-//     const _default: { registerHelpers: typeof registerHelpers } | ((opts: { handlebars: typeof Handlebars }) => void);
-//     export default _default;
-// }
-
+// src/types/just-handlebars-helpers.d.ts
 declare module "just-handlebars-helpers" {
-  const anyExport: any; // simple + safe
-    export default anyExport;
+  import type Handlebars from "handlebars";
+
+  /**
+   * Registers a set of helpers on the provided Handlebars instance.
+   * If no instance is provided, implementations commonly return the helpers map.
+   */
+  export default function registerHelpers(
+    hbs?: typeof Handlebars
+  ): Record<string, Handlebars.HelperDelegate>;
 }

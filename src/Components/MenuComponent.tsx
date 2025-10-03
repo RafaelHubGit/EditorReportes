@@ -1,4 +1,4 @@
-import { Menu, MenuProps, Tooltip } from "antd"
+import { Menu, Tooltip, type MenuProps } from "antd"
 import {
     AppstoreOutlined,
     FileTextOutlined,

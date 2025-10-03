@@ -1,5 +1,5 @@
 import React from "react";
-import { Avatar, Col, Dropdown, Layout, MenuProps, Row } from "antd";
+import { Avatar, Col, Dropdown, Layout, type MenuProps } from "antd";
 import { EditorStudioComponent } from "../Components/EditorStudioComponent";
 import { MenuComponent } from '../Components/MenuComponent';
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
