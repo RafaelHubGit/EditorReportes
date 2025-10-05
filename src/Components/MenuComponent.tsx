@@ -7,6 +7,7 @@ import {
 import Sider from "antd/es/layout/Sider";
 import { useState } from "react";
 import { Link } from 'react-router-dom';
+import { types } from "../types/types";
 
 
 
@@ -56,33 +57,33 @@ export const MenuComponent = () => {
         {
             key: 'studio',
             icon: <AppstoreOutlined />,
-            label: <Link to="/app/editor">Nuevo Documento</Link>,
+            label: <Link to={`/app/editor?op=${types.documentNew}`}>Nuevo Documento</Link>,
         },
         {
-            key: 'divider1',
+            key: `divider1`,
             type: 'divider'
         },
-        {
-            key: 'reportes',
-            icon: <FileTextOutlined />,
-            label: <Link to="/app/reportes">Mis Documentos</Link>,
-            children: [
-                {
-                    key: 'd1',
-                    label: (
-                        <Tooltip title="Documento  de la jefa de joselito que es no mms que pedul muajaja 1">
-                            <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '150px', display: 'block' }}>
-                                Documento  de la jefa de joselito que es no mms que pedul muajaja 1
-                            </span>
-                        </Tooltip>
-                    )
-                },
-                {
-                    key: 'd2',
-                    label: 'Documento 2'
-                }
-            ]
-        },
+        // {
+        //     key: 'reportes',
+        //     icon: <FileTextOutlined />,
+        //     label: <Link to="/app/reportes">Mis Documentos</Link>,
+        //     children: [
+        //         {
+        //             key: 'd1',
+        //             label: (
+        //                 <Tooltip title="Documento  de la jefa de joselito que es no mms que pedul muajaja 1">
+        //                     <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '150px', display: 'block' }}>
+        //                         Documento  de la jefa de joselito que es no mms que pedul muajaja 1
+        //                     </span>
+        //                 </Tooltip>
+        //             )
+        //         },
+        //         {
+        //             key: 'd2',
+        //             label: 'Documento 2'
+        //         }
+        //     ]
+        // },
         {
             key: 'documentation',
             label: 'Documentación'

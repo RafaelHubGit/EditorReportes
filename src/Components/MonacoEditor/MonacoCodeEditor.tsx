@@ -1,7 +1,9 @@
-// components/MonacoCodeEditor.tsx
-// import Editor, { OnMount } from "@monaco-editor/react";
+// MonacoCodeEditor.tsx - Versión con formateo
+import { useEffect } from 'react';
 import Editor from "@monaco-editor/react";
 import type { OnMount } from "@monaco-editor/react";
+import { useCodeFormatter } from "../../hooks/useCodeFormatter";
+
 
 type MonacoLang = "html" | "css" | "json";
 
@@ -10,8 +12,9 @@ type Props = {
     language: MonacoLang;
     onChange: (val: string) => void;
     height?: string | number;
-    schema?: object;                 // optional: JSON schema
+    schema?: object;
     path?: string;
+    onFormat?: number; // Nueva prop para formateo externo
 };
 
 export default function MonacoCodeEditor({
@@ -20,8 +23,11 @@ export default function MonacoCodeEditor({
     onChange,
     height = "100%",
     schema,
-    path
+    path,
+    onFormat
 }: Props) {
+    const { formatCode } = useCodeFormatter();
+
     const handleMount: OnMount = (editor, monaco) => {
         editor.updateOptions({
             automaticLayout: true,
@@ -33,15 +39,32 @@ export default function MonacoCodeEditor({
             fontLigatures: true,
             renderWhitespace: "selection",
             scrollbar: {
-                horizontal: "auto",       // show horizontal bar when needed
+                horizontal: "auto",
                 vertical: "auto",
                 useShadows: false,
             },
-            // Esto activa el autocompletado básico
             quickSuggestions: true,
             suggestOnTriggerCharacters: true,
             parameterHints: { enabled: true },
         });
+
+        // Configurar shortcut Ctrl+Shift+F para formatear
+        if (monaco) {
+            editor.addCommand(
+                monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyF,
+                () => {
+                    const currentValue = editor.getValue();
+                    const formatted = formatCode(currentValue, language);
+                    editor.setValue(formatted);
+                    onChange(formatted);
+                }
+            );
+
+            // También registrar el comando nativo de formateo
+            editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyI, () => {
+                editor.getAction('editor.action.formatDocument')?.run();
+            });
+        }
 
         // Optional: wire JSON schema for validation/autocomplete
         if (language === "json" && schema) {
@@ -59,10 +82,22 @@ export default function MonacoCodeEditor({
         }
     };
 
+    useEffect(() => {
+        if (onFormat) {
+            handleFormat();
+        }
+    }, [onFormat])
+
+    // Efecto para formateo externo (desde botón)
+    const handleFormat = () => {
+        const formatted = formatCode(value, language);
+        onChange(formatted);
+    };
+
+
     return (
         <div style={{ height, minHeight: 0, overflow: "hidden" }}>
             <Editor
-                // key={path ?? language}
                 theme="vs-dark"
                 language={language}
                 value={value}
@@ -82,7 +117,6 @@ export default function MonacoCodeEditor({
                     quickSuggestions: true,
                     parameterHints: { enabled: true },
                     snippetSuggestions: "top",
-                    // Configuración de autocompletado
                     quickSuggestionsDelay: 100,
                     suggest: {
                         showMethods: true,

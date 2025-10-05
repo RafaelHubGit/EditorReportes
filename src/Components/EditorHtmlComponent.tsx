@@ -1,23 +1,16 @@
-// EditorHtmlComponent.tsx
+// EditorHtmlComponent.tsx - Versión simplificada y corregida
 import React, { useCallback, useEffect, useState } from "react";
 import Swal from 'sweetalert2';
 import Handlebars from "handlebars";
 import { debounce } from 'lodash';
-
-// import registerHelpers from "just-handlebars-helpers";
-import moment from "moment";
 import { EditorBaseComponent } from "./EditorBaseComponent";
-// import registerHelpers from "just-handlebars-helpers";
 import { useHandlebarsSetup } from "../hooks/useHandlebarsSetup";
-
 
 type Props = {
   htmlCodeprop: string;
-  setHtmlCodeProp: ( html: string ) => void;
-
-  setHtmlProcesedProp: ( html: string ) => void;
-
-  jsonStringProp: string;
+  setHtmlCodeProp: (html: string) => void;
+  setHtmlProcesedProp: (html: string) => void;
+  jsonStringProp: Record<string, any>;
 }
 
 export const EditorHtmlComponent = React.memo(({ 
@@ -26,111 +19,76 @@ export const EditorHtmlComponent = React.memo(({
   setHtmlProcesedProp,
   jsonStringProp 
 }: Props) => {
-  // const setHtml = useReporteStore((s) => s.setHtml);
-  // const setHtmlProcessed = useReporteStore((s) => s.setHtmlProcessed);
-  // const htmlCode = useReporteStore((s) => s.html);
-  // const jsonString = useReporteStore((s) => s.jsonData);
-  // const docId = useReporteStore((s) => s.documentId) ?? "current";  
-
   const [error, setError] = useState("");
 
   useHandlebarsSetup();
 
-  
-  useEffect(() => {
-    // Reprocesar el HTML cuando el JSON cambie
-    handleChange(htmlCodeprop);
-  }, [jsonStringProp]);
+  // Función para procesar el template
+  const processTemplate = useCallback((html: string, jsonData: Record<string, any>) => {
+    try {
+      console.log("Procesando template con datos:", jsonData);
+      
+      const template = Handlebars.compile(html);
+      const processed = template(jsonData);
+      return processed;
+    } catch (error) {
+      console.error("Error compilando template:", error);
+      throw error;
+    }
+  }, []);
 
-  const handleChange = useCallback(
-    debounce((value: string) => {
+  // Debounce para cambios en el HTML
+  const debouncedProcess = useCallback(
+    debounce((html: string, jsonData: Record<string, any>) => {
       try {
-        // Siempre guardar el HTML original
-        setHtmlCodeProp(value);
+        setHtmlCodeProp(html);
         
-        let jsonData = {};
-        
-        // Intentar parsear JSON, si falla usar objeto vacío
-        try {
-          if (jsonStringProp && jsonStringProp.trim() !== "") {
-            jsonData = typeof jsonStringProp === "string" 
-              ? JSON.parse(jsonStringProp) 
-              : jsonStringProp;
-          }
-        } catch (jsonError) {
-          console.warn("JSON inválido, usando objeto vacío:", jsonError);
-          jsonData = {};
-          Swal.fire({
-            icon: 'warning',
-            title: 'Error en el template',
-            text: `${jsonError}`,
-            timer: 3000,
-            showConfirmButton: false,
-            toast: true,
-            position: 'top-end'
-          });
-        }
-  
-        // Asegurarnos de que jsonData es un objeto
-        if (!jsonData || typeof jsonData !== 'object') {
-          jsonData = {};
-        }
-  
-        // Procesar el template con los datos disponibles
-        try {
-          const template = Handlebars.compile(value);
-          const processed = template(jsonData);
-          setHtmlProcesedProp(processed);
+        if (!html.trim()) {
+          setHtmlProcesedProp("");
           setError("");
-        } catch (templateError) {
-          // Si hay error en el template, mostrar el HTML crudo como fallback
-          console.warn("Error compilando template:", templateError);
-          Swal.fire({
-            icon: 'warning',
-            title: 'Error en el template',
-            text: `${templateError}`,
-            timer: 3000,
-            showConfirmButton: false,
-            toast: true,
-            position: 'top-end'
-          });
-          setHtmlProcesedProp(value);
-          const errorMessage = templateError instanceof Error 
-            ? templateError.message 
-            : "Template error";
-          setError(errorMessage);
+          return;
         }
+
+        const processed = processTemplate(html, jsonData);
+        setHtmlProcesedProp(processed);
+        setError("");
         
-      } catch (e: any) {
-        console.log("Error general:", e);
+      } catch (error: any) {
+        const errorMessage = error instanceof Error ? error.message : "Error en el template";
+        setError(errorMessage);
+        setHtmlProcesedProp(html); // Fallback al HTML original
         Swal.fire({
-          icon: 'warning',
+          icon: 'error',
           title: 'Error en el template',
-          text: 'Se mostró HTML sin procesar por error en la plantilla',
+          text: errorMessage,
           timer: 3000,
           showConfirmButton: false,
           toast: true,
           position: 'top-end'
         });
-        setHtmlCodeProp(value);
-        setError(e?.message ?? "Template error");
-        // Fallback: mostrar HTML crudo
-        setHtmlProcesedProp(value);
-
       }
     }, 500),
-    [htmlCodeprop, jsonStringProp, setHtmlCodeProp, setHtmlProcesedProp]
+    [processTemplate]
   );
+
+  // Procesar cuando cambia el HTML
+  const handleChange = useCallback((value: string) => {
+    debouncedProcess(value, jsonStringProp);
+  }, [debouncedProcess, jsonStringProp]);
+
+  // Procesar cuando cambia el JSON
+  useEffect(() => {
+    console.log("JSON cambiado, reprocesando...", jsonStringProp);
+    debouncedProcess(htmlCodeprop, jsonStringProp);
+  }, [jsonStringProp]);
 
   return (
     <EditorBaseComponent
       label="HTML"
       value={htmlCodeprop}
       onChange={handleChange}
-      // onChange={setHtmlCodeProp}
       language="html"
       error={error}
-      // path="file:///editor-html.html"
     />
   );
 });

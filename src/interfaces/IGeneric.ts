@@ -2,20 +2,35 @@
 
 
 
+// IGeneric.ts - Versión mejorada
 export interface IDocument {
-  id: string;             // Unique identifier for the document
-  title: string;          // Human-readable title
-  html: string;           // HTML content
-  css: string;            // CSS styles
-  jsonStructure: Record<string, any>;  // JSON schema/structure
-  jsonData: Record<string, any>;       // JSON with current data (backup or live content)
+  id: string;
+  name: string;
+  html: string;
+  htmlProcessed?: string;
+  css: string;
+  json: Record<string, any>;
+  idFolder?: string;
+  dateCreated?: Date;
+  dateUpdated?: Date;
+  userCreated?: string;
+  userUpdated?: string;
+  tags?: string[];
+  type?: 'report' | 'invoice' | 'template' | 'custom';
 }
 
 export interface IFolder {
-    id: string;
-    name: string;
-    idDocuments: string[];
+  id: string;
+  name: string;
+  idDocuments: string[];
+  icon?: string;
+  color?: string;
+  description?: string;
+  isShared?: boolean;
+  sharedWith?: string[];
+  dateCreated?: Date;
+  dateUpdated?: Date;
 }
 
-
-// const IDocuments: IDocument[] = [];
+export type ViewMode = 'grid' | 'list';
+export type SortOption = 'name' | 'date' | 'type';

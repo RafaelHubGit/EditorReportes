@@ -6,7 +6,7 @@ import type { IDocument } from "../interfaces/IGeneric";
 
 export const initDocument:IDocument = {
     id: uuidv4(),           // or '' if you want to assign later
-    title: "",
+    name: "Untitled document",
     html: `
         <div class="invoice">
         <h1>Invoice</h1>
@@ -65,8 +65,8 @@ export const initDocument:IDocument = {
         }
 
     `,
-    jsonStructure: {},      // empty schema by default
-    jsonData: {
+    // jsonStructure: "{}",      // empty schema by default
+    json: {
                 "customerName": "John Doe",
                 "date": "2025-09-27",
                 "items": [
@@ -76,5 +76,9 @@ export const initDocument:IDocument = {
                 ],
                 "total": "$95"
             }
-    ,           // empty data by default
+    ,
+    dateCreated: new Date(),
+    dateUpdated: new Date(),
+    userCreated: "",
+    userUpdated: ""
 };

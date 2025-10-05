@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Button,
   Dropdown,
   Input,
-  Modal,
   Row,
   Col,
   Tabs,
@@ -16,177 +15,101 @@ import {
   ColumnWidthOutlined,
   ColumnHeightOutlined,
   MoreOutlined,
+  EditOutlined,
 } from "@ant-design/icons";
 import { EditorHtmlComponent } from "./EditorHtmlComponent";
 import { EditorCssComponent } from "./EditorCssComponent";
 import { EditorJsonComponent } from "./EditorJsonComponent";
 import { VistaPreviaComponent } from "./VistaPreviaComponent";
+import { types } from "../types/types";
+import { useNavigate, useParams } from "react-router-dom";
+import { useReportStore } from "../store/useReportStore";
+import type { IDocument } from "../interfaces/IGeneric";
+import { initDocument } from "../store/initOrganization";
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
-export const EditorStudioComponent: React.FC = () => {
+type Props = {
+  
+}
+
+export const EditorStudioComponent = ({}: Props) => {
+
+  const navigate = useNavigate();
+  const { operation = types.documentNew, documentId } = useParams();
+
+  const { 
+    updateDocument,
+    addDocument
+  } = useReportStore();
+
   const { token } = theme.useToken();
-  const [openModal, setOpenModal] = useState(false);
   const [isSplit, setIsSplit] = useState(false);
-  const [activeTab, setActiveTab] = useState("html"); // NUEVO: estado para tab activo
 
-  const [html, setHtml] = useState(" el html es este ");
-  const [css, setCss] = useState(" el css es este");
-  const [json, setJson] = useState("{}");
-  const [htmlProcesed, setHtmlProcesed] = useState("");
 
-  const documentTitle = "Untitled document";
+  const [documentState, setDocumentState] = useState<IDocument>(initDocument);
+
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+
+  const documentTitle = documentState.name;
+
+  const updateDocumentState = (updates: Partial<IDocument>) => {
+    setDocumentState(prevState => ({
+      ...prevState,
+      ...updates
+    }));
+  };
   
 
-  // ELIMINA todos los useEffect de console.log
-  // ELIMINA itemsUnified y itemsEditorOnly
-
-  // NUEVO: función para renderizar contenido activo
-  const renderActiveContent = () => {
-    switch (activeTab) {
-      case "html":
-        return (
-          <div className="pane-scroll" style={{ height: "100%" }}>
-            <EditorHtmlComponent 
-              htmlCodeprop={html} 
-              setHtmlCodeProp={setHtml} // CAMBIA: usa setHtml directamente
-              setHtmlProcesedProp={setHtmlProcesed}
-              jsonStringProp={json}
-            />
-          </div>
-        );
-      case "css":
-        return (
-          <div className="pane-scroll" style={{ height: "100%" }}>
-            <EditorCssComponent 
-              cssProp={css}
-              setCssProp={setCss} // CAMBIA: usa setCss directamente
-            />
-          </div>
-        );
-      case "json":
-        return <div className="pane-scroll" style={{ height: "100%" }}><EditorJsonComponent jsonProp={ json } setJsonProp={ setJson } /></div>;
-      case "preview":
-        return <div className="preview-scroll" style={{ height: "100%" }}><VistaPreviaComponent htmlProp={ htmlProcesed} cssProp={css} /></div>;
-      default:
-        return null;
+  const handleSave = () => {
+    if (operation == types.documentNew) {
+      addDocument(documentState);
+      // navigate(`/editor/${types.documentEdit}/${documentState.id}`);
+      navigate(`${types.documentEdit}/${documentState.id}`);
+    } else {
+      updateDocument(documentState);
     }
-  };
-
-  // REEMPLAZA solo los arrays itemsUnified y itemsEditorOnly:
-
-// const itemsUnified: TabsProps["items"] = [
-//   { 
-//     label: "HTML", 
-//     key: "html", 
-//     forceRender: true,  // ← MANTIENE esto
-//     children: (
-//       <div className="pane-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
-//         <EditorHtmlComponent 
-//           htmlCodeprop={html} 
-//           setHtmlCodeProp={setHtml}
-//           setHtmlProcesedProp={setHtmlProcesed}
-//           jsonStringProp={json}
-//         />
-//       </div>
-//     ) 
-//   },
-//   { 
-//     label: "CSS", 
-//     key: "css", 
-//     forceRender: true,  // ← MANTIENE esto
-//     children: (
-//       <div className="pane-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
-//         <EditorCssComponent 
-//           cssProp={css}
-//           setCssProp={setCss}
-//         />
-//       </div>
-//     ) 
-//   },
-//   { 
-//     label: "JSON", 
-//     key: "json", 
-//     forceRender: true,  // ← AGREGA esto
-//     children: (
-//       <div className="pane-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
-//         <EditorJsonComponent />
-//       </div>
-//     ) 
-//   },
-//   { 
-//     label: "Vista Previa", 
-//     key: "preview", 
-//     forceRender: true,  // ← AGREGA esto
-//     children: (
-//       <div className="preview-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
-//         <VistaPreviaComponent />
-//       </div>
-//     )
-//   },
-// ];
-
-// const itemsEditorOnly: TabsProps["items"] = [
-//   { 
-//     label: "HTML", 
-//     key: "html",
-//     forceRender: true,  // ← MANTIENE esto
-//     children: (
-//       <div className="pane-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
-//         <EditorHtmlComponent 
-//           htmlCodeprop={html} 
-//           setHtmlCodeProp={setHtml}
-//           setHtmlProcesedProp={setHtmlProcesed}
-//           jsonStringProp={json}
-//         />
-//       </div>
-//     ) 
-//   },
-//   { 
-//     label: "CSS", 
-//     key: "css", 
-//     forceRender: true,  // ← MANTIENE esto
-//     children: (
-//       <div className="pane-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
-//         <EditorCssComponent 
-//           cssProp={css}
-//           setCssProp={setCss}
-//         />
-//       </div>
-//     ) 
-//   },
-//   { 
-//     label: "JSON", 
-//     key: "json", 
-//     forceRender: true,  // ← AGREGA esto
-//     children: (
-//       <div className="pane-scroll" style={{ height: "500px" }}>  {/* ← AGREGA height fijo temporal */}
-//         <EditorJsonComponent />
-//       </div>
-//     ) 
-//   },
-// ];
-
+  }
 
   const itemsDrop: MenuProps["items"] = [
     { key: "export", label: "Exportar a PDF" },
     { key: "share", label: "Compartir (próximamente)" },
   ];
 
-  const handleSave = () => {
-    setOpenModal(false);
-    // TODO: persist
-  };
-
   return (
     <div className="studio-container">
-      {/* Header - mantén igual */}
       <Row justify="space-between" align="middle" className="studio-header" style={{ paddingInline: 16, paddingBlock: 8 }}>
         <Col>
-          <Space size="middle" align="center">
-            <Title level={3} style={{ margin: 0 }}>
-              {documentTitle}
-            </Title>
+          <Space size={0} align="start" style={{display:'Flex', flexDirection:'column'}}>
+            {isEditingTitle ? (
+              <Input
+                value={documentState.name}
+                onChange={(e) => updateDocumentState({ name: e.target.value })}
+                onPressEnter={() => setIsEditingTitle(false)}
+                onBlur={() => setIsEditingTitle(false)}
+                autoFocus
+                style={{ fontSize: '24px', fontWeight: 'bold', width: '300px' }}
+              />
+            ) : (
+              <Space>
+                <Title 
+                  level={3} 
+                  style={{ margin: 0, cursor: 'pointer' }}
+                  onClick={() => setIsEditingTitle(true)}
+                >
+                  {documentTitle}
+                </Title>
+                <Button 
+                  type="text" 
+                  icon={<EditOutlined />} 
+                  size="small"
+                  onClick={() => setIsEditingTitle(true)}
+                />
+              </Space>
+            )}
+            <Text type="secondary" style={{ fontSize: '14px' }}>
+              {documentState.id || "Sin ID"}
+            </Text>
           </Space>
         </Col>
 
@@ -203,14 +126,13 @@ export const EditorStudioComponent: React.FC = () => {
               <Button icon={<MoreOutlined />} />
             </Dropdown>
 
-            <Button type="primary" onClick={() => setOpenModal(true)}>
+            <Button type="primary" onClick={ handleSave }>
               Guardar
             </Button>
           </Space>
         </Col>
       </Row>
 
-      {/* Body - Versión que funciona */}
       <div className="studio-body" style={{ height: 'calc(100vh - 100px)' }}>
         {!isSplit ? (
           <Tabs 
@@ -220,12 +142,12 @@ export const EditorStudioComponent: React.FC = () => {
                 label: "HTML", 
                 key: "html", 
                 children: (
-                  <div style={{ height: 'calc(100vh - 150px)' }}>
+                  <div style={{ height: 'calc(100vh - 210px)' }}>
                     <EditorHtmlComponent 
-                      htmlCodeprop={html} 
-                      setHtmlCodeProp={setHtml}
-                      setHtmlProcesedProp={setHtmlProcesed}
-                      jsonStringProp={json}
+                      htmlCodeprop={documentState.html} 
+                      setHtmlCodeProp={(html) => updateDocumentState({ html })}
+                      setHtmlProcesedProp={(htmlProcessed) => updateDocumentState({ htmlProcessed })}
+                      jsonStringProp={documentState.json}
                     />
                   </div>
                 )
@@ -234,10 +156,10 @@ export const EditorStudioComponent: React.FC = () => {
                 label: "CSS", 
                 key: "css", 
                 children: (
-                  <div style={{ height: 'calc(100vh - 150px)' }}>
+                  <div style={{ height: 'calc(100vh - 210px)' }}>
                     <EditorCssComponent 
-                      cssProp={css}
-                      setCssProp={setCss}
+                      cssProp={documentState.css}
+                      setCssProp={(css) => updateDocumentState({ css })}
                     />
                   </div>
                 )
@@ -246,8 +168,11 @@ export const EditorStudioComponent: React.FC = () => {
                 label: "JSON", 
                 key: "json", 
                 children: (
-                  <div style={{ height: 'calc(100vh - 150px)' }}>
-                    <EditorJsonComponent jsonProp={ json } setJsonProp={ setJson } />
+                  <div style={{ height: 'calc(100vh - 210px)' }}>
+                    <EditorJsonComponent 
+                      jsonProp={JSON.stringify(documentState.json)} 
+                      setJsonProp={(json) => updateDocumentState({ json: JSON.parse(json) })}
+                    />
                   </div>
                 )
               },
@@ -256,7 +181,10 @@ export const EditorStudioComponent: React.FC = () => {
                 key: "preview", 
                 children: (
                   <div style={{ height: 'calc(100vh - 150px)' }}>
-                    <VistaPreviaComponent htmlProp={ htmlProcesed} cssProp={css} />
+                    <VistaPreviaComponent 
+                      htmlProp={documentState.htmlProcessed ?? ""} 
+                      cssProp={documentState.css ?? ""} 
+                    />
                   </div>
                 )
               },
@@ -272,12 +200,12 @@ export const EditorStudioComponent: React.FC = () => {
                     label: "HTML", 
                     key: "html", 
                     children: (
-                      <div style={{ height: 'calc(100vh - 150px)' }}>
+                      <div style={{ height: 'calc(100vh - 210px)' }}>
                         <EditorHtmlComponent 
-                          htmlCodeprop={html} 
-                          setHtmlCodeProp={setHtml}
-                          setHtmlProcesedProp={setHtmlProcesed}
-                          jsonStringProp={json}
+                          htmlCodeprop={documentState.html} 
+                          setHtmlCodeProp={(html) => updateDocumentState({ html })}
+                          setHtmlProcesedProp={(htmlProcessed) => updateDocumentState({ htmlProcessed })}
+                          jsonStringProp={documentState.json}
                         />
                       </div>
                     )
@@ -286,10 +214,10 @@ export const EditorStudioComponent: React.FC = () => {
                     label: "CSS", 
                     key: "css", 
                     children: (
-                      <div style={{ height: 'calc(100vh - 150px)' }}>
+                      <div style={{ height: 'calc(100vh - 210px)' }}>
                         <EditorCssComponent 
-                          cssProp={css}
-                          setCssProp={setCss}
+                          cssProp={documentState.css}
+                          setCssProp={(css) => updateDocumentState({ css })}
                         />
                       </div>
                     )
@@ -298,8 +226,11 @@ export const EditorStudioComponent: React.FC = () => {
                     label: "JSON", 
                     key: "json", 
                     children: (
-                      <div style={{ height: 'calc(100vh - 150px)' }}>
-                        <EditorJsonComponent jsonProp={ json } setJsonProp={ setJson } />
+                      <div style={{ height: 'calc(100vh - 210px)' }}>
+                        <EditorJsonComponent 
+                          jsonProp={JSON.stringify(documentState.json)} 
+                          setJsonProp={(json) => updateDocumentState({ json: JSON.parse(json) })}
+                        />
                       </div>
                     )
                   },
@@ -311,25 +242,15 @@ export const EditorStudioComponent: React.FC = () => {
                 <Title level={5} style={{ marginTop: 0, marginBottom: 12 }}>
                   Vista Previa
                 </Title>
-                <VistaPreviaComponent htmlProp={ htmlProcesed} cssProp={css} />
+                <VistaPreviaComponent 
+                  htmlProp={documentState.htmlProcessed ?? ""} 
+                  cssProp={documentState.css ?? ""} 
+                />
               </div>
             </Col>
           </Row>
         )}
       </div>
-
-      {/* Modal - mantén igual */}
-      <Modal
-        title="Nombre del Reporte"
-        open={openModal}
-        onOk={handleSave}
-        onCancel={() => setOpenModal(false)}
-        okText="Aceptar"
-        cancelText="Cancelar"
-        width={800}
-      >
-        <Input placeholder="Nombre del reporte" defaultValue={documentTitle} />
-      </Modal>
     </div>
   );
 };

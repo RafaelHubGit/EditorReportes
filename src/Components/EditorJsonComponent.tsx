@@ -1,24 +1,25 @@
-import { useReporteStore } from '../store/useReportStore';
 import { EditorBaseComponent } from './EditorBaseComponent';
 
-
-type Props = {
+interface Props {
   jsonProp: string;
-  setJsonProp: ( json: string ) => void;
+  setJsonProp: (json: string) => void;
 }
 
-
 export const EditorJsonComponent = ({ jsonProp, setJsonProp }: Props) => {
-  // const { jsonData, setJsonData } = useReporteStore();
+  const handleChange = (value: string) => {
+    try {
+      setJsonProp(JSON.stringify(JSON.parse(value), null, 2));
+    } catch (e) {
+      setJsonProp(value);
+    }
+  };
 
   return (
     <EditorBaseComponent
       label="Editor JSON"
-      value={jsonProp}
-      onChange={setJsonProp}
+      value={JSON.stringify(JSON.parse(jsonProp), null, 2)}
+      onChange={handleChange}
       language='json'
-      // jsonSchema={schema}
-      // extensions={ getExtensions.json() }
     />
   );
 };

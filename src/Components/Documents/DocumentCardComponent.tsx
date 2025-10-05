@@ -1,92 +1,214 @@
+// DocumentCardComponent.tsx - Versión mejorada
+import React from 'react';
+import { Card, Button, Space, Typography, Dropdown, Tag, Checkbox, type MenuProps } from 'antd';
+import { 
+    EditOutlined, 
+    CopyOutlined, 
+    FolderOutlined, 
+    DeleteOutlined, 
+    MoreOutlined,
+    FileTextOutlined,
+    FilePdfOutlined,
+    FileImageOutlined
+} from '@ant-design/icons';
+import { useReportStore } from '../../store/useReportStore';
+import type { IDocument } from '../../interfaces/IGeneric';
 
-import { Card, Dropdown, Button, Typography, Space, Tag } from "antd";
-import { MoreOutlined, EditOutlined } from "@ant-design/icons";
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
-export type DocumentMeta = {
-    id: string;
-    name: string;                 // title
-    lastSavedAt: string | Date;   // last saved datetime
-};
-
-type Props = {
-    doc: DocumentMeta;
+interface DocumentCardProps {
+    doc: IDocument;
+    viewMode?: 'grid' | 'list';
+    isSelected?: boolean;
+    onSelect?: (id: string) => void;
     onEdit: (id: string) => void;
     onDuplicate: (id: string) => void;
     onMove: (id: string) => void;
     onDelete: (id: string) => void;
+}
+
+const getFileIcon = (type?: string) => {
+    switch (type) {
+        case 'invoice':
+        return <FilePdfOutlined style={{ color: '#ff4d4f' }} />;
+        case 'report':
+        return <FileTextOutlined style={{ color: '#1890ff' }} />;
+        case 'template':
+        return <FileImageOutlined style={{ color: '#52c41a' }} />;
+        default:
+        return <FileTextOutlined style={{ color: '#666' }} />;
+    }
 };
 
-const formatDate = (d: string | Date) => {
-    const date = typeof d === "string" ? new Date(d) : d;
-    return new Intl.DateTimeFormat(undefined, {
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-    }).format(date);
+const getTypeColor = (type?: string) => {
+    switch (type) {
+        case 'invoice':
+        return 'red';
+        case 'report':
+        return 'blue';
+        case 'template':
+        return 'green';
+        default:
+        return 'default';
+    }
 };
 
-
-export const DocumentCardComponent = ({
+export const DocumentCardComponent: React.FC<DocumentCardProps> = ({
     doc,
+    viewMode = 'grid',
+    isSelected = false,
+    onSelect,
     onEdit,
     onDuplicate,
     onMove,
-    onDelete,
-}: Props) => {
+    onDelete
+}) => {
+    const { toggleDocumentSelection } = useReportStore();
 
-    const menuItems = [
-        { key: "duplicate", label: "Duplicate", onClick: () => onDuplicate(doc.id) },
-        { key: "move", label: "Move", onClick: () => onMove(doc.id) },
-        { key: "delete", label: <span style={{ color: "#cf1322" }}>Delete</span>, onClick: () => onDelete(doc.id) },
+    const handleSelect = () => {
+        onSelect?.(doc.id);
+        toggleDocumentSelection(doc.id);
+    };
+
+    const menuItems: MenuProps['items'] = [
+        {
+            key: 'edit',
+            icon: <EditOutlined />,
+            label: 'Editar',
+            onClick: () => onEdit(doc.id)
+        },
+        {
+            key: 'duplicate',
+            icon: <CopyOutlined />,
+            label: 'Duplicar',
+            onClick: () => onDuplicate(doc.id)
+        },
+        {
+            key: 'move',
+            icon: <FolderOutlined />,
+            label: 'Mover a carpeta',
+            onClick: () => onMove(doc.id)
+        },
+        {
+            type: 'divider',
+        },
+        {
+            key: 'delete',
+            icon: <DeleteOutlined />,
+            label: 'Eliminar',
+            danger: true,
+            onClick: () => onDelete(doc.id)
+        }
     ];
 
+    if (viewMode === 'list') {
+        return (
+        <Card
+            size="small"
+            style={{ 
+            marginBottom: 8,
+            border: isSelected ? '2px solid #1890ff' : undefined,
+            backgroundColor: isSelected ? '#f0f8ff' : undefined
+            }}
+            bodyStyle={{ padding: '12px 16px' }}
+        >
+            <Space size="middle" style={{ width: '100%', justifyContent: 'space-between' }}>
+            <Space size="middle">
+                <Checkbox 
+                checked={isSelected} 
+                onChange={handleSelect}
+                />
+                {getFileIcon(doc.type)}
+                <Text strong>{doc.name}</Text>
+                {doc.type && (
+                <Tag color={getTypeColor(doc.type)}>
+                    {doc.type}
+                </Tag>
+                )}
+            </Space>
+            
+            <Space size="middle">
+                <Text type="secondary" style={{ fontSize: 12 }}>
+                {doc.dateUpdated?.toString()}
+                </Text>
+                
+                <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+                <Button type="text" icon={<MoreOutlined />} size="small" />
+                </Dropdown>
+            </Space>
+            </Space>
+        </Card>
+        );
+    }
 
+    // Grid View
     return (
         <Card
         hoverable
-        bordered
-        style={{
-            borderRadius: 14,
-            boxShadow: "0 6px 20px rgba(0,0,0,0.06)",
+        style={{ 
+            marginBottom: 16,
+            border: isSelected ? '2px solid #1890ff' : undefined,
+            backgroundColor: isSelected ? '#f0f8ff' : undefined
         }}
-        bodyStyle={{ padding: 16 }}
-        title={
-            <Space align="center" size={10}>
-            <Title level={5} style={{ margin: 0, lineHeight: 1.2 }}>
-                {doc.name}
-            </Title>
-            <Tag color="default" style={{ marginInlineStart: 6 }}>
-                ID: {doc.id.slice(0, 8)}…
-            </Tag>
+        bodyStyle={{ padding: 16, position: 'relative' }}
+        >
+        {/* Selection Checkbox */}
+        <div style={{ position: 'absolute', top: 12, left: 12 }}>
+            <Checkbox 
+            checked={isSelected} 
+            onChange={handleSelect}
+            />
+        </div>
+
+        {/* Options Menu */}
+        <div style={{ position: 'absolute', top: 8, right: 8 }}>
+            <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+            <Button type="text" icon={<MoreOutlined />} size="small" />
+            </Dropdown>
+        </div>
+
+        {/* Content */}
+        <Space direction="vertical" size={12} style={{ width: '100%' }}>
+            <Space size={12} style={{ width: '100%', justifyContent: 'center' }}>
+            {getFileIcon(doc.type)}
             </Space>
-        }
-        extra={
-            <Space>
-            <Button
-                type="primary"
+            
+            <div>
+            <Text strong style={{ display: 'block', textAlign: 'center' }} ellipsis>
+                {doc.name}
+            </Text>
+            <Text type="secondary" style={{ fontSize: 12, display: 'block', textAlign: 'center' }}>
+                {doc.dateUpdated?.toString() || ""}
+            </Text>
+            </div>
+
+            {/* Tags */}
+            {doc.tags && doc.tags.length > 0 && (
+            <div style={{ textAlign: 'center' }}>
+                {doc.tags.slice(0, 2).map(tag => (
+                <Tag key={tag} style={{ margin: 2 }}>
+                    {tag}
+                </Tag>
+                ))}
+                {doc.tags.length > 2 && (
+                <Tag >+{doc.tags.length - 2}</Tag>
+                )}
+            </div>
+            )}
+
+            {/* Actions */}
+            <Space style={{ width: '100%', justifyContent: 'center' }}>
+            <Button 
+                type="primary" 
+                size="small" 
                 icon={<EditOutlined />}
                 onClick={() => onEdit(doc.id)}
             >
-                Edit
+                Editar
             </Button>
-
-            <Dropdown
-                trigger={["click"]}
-                menu={{ items: menuItems.map(mi => ({ key: mi.key, label: mi.label, onClick: mi.onClick })) }}
-            >
-                <Button icon={<MoreOutlined />} />
-            </Dropdown>
             </Space>
-        }
-        >
-        <Space direction="vertical" size={4} style={{ width: "100%" }}>
-            <Text type="secondary">Last saved</Text>
-            <Text strong>{formatDate(doc.lastSavedAt)}</Text>
         </Space>
         </Card>
     );
-}
+};
