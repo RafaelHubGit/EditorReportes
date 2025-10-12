@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
   Dropdown,
@@ -38,20 +38,31 @@ export const EditorStudioComponent = ({}: Props) => {
   const navigate = useNavigate();
   const { operation = types.documentNew, documentId } = useParams();
 
-  const { 
-    updateDocument,
-    addDocument
-  } = useReportStore();
+  const updateDocument = useReportStore( state => state.updateDocument );
+  const addDocument = useReportStore( state => state.addDocument );
+  const getDocumentById = useReportStore( state => state.getDocumentById );
 
   const { token } = theme.useToken();
   const [isSplit, setIsSplit] = useState(false);
-
 
   const [documentState, setDocumentState] = useState<IDocument>(initDocument);
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
 
-  const documentTitle = documentState.name;
+  // const documentTitle = documentState.name;
+
+
+  useEffect(() => {
+    console.log("document opertatio : ", operation)
+    console.log("document id : ", documentId)
+    if (operation === types.documentEdit && documentId) {
+      const existingDocument = getDocumentById(documentId);
+      console.log("exist document : ", existingDocument)
+      if (existingDocument) {
+        setDocumentState(existingDocument);
+      }
+    }
+  }, [documentId]);
 
   const updateDocumentState = (updates: Partial<IDocument>) => {
     setDocumentState(prevState => ({
@@ -97,7 +108,7 @@ export const EditorStudioComponent = ({}: Props) => {
                   style={{ margin: 0, cursor: 'pointer' }}
                   onClick={() => setIsEditingTitle(true)}
                 >
-                  {documentTitle}
+                  {documentState.name}
                 </Title>
                 <Button 
                   type="text" 

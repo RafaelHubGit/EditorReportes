@@ -18,6 +18,8 @@ interface OrgState {
     folders: IFolder[];
     addFolder: ( folder: IFolder ) => void;
 
+    
+
 }
 
 const orgStore: StateCreator<OrgState, [["zustand/immer", never]]> = (set, get) => ({
@@ -26,6 +28,7 @@ const orgStore: StateCreator<OrgState, [["zustand/immer", never]]> = (set, get) 
     documents: [],
     folders: [],
 
+    
 
     // Set the current document (and also make sure it exists in the list)
     addDocument: (document: IDocument) =>
@@ -54,8 +57,6 @@ const orgStore: StateCreator<OrgState, [["zustand/immer", never]]> = (set, get) 
             const exists = state.folders.some((f: IFolder) => f.id === folder.id);
             if (!exists) state.folders.push(folder);
         }),
-
-
 })
 
 export const useOrgStore = create<OrgState>()(

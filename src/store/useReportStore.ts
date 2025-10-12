@@ -21,6 +21,7 @@ interface ReportState {
   updateDocument: (updates: Partial<IDocument>) => Promise<void>;
   delDocuments: (idDocument: string) => Promise<void>;
   addDocuments: (document: IDocument) => void;
+  getDocumentById: (id: string) => IDocument | null;
   setCurrentFolder: (folderId: string | null) => void;
   getDocumentsByFolder: (folderId?: string) => IDocument[];
   searchDocuments: (query: string) => IDocument[];
@@ -38,10 +39,20 @@ interface ReportState {
   toggleDocumentSelection: (documentId: string) => void;
   clearSelection: () => void;
   moveSelectedDocuments: (folderId: string | null) => Promise<void>;
+  moveSingleDocument: (documentId: string, folderId: string | null) => Promise<void>;
   
   // Share Actions
   shareFolder: (folderId: string, users: string[]) => Promise<void>;
   unshareFolder: (folderId: string, userId: string) => Promise<void>;
+
+  isOpenMoveModal: boolean;
+  setIsOpenMoveModal: ( isOpen: boolean ) => void;
+
+  selectedMoveDocuments: string[];
+  setSelectedMoveDocuments: ( selectedDocuments: string[] ) => void;
+
+  isOpenCreateFolderModal: boolean;
+  setIsOpenCreateFolderModal: (isOpen: boolean) => void;
 }
 
 const initDocument: IDocument = {
@@ -137,6 +148,13 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
   searchQuery: '',
   sortBy: 'date',
   selectedDocuments: [],
+
+  isOpenMoveModal: false,
+  selectedMoveDocuments: [],
+
+  isOpenCreateFolderModal: false,
+  
+  
 
   // Document Methods (manteniendo las existentes y agregando nuevas)
   addDocument: async (document: IDocument) => {
@@ -258,6 +276,11 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
       });
       throw error;
     }
+  },
+
+  getDocumentById: (id: string) => {
+    const { documents } = get();
+    return documents.find(doc => doc.id === id) || null;
   },
 
   addDocuments: (document: IDocument) =>
@@ -532,6 +555,51 @@ updateFolder: async (folderId: string, updates: Partial<IFolder>) => {
     }
   },
 
+  moveSingleDocument: async (documentId: string, folderId: string | null) => {
+    try {
+      set((state) => {
+        // Remove from all folders first
+        state.folders.forEach(folder => {
+          folder.idDocuments = folder.idDocuments.filter(id => id !== documentId);
+        });
+        
+        // Add to the new folder if specified
+        if (folderId) {
+          const targetFolder = state.folders.find(f => f.id === folderId);
+          if (targetFolder && !targetFolder.idDocuments.includes(documentId)) {
+            targetFolder.idDocuments.push(documentId);
+          }
+        }
+        
+        // Update the idFolder in the document
+        const docIndex = state.documents.findIndex(d => d.id === documentId);
+        if (docIndex >= 0) {
+          state.documents[docIndex]!.idFolder = folderId || "";
+        }
+      });
+  
+      await Swal.fire({
+        icon: 'success',
+        title: '¡Documento movido!',
+        text: `El documento se ha movido correctamente`,
+        timer: 2000,
+        showConfirmButton: false,
+        toast: true,
+        position: 'top-end'
+      });
+  
+    } catch (error) {
+      console.error('Error moving document:', error);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error al mover documento',
+        text: 'No se pudo mover el documento',
+        confirmButtonText: 'Entendido'
+      });
+      throw error;
+    }
+  },
+
   // Share Methods
   shareFolder: async (folderId: string, users: string[]) => {
     try {
@@ -605,7 +673,14 @@ updateFolder: async (folderId: string, updates: Partial<IFolder>) => {
       });
       throw error;
     }
-  }
+  },
+
+  
+  setIsOpenMoveModal: ( isOpen: boolean ) => set((state) => { state.isOpenMoveModal = isOpen }),
+  
+  setSelectedMoveDocuments: ( selectedDocuments: string[] ) => set((state) => { state.selectedMoveDocuments = [...selectedDocuments] }),
+
+  setIsOpenCreateFolderModal: ( isOpen: boolean ) => set((state) => { state.isOpenCreateFolderModal = isOpen }),
 });
 
 export const useReportStore = create<ReportState>()(

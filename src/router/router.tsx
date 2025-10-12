@@ -29,7 +29,7 @@ const routes: RouteObject[] = [
       </RequireAuth>
     ),
     children: [
-      { path: "editor/:operation?/:documentoId?", element: <EditorStudioComponent/> },
+      { path: "editor/:operation?/:documentId?", element: <EditorStudioComponent/> },
       { path: "documents", element: <DocumentPage /> },
       { path: "folders/:folderId", element: <FolderPage /> },
     ],

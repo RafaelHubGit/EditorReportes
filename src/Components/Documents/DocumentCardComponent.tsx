@@ -13,6 +13,8 @@ import {
 } from '@ant-design/icons';
 import { useReportStore } from '../../store/useReportStore';
 import type { IDocument } from '../../interfaces/IGeneric';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { types } from '../../types/types';
 
 
 const { Text } = Typography;
@@ -22,9 +24,9 @@ interface DocumentCardProps {
     viewMode?: 'grid' | 'list';
     isSelected?: boolean;
     onSelect?: (id: string) => void;
-    onEdit: (id: string) => void;
+    // onEdit: (id: string) => void;
     onDuplicate: (id: string) => void;
-    onMove: (id: string) => void;
+    // onMove: (id: string) => void;
     onDelete: (id: string) => void;
 }
 
@@ -59,16 +61,28 @@ export const DocumentCardComponent: React.FC<DocumentCardProps> = ({
     viewMode = 'grid',
     isSelected = false,
     onSelect,
-    onEdit,
+    // onEdit,
     onDuplicate,
-    onMove,
+    // onMove,
     onDelete
 }) => {
+    const navigate = useNavigate();
     const { toggleDocumentSelection } = useReportStore();
+    const setIsOpenMoveModal = useReportStore( state => state.setIsOpenMoveModal );
+    const setSelectedMoveDocuments = useReportStore( state => state.setSelectedMoveDocuments );
 
     const handleSelect = () => {
         onSelect?.(doc.id);
         toggleDocumentSelection(doc.id);
+    };
+
+    const handleEdit = () => {
+        navigate(`/app/editor/${types.documentEdit}/${doc.id}`)
+    };
+
+    const handleMove = ( idDocument: string ) => {
+        setSelectedMoveDocuments([idDocument]);
+        setIsOpenMoveModal(true);
     };
 
     const menuItems: MenuProps['items'] = [
@@ -76,19 +90,19 @@ export const DocumentCardComponent: React.FC<DocumentCardProps> = ({
             key: 'edit',
             icon: <EditOutlined />,
             label: 'Editar',
-            onClick: () => onEdit(doc.id)
+            onClick: () => handleEdit()
         },
-        {
-            key: 'duplicate',
-            icon: <CopyOutlined />,
-            label: 'Duplicar',
-            onClick: () => onDuplicate(doc.id)
-        },
+        // {
+        //     key: 'duplicate',
+        //     icon: <CopyOutlined />,
+        //     label: 'Duplicar',
+        //     onClick: () => onDuplicate(doc.id)
+        // },
         {
             key: 'move',
             icon: <FolderOutlined />,
             label: 'Mover a carpeta',
-            onClick: () => onMove(doc.id)
+            onClick: () => handleMove(doc.id)
         },
         {
             type: 'divider',
@@ -145,70 +159,70 @@ export const DocumentCardComponent: React.FC<DocumentCardProps> = ({
     // Grid View
     return (
         <Card
-        hoverable
-        style={{ 
-            marginBottom: 16,
-            border: isSelected ? '2px solid #1890ff' : undefined,
-            backgroundColor: isSelected ? '#f0f8ff' : undefined
-        }}
-        bodyStyle={{ padding: 16, position: 'relative' }}
+            hoverable
+            style={{ 
+                marginBottom: 16,
+                // maxWidth: '300px',
+                border: isSelected ? '2px solidrgb(255, 163, 24)' : undefined,
+                backgroundColor: isSelected ? '#f0f8ff' : undefined
+            }}
         >
-        {/* Selection Checkbox */}
-        <div style={{ position: 'absolute', top: 12, left: 12 }}>
-            <Checkbox 
-            checked={isSelected} 
-            onChange={handleSelect}
-            />
-        </div>
-
-        {/* Options Menu */}
-        <div style={{ position: 'absolute', top: 8, right: 8 }}>
-            <Dropdown menu={{ items: menuItems }} trigger={['click']}>
-            <Button type="text" icon={<MoreOutlined />} size="small" />
-            </Dropdown>
-        </div>
-
-        {/* Content */}
-        <Space direction="vertical" size={12} style={{ width: '100%' }}>
-            <Space size={12} style={{ width: '100%', justifyContent: 'center' }}>
-            {getFileIcon(doc.type)}
-            </Space>
-            
-            <div>
-            <Text strong style={{ display: 'block', textAlign: 'center' }} ellipsis>
-                {doc.name}
-            </Text>
-            <Text type="secondary" style={{ fontSize: 12, display: 'block', textAlign: 'center' }}>
-                {doc.dateUpdated?.toString() || ""}
-            </Text>
+            {/* Selection Checkbox */}
+            <div style={{ position: 'absolute', top: 12, left: 12 }}>
+                <Checkbox 
+                checked={isSelected} 
+                onChange={handleSelect}
+                />
             </div>
 
-            {/* Tags */}
-            {doc.tags && doc.tags.length > 0 && (
-            <div style={{ textAlign: 'center' }}>
-                {doc.tags.slice(0, 2).map(tag => (
-                <Tag key={tag} style={{ margin: 2 }}>
-                    {tag}
-                </Tag>
-                ))}
-                {doc.tags.length > 2 && (
-                <Tag >+{doc.tags.length - 2}</Tag>
+            {/* Options Menu */}
+            <div style={{ position: 'absolute', top: 8, right: 8 }}>
+                <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+                <Button type="text" icon={<MoreOutlined />} size="small" />
+                </Dropdown>
+            </div>
+
+            {/* Content */}
+            <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                <Space size={12} style={{ width: '100%', justifyContent: 'center' }}>
+                {getFileIcon(doc.type)}
+                </Space>
+                
+                <div>
+                <Text strong style={{ display: 'block', textAlign: 'center' }} ellipsis>
+                    {doc.name}
+                </Text>
+                <Text type="secondary" style={{ fontSize: 12, display: 'block', textAlign: 'center' }}>
+                    {doc.dateUpdated?.toString() || ""}
+                </Text>
+                </div>
+
+                {/* Tags */}
+                {doc.tags && doc.tags.length > 0 && (
+                <div style={{ textAlign: 'center' }}>
+                    {doc.tags.slice(0, 2).map(tag => (
+                    <Tag key={tag} style={{ margin: 2 }}>
+                        {tag}
+                    </Tag>
+                    ))}
+                    {doc.tags.length > 2 && (
+                    <Tag >+{doc.tags.length - 2}</Tag>
+                    )}
+                </div>
                 )}
-            </div>
-            )}
 
-            {/* Actions */}
-            <Space style={{ width: '100%', justifyContent: 'center' }}>
-            <Button 
-                type="primary" 
-                size="small" 
-                icon={<EditOutlined />}
-                onClick={() => onEdit(doc.id)}
-            >
-                Editar
-            </Button>
+                {/* Actions */}
+                <Space style={{ width: '100%', justifyContent: 'center' }}>
+                <Button 
+                    type="primary" 
+                    size="small" 
+                    icon={<EditOutlined />}
+                    onClick={() => handleEdit()}
+                >
+                    Editar
+                </Button>
+                </Space>
             </Space>
-        </Space>
         </Card>
     );
 };

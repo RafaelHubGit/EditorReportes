@@ -1,20 +1,16 @@
 // DocumentPage.tsx - Versión completa
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { 
     Button, 
     Card, 
     Col, 
-    Row, 
-    Modal, 
+    Row,
     Input, 
     Form, 
-    Space, 
-    Select, 
+    Space,
     Dropdown, 
     Typography,
-    Divider,
     Badge,
-    Tooltip,
     type MenuProps
 } from 'antd';
 import { 
@@ -23,26 +19,24 @@ import {
     SearchOutlined,
     AppstoreOutlined,
     UnorderedListOutlined,
-    SortAscendingOutlined,
-    MoreOutlined,
-    UserOutlined,
-    TeamOutlined
+    SortAscendingOutlined
 } from '@ant-design/icons';
 import { DocumentCardComponent } from './DocumentCardComponent';
 import { FolderComponent } from './FolderComponent';
 import { useReportStore } from '../../store/useReportStore';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { MoveModalComponent } from '../MoveModalComponent';
+import { CreateFolderModalComponent } from '../CreateFolderModalComponent';
+import { Link, useNavigate } from 'react-router-dom';
 import { types } from '../../types/types';
 
 const { Title, Text } = Typography;
-const { Option } = Select;
 const { Search } = Input;
 
 export const DocumentPage = () => {
-    const navigate = useNavigate();
 
-    const [isFolderModalVisible, setIsFolderModalVisible] = useState(false);
-    const [isMoveModalVisible, setIsMoveModalVisible] = useState(false);
+
+    const setIsOpenCreateFolderModal = useReportStore(state => state.setIsOpenCreateFolderModal);
+    const setIsOpenMoveModal = useReportStore(state => state.setIsOpenMoveModal);
     const [form] = Form.useForm();
     
     const { 
@@ -63,6 +57,7 @@ export const DocumentPage = () => {
 
     // Documentos filtrados y ordenados
     const filteredDocuments = useMemo(() => {
+        
         let filtered = documents.filter(doc => !doc.idFolder);
         
         if (searchQuery) {
@@ -85,67 +80,39 @@ export const DocumentPage = () => {
         });
     }, [documents, searchQuery, sortBy]);
 
-    const handleCreateFolder = async (values: { name: string; icon: string; color: string; description?: string }) => {
-        try {
-        // await addFolder({
-        //     name: values.name,
-        //     icon: values.icon,
-        //     color: values.color,
-        //     description: values.description,
-        //     idDocuments: []
-        // });
-        setIsFolderModalVisible(false);
-        form.resetFields();
-        } catch (error) {
-        console.error('Error creating folder:', error);
-        }
-    };
-
-    const handleMoveDocuments = async (values: { folderId: string }) => {
-        try {
-        await moveSelectedDocuments(values.folderId || null);
-        setIsMoveModalVisible(false);
-        clearSelection();
-        } catch (error) {
-        console.error('Error moving documents:', error);
-        }
-    };
 
     const viewModeItems: MenuProps['items'] = [
         {
-        key: 'grid',
-        icon: <AppstoreOutlined />,
-        label: 'Vista de cuadrícula',
-        onClick: () => setViewMode('grid')
+            key: 'grid',
+            icon: <AppstoreOutlined />,
+            label: 'Vista de cuadrícula',
+            onClick: () => setViewMode('grid')
         },
         {
-        key: 'list',
-        icon: <UnorderedListOutlined />,
-        label: 'Vista de lista',
-        onClick: () => setViewMode('list')
+            key: 'list',
+            icon: <UnorderedListOutlined />,
+            label: 'Vista de lista',
+            onClick: () => setViewMode('list')
         }
     ];
 
     const sortItems: MenuProps['items'] = [
         {
-        key: 'date',
-        label: 'Por fecha',
-        onClick: () => setSortBy('date')
+            key: 'date',
+            label: 'Por fecha',
+            onClick: () => setSortBy('date')
         },
         {
-        key: 'name',
-        label: 'Por nombre',
-        onClick: () => setSortBy('name')
+            key: 'name',
+            label: 'Por nombre',
+            onClick: () => setSortBy('name')
         },
         {
-        key: 'type',
-        label: 'Por tipo',
-        onClick: () => setSortBy('type')
+            key: 'type',
+            label: 'Por tipo',
+            onClick: () => setSortBy('type')
         }
     ];
-
-    const folderIcons = ["📁", "📂", "🎨", "📊", "📝", "📄", "🧾", "📑"];
-    const folderColors = ["#ff6b6b", "#51cf66", "#339af0", "#ff922b", "#cc5de8", "#20c997", "#fcc419"];
 
     return (
         <section style={{ padding: "50px 50px 10px 50px" }}>
@@ -164,22 +131,37 @@ export const DocumentPage = () => {
                     <Space>
                         {selectedDocuments.length > 0 && (
                         <Button 
-                            onClick={() => setIsMoveModalVisible(true)}
+                            onClick={() => setIsOpenMoveModal(true)}
                             icon={<FolderAddOutlined />}
                         >
                             Mover ({selectedDocuments.length})
                         </Button>
                         )}
                         <Button 
-                        type="default" 
-                        icon={<FolderAddOutlined />}
-                        onClick={() => setIsFolderModalVisible(true)}
+                            type="default" 
+                            icon={<FolderAddOutlined />}
+                            onClick={() => setIsOpenCreateFolderModal(true)}
+                            >
+                            Nueva Carpeta
+                        </Button>
+                        <Link 
+                            type="primary" 
+                            // icon={<PlusOutlined />}
+                            to={`/app/editor?op=${types.documentNew}`}
+                            style={{ 
+                                display: 'inline-flex', 
+                                alignItems: 'center', 
+                                gap: 8,
+                                padding: '8px 16px',
+                                background: '#1890ff',
+                                color: 'white',
+                                borderRadius: '6px',
+                                textDecoration: 'none'
+                            }}
                         >
-                        Nueva Carpeta
-                        </Button>
-                        <Button type="primary" icon={<PlusOutlined />}>
-                        Nuevo Documento
-                        </Button>
+                            <PlusOutlined />
+                            Nuevo Documento
+                        </Link>
                     </Space>
                 </Col>
             </Row>
@@ -273,11 +255,7 @@ export const DocumentPage = () => {
                                 alignItems: 'center',
                                 justifyContent: 'center'
                             }}
-                            // styles={{
-                            //     padding: 16,
-                            //     textAlign: 'center'
-                            // }}
-                            onClick={() => setIsFolderModalVisible(true)}
+                            onClick={() => setIsOpenCreateFolderModal(true)}
                         >
                             <FolderAddOutlined style={{ fontSize: 32, color: '#1890ff', marginBottom: 8 }} />
                             <Text type="secondary" strong>
@@ -302,16 +280,22 @@ export const DocumentPage = () => {
                 <Row gutter={[16, 16]}>
                     {filteredDocuments.length > 0 ? (
                     filteredDocuments.map((doc) => (
-                        <Col xs={24} key={doc.id}>
+                        <Col 
+                            key={doc.id}
+                            xs={24}
+                            sm={viewMode === "grid" ? 12 : 24}  // 2 columns on small screens
+                            md={viewMode === "grid" ? 8 : 24}   // 3 columns on medium screens
+                            lg={viewMode === "grid" ? 6 : 24}   // 4 columns on large screens
+                        >
                             <DocumentCardComponent
                                 doc={doc}
                                 viewMode={viewMode}
                                 isSelected={selectedDocuments.includes(doc.id)}
                                 onSelect={() => {}}
                                 // onEdit={(id) =>  navigate(`app/editor/${types.documentEdit}/${id}`) }
-                                onEdit={(id) => navigate(`/app/editor/edit/${id}`)}
+                                // onEdit={(id) => navigate(`/app/editor/edit/${id}`)}
                                 onDuplicate={(id) => console.log("duplicate", id)}
-                                onMove={(id) => console.log("move", id)}
+                                // onMove={(id) => console.log("move", id)}
                                 onDelete={(id) => console.log("delete", id)}
                             />
                         </Col>
@@ -338,121 +322,8 @@ export const DocumentPage = () => {
 
             </div>
 
-            {/* Create Folder Modal */}
-            <Modal
-                title="Crear Nueva Carpeta"
-                open={isFolderModalVisible}
-                onCancel={() => {
-                setIsFolderModalVisible(false);
-                form.resetFields();
-                }}
-                onOk={() => form.submit()}
-                okText="Crear Carpeta"
-                cancelText="Cancelar"
-            >
-                <Form
-                form={form}
-                layout="vertical"
-                onFinish={handleCreateFolder}
-                initialValues={{ icon: "📁", color: "#339af0" }}
-                >
-                <Form.Item
-                    name="name"
-                    label="Nombre de la carpeta"
-                    rules={[
-                    { required: true, message: 'Por favor ingresa un nombre para la carpeta' },
-                    { min: 1, message: 'El nombre debe tener al menos 1 carácter' }
-                    ]}
-                >
-                    <Input placeholder="Ej: Proyectos 2024" />
-                </Form.Item>
-                
-                <Form.Item
-                    name="description"
-                    label="Descripción (opcional)"
-                >
-                    <Input.TextArea 
-                    placeholder="Describe el propósito de esta carpeta..."
-                    rows={3}
-                    />
-                </Form.Item>
-                
-                <Form.Item
-                    name="icon"
-                    label="Icono"
-                >
-                    <Select placeholder="Selecciona un icono">
-                        {folderIcons.map(icon => (
-                            <Option key={icon} value={icon}>
-                            <Space>
-                                <span style={{ fontSize: 16 }}>{icon}</span>
-                                <span>{icon}</span>
-                            </Space>
-                            </Option>
-                        ))}
-                    </Select>
-                </Form.Item>
-                
-                <Form.Item
-                    name="color"
-                    label="Color"
-                >
-                    <Select placeholder="Selecciona un color">
-                        {folderColors.map(color => (
-                            <Option key={color} value={color}>
-                            <Space>
-                                <div 
-                                style={{ 
-                                    width: 16, 
-                                    height: 16, 
-                                    backgroundColor: color,
-                                    borderRadius: 4
-                                }} 
-                                />
-                                <span>{color}</span>
-                            </Space>
-                            </Option>
-                        ))}
-                    </Select>
-                </Form.Item>
-                </Form>
-            </Modal>
-
-            {/* Move Documents Modal */}
-            <Modal
-                title={`Mover ${selectedDocuments.length} documento(s)`}
-                open={isMoveModalVisible}
-                onCancel={() => setIsMoveModalVisible(false)}
-                onOk={() => form.submit()}
-                okText="Mover"
-                cancelText="Cancelar"
-            >
-                <Form
-                    form={form}
-                    layout="vertical"
-                    onFinish={handleMoveDocuments}
-                >
-                    <Form.Item
-                        name="folderId"
-                        label="Seleccionar carpeta destino"
-                    >
-                        <Select placeholder="Selecciona una carpeta (dejar vacío para mover a raíz)">
-                            <Option value="">📁 Raíz de documentos</Option>
-                                {folders.map(folder => (
-                                    <Option key={folder.id} value={folder.id}>
-                                        <Space>
-                                            <span>{folder.icon}</span>
-                                            <span>{folder.name}</span>
-                                            <Text type="secondary">
-                                            ({folder.idDocuments.length} docs)
-                                            </Text>
-                                        </Space>
-                                    </Option>
-                                ))}
-                        </Select>
-                    </Form.Item>
-                </Form>
-            </Modal>
+            <CreateFolderModalComponent />
+            <MoveModalComponent />
         </section>
     );
 }

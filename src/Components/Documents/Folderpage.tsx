@@ -29,6 +29,7 @@ import {
 } from '@ant-design/icons';
 import { DocumentCardComponent } from './DocumentCardComponent';
 import { useReportStore } from '../../store/useReportStore';
+import { MoveModalComponent } from '../MoveModalComponent';
 
 const { Title, Text } = Typography;
 const { Search } = Input;
@@ -232,17 +233,20 @@ export const FolderPage = () => {
         <Row gutter={[16, 16]}>
             {folderDocuments.length > 0 ? (
             folderDocuments.map((doc) => (
-                <Col xs={24} key={doc.id}>
-                <DocumentCardComponent
-                    doc={doc}
-                    viewMode={viewMode}
-                    isSelected={selectedDocuments.includes(doc.id)}
-                    onSelect={() => {}}
-                    onEdit={(id) => console.log("edit", id)}
-                    onDuplicate={(id) => console.log("duplicate", id)}
-                    onMove={(id) => console.log("move", id)}
-                    onDelete={(id) => console.log("delete", id)}
-                />
+                <Col 
+                    key={doc.id}
+                    xs={24} sm={viewMode === "grid" ? 12 : 24} md={viewMode === "grid" ? 8 : 24} lg={viewMode === "grid" ? 6 : 24} 
+                >
+                    <DocumentCardComponent
+                        doc={doc}
+                        viewMode={viewMode}
+                        isSelected={selectedDocuments.includes(doc.id)}
+                        onSelect={() => {}}
+                        // onEdit={(id) => console.log("edit", id)}
+                        onDuplicate={(id) => console.log("duplicate", id)}
+                        // onMove={(id) => console.log("move", id)}
+                        onDelete={(id) => console.log("delete", id)}
+                    />
                 </Col>
             ))
             ) : (
@@ -269,7 +273,7 @@ export const FolderPage = () => {
             )}
         </Row>
 
-        {/* Move Documents Modal (similar al de DocumentPage) */}
+        <MoveModalComponent />
         </section>
     );
 };
