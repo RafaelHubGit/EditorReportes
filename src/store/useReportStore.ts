@@ -5,6 +5,8 @@ import { immer } from "zustand/middleware/immer";
 import { v4 as uuidv4 } from 'uuid';
 import Swal from 'sweetalert2';
 import type { IDocument, IFolder, ViewMode, SortOption } from "../interfaces/IGeneric";
+import { GET_FOLDERS } from "../graphql/operations/graphql.operations";
+import { GraphQLService } from "../graphql/graphql.service";
 
 interface ReportState {
   document: IDocument;
@@ -29,6 +31,7 @@ interface ReportState {
   // Folder Actions
   addFolder: (folder: Omit<IFolder, 'id'>) => Promise<void>;
   updateFolder: (folderId: string, updates: Partial<IFolder>) => Promise<void>;
+  getFolders: () => Promise<IFolder[]>;
   deleteFolder: (folderId: string) => Promise<void>;
   moveDocumentToFolder: (documentId: string, folderId: string | null) => Promise<void>;
   
@@ -392,6 +395,20 @@ updateFolder: async (folderId: string, updates: Partial<IFolder>) => {
     throw error;
   }
 },
+
+getFolders: async () => {
+    try {
+
+      const folders_api: IFolder[] = await GraphQLService.query(GET_FOLDERS).then((res: any) => res.data.folders);
+      console.log("folders_api : ", folders_api)
+
+      const { folders } = get();
+      return folders;
+    } catch (error) {
+      console.error('Error en getFolders:', error);
+      throw error;
+    }
+  },
 
   deleteFolder: async (folderId: string) => {
     try {

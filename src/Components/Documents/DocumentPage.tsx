@@ -34,6 +34,7 @@ const { Search } = Input;
 
 export const DocumentPage = () => {
 
+    useReportStore.getState().getFolders();
 
     const setIsOpenCreateFolderModal = useReportStore(state => state.setIsOpenCreateFolderModal);
     const setIsOpenMoveModal = useReportStore(state => state.setIsOpenMoveModal);

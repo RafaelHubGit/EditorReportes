@@ -5,5 +5,10 @@ import commonjs from "vite-plugin-commonjs";
 
 // https://vite.dev/config/
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      external: ['rxjs']
+    }
+  },
   plugins: [react(), commonjs()],
 })
