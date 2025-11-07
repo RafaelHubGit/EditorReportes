@@ -158,7 +158,7 @@ export const EditorStudioComponent = ({}: Props) => {
                       htmlCodeprop={documentState.html} 
                       setHtmlCodeProp={(html) => updateDocumentState({ html })}
                       setHtmlProcesedProp={(htmlProcessed) => updateDocumentState({ htmlProcessed })}
-                      jsonStringProp={documentState.json}
+                      jsonStringProp={documentState.jsonData}
                     />
                   </div>
                 )
@@ -181,8 +181,8 @@ export const EditorStudioComponent = ({}: Props) => {
                 children: (
                   <div style={{ height: 'calc(100vh - 210px)' }}>
                     <EditorJsonComponent 
-                      jsonProp={JSON.stringify(documentState.json)} 
-                      setJsonProp={(json) => updateDocumentState({ json: JSON.parse(json) })}
+                      jsonProp={JSON.stringify(documentState.jsonData)} 
+                      setJsonProp={(json) => updateDocumentState({ jsonData: JSON.parse(json) })}
                     />
                   </div>
                 )
@@ -216,7 +216,7 @@ export const EditorStudioComponent = ({}: Props) => {
                           htmlCodeprop={documentState.html} 
                           setHtmlCodeProp={(html) => updateDocumentState({ html })}
                           setHtmlProcesedProp={(htmlProcessed) => updateDocumentState({ htmlProcessed })}
-                          jsonStringProp={documentState.json}
+                          jsonStringProp={documentState.jsonData}
                         />
                       </div>
                     )
@@ -239,8 +239,8 @@ export const EditorStudioComponent = ({}: Props) => {
                     children: (
                       <div style={{ height: 'calc(100vh - 210px)' }}>
                         <EditorJsonComponent 
-                          jsonProp={JSON.stringify(documentState.json)} 
-                          setJsonProp={(json) => updateDocumentState({ json: JSON.parse(json) })}
+                          jsonProp={JSON.stringify(documentState.jsonData)} 
+                          setJsonProp={(json) => updateDocumentState({ jsonData: JSON.parse(json) })}
                         />
                       </div>
                     )

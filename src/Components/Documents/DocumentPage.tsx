@@ -1,5 +1,5 @@
 // DocumentPage.tsx - Versión completa
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { 
     Button, 
     Card, 
@@ -58,7 +58,7 @@ export const DocumentPage = () => {
     // Documentos filtrados y ordenados
     const filteredDocuments = useMemo(() => {
         
-        let filtered = documents.filter(doc => !doc.idFolder);
+        let filtered = documents.filter(doc => !doc.folderId);
         
         if (searchQuery) {
         filtered = filtered.filter(doc => 
@@ -71,11 +71,11 @@ export const DocumentPage = () => {
         switch (sortBy) {
             case 'name':
             return a.name.localeCompare(b.name);
-            case 'type':
-            return (a.type || '').localeCompare(b.type || '');
+            // case 'type':
+            // return (a.type || '').localeCompare(b.type || '');
             case 'date':
             default:
-            return new Date(b.dateUpdated || 0).getTime() - new Date(a.dateUpdated || 0).getTime();
+            return new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime();
         }
         });
     }, [documents, searchQuery, sortBy]);
@@ -115,7 +115,7 @@ export const DocumentPage = () => {
     ];
 
     return (
-        <section style={{ padding: "50px 50px 10px 50px" }}>
+        <section style={{ padding: "10px 50px 10px 50px", overflow: 'hidden' }}>
             {/* Header */}
             <Row justify="space-between" align="middle" style={{ marginBottom: 30 }}>
                 <Col>
@@ -169,7 +169,7 @@ export const DocumentPage = () => {
             {/* Toolbar */}
             <Card 
                 size="small" 
-                style={{ marginBottom: 24 }}
+                style={{ marginBottom: 24, overflowY: 'auto' }}
                 // bodyStyle={{ padding: '12px 16px' }}
             >
                 <Row justify="space-between" align="middle">
@@ -212,35 +212,38 @@ export const DocumentPage = () => {
                     padding: 24,
                     backgroundColor: '#fff',
                     borderRadius: 12,
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                    // boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
                     scrollbarWidth: 'thin',
                     scrollbarColor: '#ccc #f1f1f1',
                     overflowY: 'auto',
-                    height: 'calc(100vh - 250px)',
+                    height: 'calc(100vh - 205px)',
                 }}
             >
                 {/* Folders Section */}
                 <Title level={2} style={{ marginBottom: 16 }}>Carpetas</Title>
-                <Row gutter={[16, 16]} style={{ marginBottom: 32 }}>
+                <Row gutter={[16, 16]} style={{ marginBottom: 32 }} wrap>
                     {folders.map((folder) => {
-                    const folderDocs = documents.filter(doc => folder.idDocuments.includes(doc.id));
-                    return (
-                        <Col xs={24} sm={12} md={8} lg={6} key={folder.id}>
-                            <FolderComponent 
-                                id={folder.id} 
-                                name={folder.name}
-                                // icon={folder.icon}
-                                color={folder.color || "#339af0"}
-                                description={folder.description || ""}
-                                isShared={folder.isShared || false}
-                                sharedWith={folder.sharedWith || []}
-                                documentCount={folderDocs.length}
-                                onEdit={(id) => console.log("Editar folder", id)} // ← Agregar esta línea
-                                onShare={(id) => console.log("Compartir folder", id)} // ← Agregar esta línea
-                                onDelete={deleteFolder}
-                            />
-                        </Col>
-                    );
+                        const folderDocs = documents.filter(doc => doc.folderId === folder.id);
+
+                        return (
+                            <Col 
+                                xs={24} sm={12} md={8} lg={6} key={folder.id}
+                            >
+                                <FolderComponent 
+                                    id={folder.id} 
+                                    name={folder.name}
+                                    // icon={folder.icon}
+                                    color={folder.color || "#339af0"}
+                                    description={folder.description || ""}
+                                    isShared={folder.isShared || false}
+                                    sharedWith={folder.sharedWith || []}
+                                    documentCount={folderDocs.length}
+                                    onEdit={(id) => console.log("Editar folder", id)} 
+                                    onShare={(id) => console.log("Compartir folder", id)} 
+                                    onDelete={deleteFolder}
+                                />
+                            </Col>
+                        );
                     })}
                     
                     {/* Empty Folder Card */}

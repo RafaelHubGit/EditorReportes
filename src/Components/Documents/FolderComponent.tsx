@@ -10,7 +10,7 @@ import {
     MoreOutlined,
     UserOutlined 
 } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useReportStore } from "../../store/useReportStore";
 
 const { Text } = Typography;
@@ -53,6 +53,9 @@ export const FolderComponent = ({
     onShare,
     onDelete
 }: Props) => {
+
+    const navigate = useNavigate();
+
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [isShareModalVisible, setIsShareModalVisible] = useState(false);
     const [form] = Form.useForm();
@@ -76,6 +79,10 @@ export const FolderComponent = ({
         } catch (error) {
         console.error('Error sharing folder:', error);
         }
+    };
+
+    const handleNavigate = (path: string) => {
+        navigate(path);
     };
 
     const menuItems: MenuProps['items'] = [
@@ -112,53 +119,83 @@ export const FolderComponent = ({
                     borderRadius: 12, 
                     boxShadow: "0 4px 14px rgba(0,0,0,0.08)",
                     borderLeft: `4px solid ${color}`,
-                    position: 'relative'
+                    position: 'relative',
+                    maxHeight: '100px',
+                    overflow: 'hidden'
                 }}
+                onClick={() => handleNavigate(`/app/folders/${id}`)}
                 // bodyStyle={{ padding: 16 }}
-                actions={[
-                <Link to={`/app/folders/${id}`} key="open">
-                    <Button type="primary" icon={<ArrowRightOutlined />} size="small">
-                    Abrir
-                    </Button>
-                </Link>
-                ]}
+                // actions={[
+                // <Link to={`/app/folders/${id}`} key="open">
+                //     <Button type="primary" icon={<ArrowRightOutlined />} size="small">
+                //     Abrir
+                //     </Button>
+                // </Link>
+                // ]}
             >
                 {/* Header con menu de opciones */}
                 <div style={{ position: 'absolute', top: 12, right: 12 }}>
-                <Dropdown menu={{ items: menuItems }} trigger={['click']}>
-                    <Button type="text" icon={<MoreOutlined />} size="small" />
-                </Dropdown>
+                    <Dropdown menu={{ items: menuItems }} trigger={['hover']}>
+                        <Button type="text" icon={<MoreOutlined />} size="small" />
+                    </Dropdown>
                 </div>
 
                 {/* Contenido de la carpeta */}
-                <Space direction="vertical" size={12} style={{ width: "100%" }}>
-                <Space align="center" size={12}>
-                    <span style={{ fontSize: 24 }}>{icon}</span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                    <Text strong style={{ display: 'block', fontSize: 16 }} ellipsis>
-                        {name}
-                    </Text>
-                    {description && (
-                        <Text type="secondary" style={{ fontSize: 12 }} ellipsis>
-                        {description}
-                        </Text>
-                    )}
-                    </div>
-                </Space>
-
-                {/* Tags y información */}
-                <Space size={8} style={{ width: '100%', justifyContent: 'space-between' }}>
-                    <Space size={4}>
-                    {isShared && (
-                        <Tag icon={<UserOutlined />} color="blue">
-                        Compartida
-                        </Tag>
-                    )}
-                    <Text type="secondary" style={{ fontSize: 12 }}>
-                        {documentCount} doc{documentCount !== 1 ? 's' : ''}
-                    </Text>
+                <Space 
+                    direction="vertical" 
+                    size={1} 
+                    style={{ 
+                        width: "100%", 
+                        marginTop: 5 
+                    }}
+                >
+                    <Space align="center" size={5}>
+                        <span style={{ fontSize: 24 }}>{icon}</span>
+                        <div 
+                            style={{ 
+                                flex: 1, 
+                                minWidth: 0, 
+                                overflow: 'hidden',
+                                maxWidth: '80%'
+                            }}
+                        >
+                            <Text strong 
+                                style={{
+                                    fontSize: 13
+                                }} 
+                                ellipsis
+                            >
+                                {name}
+                            </Text>
+                            {description && (
+                                <Text type="secondary" 
+                                    style={{ 
+                                        fontSize: 11,
+                                    overflow:'hidden',
+                                    textOverflow:'ellipsis',
+                                    whiteSpace:'nowrap'
+                                    }} 
+                                    
+                                >
+                                {description}
+                                </Text>
+                            )}
+                        </div>
                     </Space>
-                </Space>
+
+                    {/* Tags y información */}
+                    <Space size={8} style={{ width: '100%', justifyContent: 'space-between' }}>
+                        <Space size={4}>
+                        {/* {isShared && (
+                            <Tag icon={<UserOutlined />} color="blue">
+                            Compartida
+                            </Tag>
+                        )} */}
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                            {documentCount} doc{documentCount !== 1 ? 's' : ''}
+                        </Text>
+                        </Space>
+                    </Space>
                 </Space>
             </Card>
 
@@ -233,7 +270,7 @@ export const FolderComponent = ({
                 </Form>
             </Modal>
 
-            {/* Modal de Compartición */}
+            {/* Modal share */}
             <Modal
                 title={`Compartir "${name}"`}
                 open={isShareModalVisible}

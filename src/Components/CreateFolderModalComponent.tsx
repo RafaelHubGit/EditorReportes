@@ -14,9 +14,9 @@ export const CreateFolderModalComponent = () => {
                 description: values.description || '',
                 icon: '📁',
                 color: '#339af0',
-                idDocuments: [],
-                dateCreated: new Date(),
-                dateUpdated: new Date()
+                // idDocuments: [],
+                createdAt: new Date(),
+                updatedAt: new Date()
             });
             setIsOpenCreateFolderModal(false);
             form.resetFields();

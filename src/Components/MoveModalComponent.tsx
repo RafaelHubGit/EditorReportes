@@ -1,10 +1,13 @@
 import { Form, Modal, Select, Space, Typography } from 'antd'
 import { useReportStore } from '../store/useReportStore';
+import { useOrgStore } from '../store/useOrganizationStore';
 
 const { Text } = Typography;
 const { Option } = Select;
 
 export const MoveModalComponent = () => {
+
+    const documents = useOrgStore(state => state.documents);
 
     const setIsOpenMoveModal  = useReportStore( state => state.setIsOpenMoveModal );
     const isOpenMoveModal     = useReportStore(state => state.isOpenMoveModal);
@@ -62,7 +65,8 @@ export const MoveModalComponent = () => {
                                         <span>{folder.icon}</span>
                                         <span>{folder.name}</span>
                                         <Text type="secondary">
-                                        ({folder.idDocuments.length } docs)
+                                        {/* ({folder.idDocuments.length } docs) */}
+                                            {documents.filter(doc => doc.folderId === folder.id).length} docs
                                         </Text>
                                     </Space>
                                 </Option>

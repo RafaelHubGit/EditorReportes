@@ -61,44 +61,43 @@ const initDocument: IDocument = {
   html: '<h1>Nuevo Reporte</h1>',
   htmlProcessed: '',
   css: '',
-  json: {},
-  dateCreated: new Date(),
-  dateUpdated: new Date(),
-  type: 'report'
+  jsonData: {},
+  createdAt: new Date(),
+  updatedAt: new Date()
 };
 
 const defaultFolders: IFolder[] = [
   {
     id: "123",
     name: "Marketing Templates",
-    idDocuments: ["e4f50b2a-0c52-4cda-b729-9fbc3c7ff0df"],
+    // idDocuments: ["e4f50b2a-0c52-4cda-b729-9fbc3c7ff0df"],
     icon: "🎨",
     color: "#ff6b6b",
     description: "Plantillas para campañas de marketing",
-    dateCreated: new Date('2024-01-15'),
-    dateUpdated: new Date('2024-03-20')
+    createdAt: new Date('2024-01-15'),
+    updatedAt: new Date('2024-03-20')
   },
   {
     id: "abc", 
     name: "Invoices 2025",
-    idDocuments: [],
+    // idDocuments: [],
     icon: "🧾",
     color: "#51cf66",
     description: "Facturas y documentos fiscales",
-    dateCreated: new Date('2024-01-10'),
-    dateUpdated: new Date('2024-03-18')
+    createdAt: new Date('2024-01-10'),
+    updatedAt: new Date('2024-03-18')
   },
   {
     id: "def",
     name: "Proyectos Activos",
-    idDocuments: [],
+    // idDocuments: [],
     icon: "📂",
     color: "#339af0",
     description: "Proyectos en desarrollo",
     isShared: true,
     sharedWith: ["user2@example.com", "user3@example.com"],
-    dateCreated: new Date('2024-02-01'),
-    dateUpdated: new Date('2024-03-25')
+    createdAt: new Date('2024-02-01'),
+    updatedAt: new Date('2024-03-25')
   }
 ];
 
@@ -108,34 +107,34 @@ const sampleDocuments: IDocument[] = [
     name: "Q3 Invoice Template",
     html: '<div>Invoice Template</div>',
     css: 'body { margin: 0; }',
-    json: {},
-    idFolder: "123",
-    type: 'invoice',
+    jsonData: {},
+    folderId: "123",
+    // type: 'invoice',
     tags: ['factura', 'trimestral', 'template'],
-    dateCreated: new Date('2024-03-15'),
-    dateUpdated: new Date('2024-03-20')
+    createdAt: new Date('2024-03-15'),
+    updatedAt: new Date('2024-03-20')
   },
   {
     id: uuidv4(),
     name: "Monthly Sales Report",
     html: '<div>Sales Report</div>',
     css: 'body { margin: 0; }',
-    json: {},
-    type: 'report',
+    jsonData: {},
+    // type: 'report',
     tags: ['ventas', 'mensual'],
-    dateCreated: new Date('2024-03-18'),
-    dateUpdated: new Date('2024-03-25')
+    createdAt: new Date('2024-03-18'),
+    updatedAt: new Date('2024-03-25')
   },
   {
     id: uuidv4(),
     name: "Marketing Campaign Q2",
     html: '<div>Campaign Template</div>',
     css: 'body { margin: 0; }',
-    json: {},
-    type: 'template',
+    jsonData: {},
+    // type: 'template',
     tags: ['marketing', 'campaña'],
-    dateCreated: new Date('2024-03-10'),
-    dateUpdated: new Date('2024-03-22')
+    createdAt: new Date('2024-03-10'),
+    updatedAt: new Date('2024-03-22')
   }
 ];
 
@@ -163,8 +162,9 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
         const docWithId = {
           ...document,
           id: document.id || uuidv4(),
-          dateCreated: new Date(),
-          dateUpdated: new Date()
+          folderId: document.folderId || undefined,
+          createdAt: new Date(),
+          updatedAt: new Date()
         };
         
         state.document = docWithId;
@@ -200,7 +200,7 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
         state.document = { 
           ...state.document, 
           ...updates, 
-          dateUpdated: new Date() 
+          updatedAt: new Date() 
         };
         
         const docIndex = state.documents.findIndex((d: IDocument) => d.id === state.document.id);
@@ -250,9 +250,6 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
 
       set((state) => {
         state.documents = state.documents.filter((d: IDocument) => d.id !== idDocument);
-        state.folders.forEach(folder => {
-          folder.idDocuments = folder.idDocuments.filter(docId => docId !== idDocument);
-        });
         state.selectedDocuments = state.selectedDocuments.filter(id => id !== idDocument);
       });
 
@@ -300,35 +297,15 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
     
     let filteredDocs = documents;
     
-    // Filtrar por folder
-    if (targetFolderId) {
-      const folder = folders.find(f => f.id === targetFolderId);
-      if (folder) {
-        filteredDocs = documents.filter(doc => folder.idDocuments.includes(doc.id));
-      }
-    } else {
-      // Documentos sin folder
-      filteredDocs = documents.filter(doc => !doc.idFolder);
-    }
-    
-    // Aplicar búsqueda
-    if (searchQuery) {
-      filteredDocs = filteredDocs.filter(doc => 
-        doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        doc.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-      );
-    }
+    filteredDocs = documents.filter(doc => doc.folderId);
     
     // Aplicar ordenamiento
     filteredDocs = [...filteredDocs].sort((a, b) => {
       switch (sortBy) {
         case 'name':
           return a.name.localeCompare(b.name);
-        case 'type':
-          return (a.type || '').localeCompare(b.type || '');
-        case 'date':
         default:
-          return new Date(b.dateUpdated || 0).getTime() - new Date(a.dateUpdated || 0).getTime();
+          return new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime();
       }
     });
     
@@ -350,8 +327,8 @@ addFolder: async (folderData: Omit<IFolder, 'id'>) => {
     const newFolder: IFolder = {
       ...folderData,
       id: uuidv4(),
-      dateCreated: new Date(),
-      dateUpdated: new Date()
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
 
     set((state) => {
@@ -388,9 +365,8 @@ updateFolder: async (folderId: string, updates: Partial<IFolder>) => {
     set((state) => {
       const folderIndex = state.folders.findIndex(f => f.id === folderId);
       if (folderIndex >= 0) {
-        // Usar Object.assign para evitar problemas de tipos
         Object.assign(state.folders[folderIndex]!, updates, {
-          dateUpdated: new Date()
+          updatedAt: new Date() // Cambiar dateUpdated por updatedAt
         });
       }
     });
@@ -464,24 +440,12 @@ updateFolder: async (folderId: string, updates: Partial<IFolder>) => {
 
   moveDocumentToFolder: async (documentId: string, folderId: string | null) => {
     try {
-      set((state) => {
-        // Remover de todas las folders primero
-        state.folders.forEach(folder => {
-          folder.idDocuments = folder.idDocuments.filter(id => id !== documentId);
-        });
-        
-        // Agregar a la nueva folder si se especifica
-        if (folderId) {
-          const targetFolder = state.folders.find(f => f.id === folderId);
-          if (targetFolder && !targetFolder.idDocuments.includes(documentId)) {
-            targetFolder.idDocuments.push(documentId);
-          }
-        }
-        
-        // Actualizar el idFolder en el documento
+        set((state) => {
+        // Actualizar el folderId en el documento
         const docIndex = state.documents.findIndex(d => d.id === documentId);
         if (docIndex >= 0) {
-          state.documents[docIndex]!.idFolder = folderId || "";
+          state.documents[docIndex]!.folderId = folderId || undefined;
+          state.documents[docIndex]!.updatedAt = new Date();
         }
       });
 
@@ -558,23 +522,11 @@ updateFolder: async (folderId: string, updates: Partial<IFolder>) => {
   moveSingleDocument: async (documentId: string, folderId: string | null) => {
     try {
       set((state) => {
-        // Remove from all folders first
-        state.folders.forEach(folder => {
-          folder.idDocuments = folder.idDocuments.filter(id => id !== documentId);
-        });
-        
-        // Add to the new folder if specified
-        if (folderId) {
-          const targetFolder = state.folders.find(f => f.id === folderId);
-          if (targetFolder && !targetFolder.idDocuments.includes(documentId)) {
-            targetFolder.idDocuments.push(documentId);
-          }
-        }
-        
-        // Update the idFolder in the document
+        // Actualizar el folderId en el documento
         const docIndex = state.documents.findIndex(d => d.id === documentId);
         if (docIndex >= 0) {
-          state.documents[docIndex]!.idFolder = folderId || "";
+          state.documents[docIndex]!.folderId = folderId || undefined;
+          state.documents[docIndex]!.updatedAt = new Date();
         }
       });
   
@@ -611,7 +563,7 @@ updateFolder: async (folderId: string, updates: Partial<IFolder>) => {
             ...(state.folders[folderIndex]!.sharedWith || []),
             ...users
           ];
-          state.folders[folderIndex]!.dateUpdated = new Date();
+          state.folders[folderIndex]!.updatedAt = new Date(); 
         }
       });
 
@@ -649,7 +601,7 @@ updateFolder: async (folderId: string, updates: Partial<IFolder>) => {
             state.folders[folderIndex]!.isShared = false;
           }
           
-          state.folders[folderIndex]!.dateUpdated = new Date();
+          state.folders[folderIndex]!.updatedAt = new Date(); 
         }
       });
 

@@ -9,27 +9,30 @@ export interface IDocument {
   html: string;
   htmlProcessed?: string;
   css: string;
-  json: Record<string, any>;
-  idFolder?: string;
-  dateCreated?: Date;
-  dateUpdated?: Date;
+  jsonSchema?: Record<string, any>;
+  jsonData: Record<string, any>;
+  folderId?: string | undefined;
+  status?: 'draft' | 'published' | 'unpublished' | 'archived' ;
+  tags?: string[];
+  owner?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
   userCreated?: string;
   userUpdated?: string;
-  tags?: string[];
-  type?: 'report' | 'invoice' | 'template' | 'custom';
 }
 
 export interface IFolder {
   id: string;
   name: string;
-  idDocuments: string[];
+  description?: string;
+  owner?: string;
+  // idDocuments: string[];
   icon?: string;
   color?: string;
-  description?: string;
   isShared?: boolean;
   sharedWith?: string[];
-  dateCreated?: Date;
-  dateUpdated?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export type ViewMode = 'grid' | 'list';

@@ -66,7 +66,7 @@ export const initDocument:IDocument = {
 
     `,
     // jsonStructure: "{}",      // empty schema by default
-    json: {
+    jsonData: {
                 "customerName": "John Doe",
                 "date": "2025-09-27",
                 "items": [
@@ -77,8 +77,8 @@ export const initDocument:IDocument = {
                 "total": "$95"
             }
     ,
-    dateCreated: new Date(),
-    dateUpdated: new Date(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
     userCreated: "",
     userUpdated: ""
 };
