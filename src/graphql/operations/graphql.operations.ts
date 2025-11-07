@@ -30,3 +30,17 @@ export const CREATE_FOLDER = gql`
         }
     }
 `;
+
+export const UPDATE_FOLDER = gql`
+    mutation UpdateFolder($id: ID!, $input: FolderInput!) {
+        updateFolder(id: $id, input: $input) {
+            id
+            name
+            description
+            color
+            icon
+            createdAt
+            updatedAt
+        }
+    }
+`;

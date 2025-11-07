@@ -134,9 +134,19 @@ export const FolderComponent = ({
                 // ]}
             >
                 {/* Header con menu de opciones */}
-                <div style={{ position: 'absolute', top: 12, right: 12 }}>
+                <div 
+                    style={{ position: 'absolute', top: 12, right: 12 }}
+                    onClick={(e) => { // se pone para que al dar clic en el menu no redirija
+                        e.stopPropagation();
+                        e.preventDefault();
+                    }}
+                >
                     <Dropdown menu={{ items: menuItems }} trigger={['hover']}>
-                        <Button type="text" icon={<MoreOutlined />} size="small" />
+                        <Button 
+                            type="text" 
+                            icon={<MoreOutlined />} 
+                            size="small"
+                        />
                     </Dropdown>
                 </div>
 

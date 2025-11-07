@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Swal from 'sweetalert2';
 import { pick } from 'lodash';
 import type { IDocument, IFolder, ViewMode, SortOption } from "../interfaces/IGeneric";
-import { CREATE_FOLDER, folderFieldsInput, GET_FOLDERS } from "../graphql/operations/graphql.operations";
+import { CREATE_FOLDER, folderFieldsInput, GET_FOLDERS, UPDATE_FOLDER } from "../graphql/operations/graphql.operations";
 import { GraphQLService } from "../graphql/graphql.service";
 import { pickFields } from "../utils/pickFields";
 
@@ -371,6 +371,12 @@ addFolder: async (folderData: Omit<IFolder, 'id'>) => {
   // En useReportStore.ts - corregir updateFolder
 updateFolder: async (folderId: string, updates: Partial<IFolder>) => {
   try {
+
+
+    const folderInput = pickFields(updates, folderFieldsInput);
+
+    const result = await GraphQLService.mutate(UPDATE_FOLDER, { id: folderId, input: folderInput });
+
     set((state) => {
       const folderIndex = state.folders.findIndex(f => f.id === folderId);
       if (folderIndex >= 0) {
