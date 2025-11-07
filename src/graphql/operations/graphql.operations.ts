@@ -1,4 +1,7 @@
 import { gql } from '@apollo/client';
+import type { IFolder } from '../../interfaces/IGeneric';
+
+export const folderFieldsInput: (keyof IFolder)[] = ['name', 'description', 'owner', 'icon', 'color'];
 
 
 export const GET_FOLDERS = gql`
@@ -11,5 +14,19 @@ export const GET_FOLDERS = gql`
             createdAt
             updatedAt
         } 
+    }
+`;
+
+export const CREATE_FOLDER = gql`
+    mutation CreateFolder($input: FolderInput! ) {
+        createFolder(input: $input) {
+            id
+            name
+            description
+            color
+            icon
+            createdAt
+            updatedAt
+        }
     }
 `;

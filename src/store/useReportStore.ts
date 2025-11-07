@@ -4,9 +4,11 @@ import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { v4 as uuidv4 } from 'uuid';
 import Swal from 'sweetalert2';
+import { pick } from 'lodash';
 import type { IDocument, IFolder, ViewMode, SortOption } from "../interfaces/IGeneric";
-import { GET_FOLDERS } from "../graphql/operations/graphql.operations";
+import { CREATE_FOLDER, folderFieldsInput, GET_FOLDERS } from "../graphql/operations/graphql.operations";
 import { GraphQLService } from "../graphql/graphql.service";
+import { pickFields } from "../utils/pickFields";
 
 interface ReportState {
   document: IDocument;
@@ -334,6 +336,11 @@ addFolder: async (folderData: Omit<IFolder, 'id'>) => {
       updatedAt: new Date()
     };
 
+    const folderInput = pickFields(newFolder, folderFieldsInput);
+
+    const result = await GraphQLService.mutate(CREATE_FOLDER, { input: folderInput }).then((res: any) => res.data.createFolder);
+    console.log("result CREATE : ", result)
+
     set((state) => {
       state.folders.unshift(newFolder);
     });
@@ -402,8 +409,11 @@ getFolders: async () => {
       const folders_api: IFolder[] = await GraphQLService.query(GET_FOLDERS).then((res: any) => res.data.folders);
       console.log("folders_api : ", folders_api)
 
-      const { folders } = get();
-      return folders;
+      set((state) => {
+        state.folders = folders_api;
+      });
+
+      return folders_api;
     } catch (error) {
       console.error('Error en getFolders:', error);
       throw error;
