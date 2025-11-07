@@ -338,11 +338,12 @@ addFolder: async (folderData: Omit<IFolder, 'id'>) => {
 
     const folderInput = pickFields(newFolder, folderFieldsInput);
 
-    const result = await GraphQLService.mutate(CREATE_FOLDER, { input: folderInput }).then((res: any) => res.data.createFolder);
-    console.log("result CREATE : ", result)
+    const result = await GraphQLService.mutate(CREATE_FOLDER, { input: folderInput });
+    
+    const createdFolder = result.data.createFolder;
 
     set((state) => {
-      state.folders.unshift(newFolder);
+      state.folders.unshift(createdFolder);
     });
 
     await Swal.fire({
@@ -355,8 +356,6 @@ addFolder: async (folderData: Omit<IFolder, 'id'>) => {
       position: 'top-end'
     });
 
-    // Cambiar esto: no retornar el id o cambiar la interfaz
-    // return newFolder.id; // ← Eliminar esta línea
   } catch (error) {
     console.error('Error en addFolder:', error);
     await Swal.fire({
@@ -405,9 +404,7 @@ updateFolder: async (folderId: string, updates: Partial<IFolder>) => {
 
 getFolders: async () => {
     try {
-
       const folders_api: IFolder[] = await GraphQLService.query(GET_FOLDERS).then((res: any) => res.data.folders);
-      console.log("folders_api : ", folders_api)
 
       set((state) => {
         state.folders = folders_api;

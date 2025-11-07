@@ -34,7 +34,7 @@ const { Search } = Input;
 
 export const DocumentPage = () => {
 
-    useReportStore.getState().getFolders();
+    const getFolders = useReportStore(state => state.getFolders);
 
     const setIsOpenCreateFolderModal = useReportStore(state => state.setIsOpenCreateFolderModal);
     const setIsOpenMoveModal = useReportStore(state => state.setIsOpenMoveModal);
@@ -55,6 +55,11 @@ export const DocumentPage = () => {
         moveSelectedDocuments,
         clearSelection
     } = useReportStore();
+
+    useEffect(() => {
+        getFolders();
+    }, []);
+    
 
     // Documentos filtrados y ordenados
     const filteredDocuments = useMemo(() => {
