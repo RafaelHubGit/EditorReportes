@@ -1,51 +1,32 @@
 // FolderComponent.tsx - Versión mejorada
 import React, { useState } from "react";
 import { Card, Button, Space, Typography, Dropdown, Tag, Modal, Form, Input, Select, type MenuProps } from "antd";
-import { 
-    FolderOutlined, 
-    ArrowRightOutlined, 
+import {
     ShareAltOutlined, 
     EditOutlined, 
     DeleteOutlined, 
     MoreOutlined,
     UserOutlined 
 } from "@ant-design/icons";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useReportStore } from "../../store/useReportStore";
+import type { IFolder } from "../../interfaces/IGeneric";
 
 const { Text } = Typography;
 const { Option } = Select;
 
 type Props = {
-    id: string;
-    name: string;
-    icon?: string;
-    color?: string;
-    description?: string;
+    folder: IFolder;
     isShared?: boolean;
     sharedWith?: string[];
     documentCount?: number;
-    onEdit?: (id: string) => void;
+    onEdit?: (folder: any) => void;
     onShare?: (id: string) => void;
     onDelete?: (id: string) => void;
 };
 
-const folderIcons = [
-    "📁", "📂", "🎨", "📊", "📝", "📄", "🧾", "📑", 
-    "📋", "📓", "📔", "📒", "📕", "📗", "📘", "📙"
-    ];
-
-const folderColors = [
-    "#ff6b6b", "#51cf66", "#339af0", "#ff922b", 
-    "#cc5de8", "#20c997", "#fcc419", "#868e96"
-];
-
 export const FolderComponent = ({ 
-    id, 
-    name, 
-    icon = "📁", 
-    color = "#339af0",
-    description,
+    folder,
     isShared = false,
     sharedWith = [],
     documentCount = 0,
@@ -56,28 +37,31 @@ export const FolderComponent = ({
 
     const navigate = useNavigate();
 
+    const { id, name, icon = "📁", color = "#339af0", description } = folder;
+
+
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [isShareModalVisible, setIsShareModalVisible] = useState(false);
     const [form] = Form.useForm();
     const { updateFolder, shareFolder } = useReportStore();
 
-    const handleEdit = async (values: any) => {
-        try {
-        await updateFolder(id, values);
-        setIsEditModalVisible(false);
-        onEdit?.(id);
-        } catch (error) {
-        console.error('Error editing folder:', error);
-        }
-    };
+    // const handleEdit = async (values: any) => {
+    //     try {
+    //         await updateFolder(id, values);
+    //         setIsEditModalVisible(false);
+    //         onEdit?.({ id, name, color, description, icon });
+    //     } catch (error) {
+    //         console.error('Error editing folder:', error);
+    //     }
+    // };
 
     const handleShare = async (values: { users: string[] }) => {
         try {
-        await shareFolder(id, values.users);
-        setIsShareModalVisible(false);
-        onShare?.(id);
+            await shareFolder(id, values.users);
+            setIsShareModalVisible(false);
+            onShare?.(id);
         } catch (error) {
-        console.error('Error sharing folder:', error);
+            console.error('Error sharing folder:', error);
         }
     };
 
@@ -87,26 +71,26 @@ export const FolderComponent = ({
 
     const menuItems: MenuProps['items'] = [
         {
-        key: 'edit',
-        icon: <EditOutlined />,
-        label: 'Editar',
-        onClick: () => setIsEditModalVisible(true)
+            key: 'edit',
+            icon: <EditOutlined />,
+            label: 'Editar',
+            onClick: () => onEdit?.({ id, name, color, description, icon })
         },
         {
-        key: 'share',
-        icon: <ShareAltOutlined />,
-        label: 'Compartir',
-        onClick: () => setIsShareModalVisible(true)
+            key: 'share',
+            icon: <ShareAltOutlined />,
+            label: 'Compartir',
+            onClick: () => setIsShareModalVisible(true)
         },
         {
-        type: 'divider',
+            type: 'divider',
         },
         {
-        key: 'delete',
-        icon: <DeleteOutlined />,
-        label: 'Eliminar',
-        danger: true,
-        onClick: () => onDelete?.(id)
+            key: 'delete',
+            icon: <DeleteOutlined />,
+            label: 'Eliminar',
+            danger: true,
+            onClick: () => onDelete?.(id)
         }
     ];
 
@@ -208,77 +192,6 @@ export const FolderComponent = ({
                     </Space>
                 </Space>
             </Card>
-
-            {/* Modal de Edición */}
-            <Modal
-                title="Editar Carpeta"
-                open={isEditModalVisible}
-                onCancel={() => setIsEditModalVisible(false)}
-                onOk={() => form.submit()}
-                okText="Guardar"
-                cancelText="Cancelar"
-            >
-                <Form
-                form={form}
-                layout="vertical"
-                initialValues={{ name, icon, color, description }}
-                onFinish={handleEdit}
-                >
-                <Form.Item
-                    name="name"
-                    label="Nombre de la carpeta"
-                    rules={[{ required: true, message: 'El nombre es requerido' }]}
-                >
-                    <Input placeholder="Nombre de la carpeta" />
-                </Form.Item>
-                
-                <Form.Item
-                    name="description"
-                    label="Descripción"
-                >
-                    <Input.TextArea placeholder="Descripción opcional" rows={3} />
-                </Form.Item>
-                
-                <Form.Item
-                    name="icon"
-                    label="Icono"
-                >
-                    <Select placeholder="Selecciona un icono">
-                    {folderIcons.map(icon => (
-                        <Option key={icon} value={icon}>
-                        <Space>
-                            <span style={{ fontSize: 16 }}>{icon}</span>
-                            <span>{icon}</span>
-                        </Space>
-                        </Option>
-                    ))}
-                    </Select>
-                </Form.Item>
-                
-                <Form.Item
-                    name="color"
-                    label="Color"
-                >
-                    <Select placeholder="Selecciona un color">
-                    {folderColors.map(color => (
-                        <Option key={color} value={color}>
-                        <Space>
-                            <div 
-                            style={{ 
-                                width: 16, 
-                                height: 16, 
-                                backgroundColor: color,
-                                borderRadius: 4
-                            }} 
-                            />
-                            <span>{color}</span>
-                        </Space>
-                        </Option>
-                    ))}
-                    </Select>
-                </Form.Item>
-                </Form>
-            </Modal>
 
             {/* Modal share */}
             <Modal

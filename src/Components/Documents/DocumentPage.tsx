@@ -1,5 +1,5 @@
 // DocumentPage.tsx - Versión completa
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { 
     Button, 
     Card, 
@@ -25,18 +25,31 @@ import { DocumentCardComponent } from './DocumentCardComponent';
 import { FolderComponent } from './FolderComponent';
 import { useReportStore } from '../../store/useReportStore';
 import { MoveModalComponent } from '../MoveModalComponent';
-import { CreateFolderModalComponent } from '../CreateFolderModalComponent';
+import { FolderModalComponent } from '../FolderModalComponent';
 import { Link, useNavigate } from 'react-router-dom';
 import { types } from '../../types/types';
+import type { IFolder } from '../../interfaces/IGeneric';
 
 const { Title, Text } = Typography;
 const { Search } = Input;
 
+interface IFolderModalState {
+    open: boolean;
+    editingFolder: IFolder | null;
+}
+
 export const DocumentPage = () => {
+
+    const [folderModalState, setFolderModalState] = useState<IFolderModalState>({
+        open: false,
+        editingFolder: null
+    });
+
+    const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
+    const [editingFolder, setEditingFolder] = useState(null);
 
     const getFolders = useReportStore(state => state.getFolders);
 
-    const setIsOpenCreateFolderModal = useReportStore(state => state.setIsOpenCreateFolderModal);
     const setIsOpenMoveModal = useReportStore(state => state.setIsOpenMoveModal);
     const [form] = Form.useForm();
     
@@ -85,6 +98,21 @@ export const DocumentPage = () => {
         }
         });
     }, [documents, searchQuery, sortBy]);
+
+
+
+    const handleCreateFolder = () => {
+        setFolderModalState({ open: true, editingFolder: null });
+    };
+
+    const handleEditFolder = (folder: IFolder) => {
+        if (!folder) return;
+        setFolderModalState({ open: true, editingFolder: folder });
+    };
+
+    const handleCloseFolderModal = () => {
+        setFolderModalState({ open: false, editingFolder: null });
+    };
 
 
     const viewModeItems: MenuProps['items'] = [
@@ -146,7 +174,7 @@ export const DocumentPage = () => {
                         <Button 
                             type="default" 
                             icon={<FolderAddOutlined />}
-                            onClick={() => setIsOpenCreateFolderModal(true)}
+                            onClick={handleCreateFolder}
                             >
                             Nueva Carpeta
                         </Button>
@@ -236,15 +264,17 @@ export const DocumentPage = () => {
                                 xs={24} sm={12} md={8} lg={6} key={folder.id}
                             >
                                 <FolderComponent 
-                                    id={folder.id} 
-                                    name={folder.name}
-                                    // icon={folder.icon}
-                                    color={folder.color || "#339af0"}
-                                    description={folder.description || ""}
+                                    // id={folder.id} 
+                                    // name={folder.name}
+                                    // // icon={folder.icon}
+                                    // color={folder.color || "#339af0"}
+                                    // description={folder.description || ""}
+                                    folder={folder}
                                     isShared={folder.isShared || false}
                                     sharedWith={folder.sharedWith || []}
                                     documentCount={folderDocs.length}
-                                    onEdit={(id) => console.log("Editar folder", id)} 
+                                    // onEdit={(id) => console.log("Editar folder", id)} 
+                                    onEdit={handleEditFolder}
                                     onShare={(id) => console.log("Compartir folder", id)} 
                                     onDelete={deleteFolder}
                                 />
@@ -264,7 +294,7 @@ export const DocumentPage = () => {
                                 alignItems: 'center',
                                 justifyContent: 'center'
                             }}
-                            onClick={() => setIsOpenCreateFolderModal(true)}
+                            onClick={handleCreateFolder}
                         >
                             <FolderAddOutlined style={{ fontSize: 32, color: '#1890ff', marginBottom: 8 }} />
                             <Text type="secondary" strong>
@@ -331,7 +361,11 @@ export const DocumentPage = () => {
 
             </div>
 
-            <CreateFolderModalComponent />
+            <FolderModalComponent 
+                open={folderModalState.open}
+                onCancel={handleCloseFolderModal}
+                editingFolder={folderModalState.editingFolder}
+            />
             <MoveModalComponent />
         </section>
     );

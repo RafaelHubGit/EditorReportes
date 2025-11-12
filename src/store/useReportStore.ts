@@ -56,8 +56,8 @@ interface ReportState {
   selectedMoveDocuments: string[];
   setSelectedMoveDocuments: ( selectedDocuments: string[] ) => void;
 
-  isOpenCreateFolderModal: boolean;
-  setIsOpenCreateFolderModal: (isOpen: boolean) => void;
+  // isOpenCreateFolderModal: boolean;
+  // setIsOpenCreateFolderModal: (isOpen: boolean) => void;
 }
 
 const initDocument: IDocument = {
@@ -156,7 +156,7 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
   isOpenMoveModal: false,
   selectedMoveDocuments: [],
 
-  isOpenCreateFolderModal: false,
+  // isOpenCreateFolderModal: false,
   
   
 
@@ -662,7 +662,7 @@ getFolders: async () => {
   
   setSelectedMoveDocuments: ( selectedDocuments: string[] ) => set((state) => { state.selectedMoveDocuments = [...selectedDocuments] }),
 
-  setIsOpenCreateFolderModal: ( isOpen: boolean ) => set((state) => { state.isOpenCreateFolderModal = isOpen }),
+  // setIsOpenCreateFolderModal: ( isOpen: boolean ) => set((state) => { state.isOpenCreateFolderModal = isOpen }),
 });
 
 export const useReportStore = create<ReportState>()(
