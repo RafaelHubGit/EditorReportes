@@ -1,4 +1,3 @@
-// useReportStore.ts - Versión completa
 import { create, type StateCreator } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
@@ -55,9 +54,6 @@ interface ReportState {
 
   selectedMoveDocuments: string[];
   setSelectedMoveDocuments: ( selectedDocuments: string[] ) => void;
-
-  // isOpenCreateFolderModal: boolean;
-  // setIsOpenCreateFolderModal: (isOpen: boolean) => void;
 }
 
 const initDocument: IDocument = {
@@ -75,7 +71,6 @@ const defaultFolders: IFolder[] = [
   {
     id: "123",
     name: "Marketing Templates",
-    // idDocuments: ["e4f50b2a-0c52-4cda-b729-9fbc3c7ff0df"],
     icon: "🎨",
     color: "#ff6b6b",
     description: "Plantillas para campañas de marketing",
@@ -85,7 +80,6 @@ const defaultFolders: IFolder[] = [
   {
     id: "abc", 
     name: "Invoices 2025",
-    // idDocuments: [],
     icon: "🧾",
     color: "#51cf66",
     description: "Facturas y documentos fiscales",
@@ -95,7 +89,6 @@ const defaultFolders: IFolder[] = [
   {
     id: "def",
     name: "Proyectos Activos",
-    // idDocuments: [],
     icon: "📂",
     color: "#339af0",
     description: "Proyectos en desarrollo",
@@ -114,7 +107,6 @@ const sampleDocuments: IDocument[] = [
     css: 'body { margin: 0; }',
     jsonData: {},
     folderId: "123",
-    // type: 'invoice',
     tags: ['factura', 'trimestral', 'template'],
     createdAt: new Date('2024-03-15'),
     updatedAt: new Date('2024-03-20')
@@ -125,7 +117,6 @@ const sampleDocuments: IDocument[] = [
     html: '<div>Sales Report</div>',
     css: 'body { margin: 0; }',
     jsonData: {},
-    // type: 'report',
     tags: ['ventas', 'mensual'],
     createdAt: new Date('2024-03-18'),
     updatedAt: new Date('2024-03-25')
@@ -136,7 +127,6 @@ const sampleDocuments: IDocument[] = [
     html: '<div>Campaign Template</div>',
     css: 'body { margin: 0; }',
     jsonData: {},
-    // type: 'template',
     tags: ['marketing', 'campaña'],
     createdAt: new Date('2024-03-10'),
     updatedAt: new Date('2024-03-22')
@@ -156,11 +146,6 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
   isOpenMoveModal: false,
   selectedMoveDocuments: [],
 
-  // isOpenCreateFolderModal: false,
-  
-  
-
-  // Document Methods (manteniendo las existentes y agregando nuevas)
   addDocument: async (document: IDocument) => {
     try {
       set((state) => {
@@ -297,12 +282,20 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
     }),
 
   getDocumentsByFolder: (folderId?: string) => {
-    const { documents, folders, currentFolderId, searchQuery, sortBy } = get();
+    const { documents, currentFolderId, searchQuery, sortBy } = get();
     const targetFolderId = folderId || currentFolderId;
     
-    let filteredDocs = documents;
+    // Filtrar por carpeta
+    let filteredDocs = documents.filter(doc => doc.folderId === targetFolderId);
     
-    filteredDocs = documents.filter(doc => doc.folderId);
+    // Filtrar por búsqueda
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filteredDocs = filteredDocs.filter(doc => 
+        doc.name.toLowerCase().includes(query) ||
+        doc.tags?.some(tag => tag.toLowerCase().includes(query))
+      );
+    }
     
     // Aplicar ordenamiento
     filteredDocs = [...filteredDocs].sort((a, b) => {
@@ -325,90 +318,85 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
     );
   },
 
-  // Folder Methods
-  // En useReportStore.ts - cambiar la firma de addFolder
-addFolder: async (folderData: Omit<IFolder, 'id'>) => {
-  try {
-    const newFolder: IFolder = {
-      ...folderData,
-      id: uuidv4(),
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
+  addFolder: async (folderData: Omit<IFolder, 'id'>) => {
+    try {
+      const newFolder: IFolder = {
+        ...folderData,
+        id: uuidv4(),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
 
-    const folderInput = pickFields(newFolder, folderFieldsInput);
+      const folderInput = pickFields(newFolder, folderFieldsInput);
 
-    const result = await GraphQLService.mutate(CREATE_FOLDER, { input: folderInput });
-    
-    const createdFolder = result.data.createFolder;
+      const result = await GraphQLService.mutate(CREATE_FOLDER, { input: folderInput });
+      
+      const createdFolder = result.data.createFolder;
 
-    set((state) => {
-      state.folders.unshift(createdFolder);
-    });
+      set((state) => {
+        state.folders.unshift(createdFolder);
+      });
 
-    await Swal.fire({
-      icon: 'success',
-      title: '¡Carpeta creada!',
-      text: `"${folderData.name}" se ha creado correctamente`,
-      timer: 3000,
-      showConfirmButton: false,
-      toast: true,
-      position: 'top-end'
-    });
+      await Swal.fire({
+        icon: 'success',
+        title: '¡Carpeta creada!',
+        text: `"${folderData.name}" se ha creado correctamente`,
+        timer: 3000,
+        showConfirmButton: false,
+        toast: true,
+        position: 'top-end'
+      });
 
-  } catch (error) {
-    console.error('Error en addFolder:', error);
-    await Swal.fire({
-      icon: 'error',
-      title: 'Error al crear carpeta',
-      text: 'No se pudo crear la carpeta',
-      confirmButtonText: 'Entendido'
-    });
-    throw error;
-  }
-},
+    } catch (error) {
+      console.error('Error en addFolder:', error);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error al crear carpeta',
+        text: 'No se pudo crear la carpeta',
+        confirmButtonText: 'Entendido'
+      });
+      throw error;
+    }
+  },
 
-  // En useReportStore.ts - corregir updateFolder
-updateFolder: async (folderId: string, updates: Partial<IFolder>) => {
-  try {
+  updateFolder: async (folderId: string, updates: Partial<IFolder>) => {
+    try {
+      const folderInput = pickFields(updates, folderFieldsInput);
 
+      const result = await GraphQLService.mutate(UPDATE_FOLDER, { id: folderId, input: folderInput });
 
-    const folderInput = pickFields(updates, folderFieldsInput);
+      set((state) => {
+        const folderIndex = state.folders.findIndex(f => f.id === folderId);
+        if (folderIndex >= 0) {
+          Object.assign(state.folders[folderIndex]!, updates, {
+            updatedAt: new Date()
+          });
+        }
+      });
 
-    const result = await GraphQLService.mutate(UPDATE_FOLDER, { id: folderId, input: folderInput });
+      await Swal.fire({
+        icon: 'success',
+        title: '¡Carpeta actualizada!',
+        text: `Los cambios se han guardado correctamente`,
+        timer: 2000,
+        showConfirmButton: false,
+        toast: true,
+        position: 'top-end'
+      });
 
-    set((state) => {
-      const folderIndex = state.folders.findIndex(f => f.id === folderId);
-      if (folderIndex >= 0) {
-        Object.assign(state.folders[folderIndex]!, updates, {
-          updatedAt: new Date() // Cambiar dateUpdated por updatedAt
-        });
-      }
-    });
+    } catch (error) {
+      console.error('Error en updateFolder:', error);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error al guardar',
+        text: 'No se pudieron guardar los cambios',
+        confirmButtonText: 'Entendido'
+      });
+      throw error;
+    }
+  },
 
-    await Swal.fire({
-      icon: 'success',
-      title: '¡Carpeta actualizada!',
-      text: `Los cambios se han guardado correctamente`,
-      timer: 2000,
-      showConfirmButton: false,
-      toast: true,
-      position: 'top-end'
-    });
-
-  } catch (error) {
-    console.error('Error en updateFolder:', error);
-    await Swal.fire({
-      icon: 'error',
-      title: 'Error al guardar',
-      text: 'No se pudieron guardar los cambios',
-      confirmButtonText: 'Entendido'
-    });
-    throw error;
-  }
-},
-
-getFolders: async () => {
+  getFolders: async () => {
     try {
       const folders_api: IFolder[] = await GraphQLService.query(GET_FOLDERS).then((res: any) => res.data.folders);
 
@@ -471,7 +459,6 @@ getFolders: async () => {
   moveDocumentToFolder: async (documentId: string, folderId: string | null) => {
     try {
         set((state) => {
-        // Actualizar el folderId en el documento
         const docIndex = state.documents.findIndex(d => d.id === documentId);
         if (docIndex >= 0) {
           state.documents[docIndex]!.folderId = folderId || undefined;
@@ -501,7 +488,6 @@ getFolders: async () => {
     }
   },
 
-  // UI Methods
   setViewMode: (mode: ViewMode) => 
     set((state) => {
       state.viewMode = mode;
@@ -552,7 +538,6 @@ getFolders: async () => {
   moveSingleDocument: async (documentId: string, folderId: string | null) => {
     try {
       set((state) => {
-        // Actualizar el folderId en el documento
         const docIndex = state.documents.findIndex(d => d.id === documentId);
         if (docIndex >= 0) {
           state.documents[docIndex]!.folderId = folderId || undefined;
@@ -582,7 +567,6 @@ getFolders: async () => {
     }
   },
 
-  // Share Methods
   shareFolder: async (folderId: string, users: string[]) => {
     try {
       set((state) => {
@@ -657,12 +641,9 @@ getFolders: async () => {
     }
   },
 
-  
   setIsOpenMoveModal: ( isOpen: boolean ) => set((state) => { state.isOpenMoveModal = isOpen }),
   
   setSelectedMoveDocuments: ( selectedDocuments: string[] ) => set((state) => { state.selectedMoveDocuments = [...selectedDocuments] }),
-
-  // setIsOpenCreateFolderModal: ( isOpen: boolean ) => set((state) => { state.isOpenCreateFolderModal = isOpen }),
 });
 
 export const useReportStore = create<ReportState>()(
