@@ -1,7 +1,21 @@
 import { gql } from '@apollo/client';
-import type { IFolder } from '../../interfaces/IGeneric';
+import type { IDocument, IFolder } from '../../interfaces/IGeneric';
 
 export const folderFieldsInput: (keyof IFolder)[] = ['name', 'description', 'owner', 'icon', 'color'];
+
+export const documentFieldsInput: (keyof IDocument)[] = ['css', 'html', 'jsonData', 'name', 'owner', 'createdAt', 'updatedAt', 'folderId', 'id'];
+
+export const CREATE_TEMPLATE = gql`
+    mutation CreateTemplate($input: TemplateInput! ) {
+        createTemplate(input: $input) {
+            id
+            name
+            css
+            html
+            sampleData
+        }
+    }
+`;
 
 
 export const GET_FOLDERS = gql`

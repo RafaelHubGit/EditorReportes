@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Swal from 'sweetalert2';
 import { pick } from 'lodash';
 import type { IDocument, IFolder, ViewMode, SortOption } from "../interfaces/IGeneric";
-import { CREATE_FOLDER, folderFieldsInput, GET_FOLDERS, UPDATE_FOLDER } from "../graphql/operations/graphql.operations";
+import { CREATE_FOLDER, CREATE_TEMPLATE, documentFieldsInput, folderFieldsInput, GET_FOLDERS, UPDATE_FOLDER } from "../graphql/operations/graphql.operations";
 import { GraphQLService } from "../graphql/graphql.service";
 import { pickFields } from "../utils/pickFields";
 
@@ -148,15 +148,21 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
 
   addDocument: async (document: IDocument) => {
     try {
+      const docWithId = {
+        ...document,
+        id: document.id || uuidv4(),
+        folderId: document.folderId || undefined,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+
+      const documentInput = pick(docWithId, documentFieldsInput);
+      console.log("DOCUMENT INPUT !!!!! : ", documentInput);
+      
+      const result = await GraphQLService.mutate(CREATE_TEMPLATE, {input: documentInput});
+      console.log("RESULT !!!!!!!!!!! : ", JSON.stringify(result));
+
       set((state) => {
-        const docWithId = {
-          ...document,
-          id: document.id || uuidv4(),
-          folderId: document.folderId || undefined,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        };
-        
         state.document = docWithId;
         const exists = state.documents.some((d: IDocument) => d.id === docWithId.id);
         if (!exists) state.documents.unshift(docWithId);
