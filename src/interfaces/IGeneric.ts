@@ -10,9 +10,9 @@ export interface IDocument {
   htmlProcessed?: string;
   css: string;
   jsonSchema?: Record<string, any>;
-  jsonData: Record<string, any>;
+  sampleData: Record<string, any>;
   folderId?: string | undefined;
-  status?: 'draft' | 'published' | 'unpublished' | 'archived' ;
+  status?: 'draft' | 'published' | 'unpublished' | 'archived';
   tags?: string[];
   owner?: string;
   createdAt?: Date;

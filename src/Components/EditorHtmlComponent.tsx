@@ -13,11 +13,11 @@ type Props = {
   jsonStringProp: Record<string, any>;
 }
 
-export const EditorHtmlComponent = React.memo(({ 
-  htmlCodeprop, 
+export const EditorHtmlComponent = React.memo(({
+  htmlCodeprop,
   setHtmlCodeProp,
   setHtmlProcesedProp,
-  jsonStringProp 
+  jsonStringProp
 }: Props) => {
   const [error, setError] = useState("");
 
@@ -26,8 +26,6 @@ export const EditorHtmlComponent = React.memo(({
   // Función para procesar el template
   const processTemplate = useCallback((html: string, jsonData: Record<string, any>) => {
     try {
-      console.log("Procesando template con datos:", jsonData);
-      
       const template = Handlebars.compile(html);
       const processed = template(jsonData);
       return processed;
@@ -42,7 +40,7 @@ export const EditorHtmlComponent = React.memo(({
     debounce((html: string, jsonData: Record<string, any>) => {
       try {
         setHtmlCodeProp(html);
-        
+
         if (!html.trim()) {
           setHtmlProcesedProp("");
           setError("");
@@ -52,7 +50,7 @@ export const EditorHtmlComponent = React.memo(({
         const processed = processTemplate(html, jsonData);
         setHtmlProcesedProp(processed);
         setError("");
-        
+
       } catch (error: any) {
         const errorMessage = error instanceof Error ? error.message : "Error en el template";
         setError(errorMessage);

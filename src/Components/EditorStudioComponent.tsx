@@ -30,17 +30,17 @@ import { initDocument } from "../store/initOrganization";
 const { Title, Text } = Typography;
 
 type Props = {
-  
+
 }
 
-export const EditorStudioComponent = ({}: Props) => {
+export const EditorStudioComponent = ({ }: Props) => {
 
   const navigate = useNavigate();
   const { operation = types.documentNew, documentId } = useParams();
 
-  const updateDocument = useReportStore( state => state.updateDocument );
-  const addDocument = useReportStore( state => state.addDocument );
-  const getDocumentById = useReportStore( state => state.getDocumentById );
+  const updateDocument = useReportStore(state => state.updateDocument);
+  const addDocument = useReportStore(state => state.addDocument);
+  const getDocumentById = useReportStore(state => state.getDocumentById);
 
   const { token } = theme.useToken();
   const [isSplit, setIsSplit] = useState(false);
@@ -70,7 +70,7 @@ export const EditorStudioComponent = ({}: Props) => {
       ...updates
     }));
   };
-  
+
 
   const handleSave = () => {
     if (operation == types.documentNew) {
@@ -91,7 +91,7 @@ export const EditorStudioComponent = ({}: Props) => {
     <div className="studio-container">
       <Row justify="space-between" align="middle" className="studio-header" style={{ paddingInline: 16, paddingBlock: 8 }}>
         <Col>
-          <Space size={0} align="start" style={{display:'Flex', flexDirection:'column'}}>
+          <Space size={0} align="start" style={{ display: 'Flex', flexDirection: 'column' }}>
             {isEditingTitle ? (
               <Input
                 value={documentState.name}
@@ -103,16 +103,16 @@ export const EditorStudioComponent = ({}: Props) => {
               />
             ) : (
               <Space>
-                <Title 
-                  level={3} 
+                <Title
+                  level={3}
                   style={{ margin: 0, cursor: 'pointer' }}
                   onClick={() => setIsEditingTitle(true)}
                 >
                   {documentState.name}
                 </Title>
-                <Button 
-                  type="text" 
-                  icon={<EditOutlined />} 
+                <Button
+                  type="text"
+                  icon={<EditOutlined />}
                   size="small"
                   onClick={() => setIsEditingTitle(true)}
                 />
@@ -137,7 +137,7 @@ export const EditorStudioComponent = ({}: Props) => {
               <Button icon={<MoreOutlined />} />
             </Dropdown>
 
-            <Button type="primary" onClick={ handleSave }>
+            <Button type="primary" onClick={handleSave}>
               Guardar
             </Button>
           </Space>
@@ -146,55 +146,55 @@ export const EditorStudioComponent = ({}: Props) => {
 
       <div className="studio-body" style={{ height: 'calc(100vh - 100px)' }}>
         {!isSplit ? (
-          <Tabs 
+          <Tabs
             defaultActiveKey="html"
             items={[
-              { 
-                label: "HTML", 
-                key: "html", 
+              {
+                label: "HTML",
+                key: "html",
                 children: (
                   <div style={{ height: 'calc(100vh - 210px)' }}>
-                    <EditorHtmlComponent 
-                      htmlCodeprop={documentState.html} 
+                    <EditorHtmlComponent
+                      htmlCodeprop={documentState.html}
                       setHtmlCodeProp={(html) => updateDocumentState({ html })}
                       setHtmlProcesedProp={(htmlProcessed) => updateDocumentState({ htmlProcessed })}
-                      jsonStringProp={documentState.jsonData}
+                      jsonStringProp={documentState.sampleData}
                     />
                   </div>
                 )
               },
-              { 
-                label: "CSS", 
-                key: "css", 
+              {
+                label: "CSS",
+                key: "css",
                 children: (
                   <div style={{ height: 'calc(100vh - 210px)' }}>
-                    <EditorCssComponent 
+                    <EditorCssComponent
                       cssProp={documentState.css}
                       setCssProp={(css) => updateDocumentState({ css })}
                     />
                   </div>
                 )
               },
-              { 
-                label: "JSON", 
-                key: "json", 
+              {
+                label: "JSON",
+                key: "json",
                 children: (
                   <div style={{ height: 'calc(100vh - 210px)' }}>
-                    <EditorJsonComponent 
-                      jsonProp={JSON.stringify(documentState.jsonData)} 
-                      setJsonProp={(json) => updateDocumentState({ jsonData: JSON.parse(json) })}
+                    <EditorJsonComponent
+                      jsonProp={JSON.stringify(documentState.sampleData)}
+                      setJsonProp={(json) => updateDocumentState({ sampleData: JSON.parse(json) })}
                     />
                   </div>
                 )
               },
-              { 
-                label: "Vista Previa", 
-                key: "preview", 
+              {
+                label: "Vista Previa",
+                key: "preview",
                 children: (
                   <div style={{ height: 'calc(100vh - 150px)' }}>
-                    <VistaPreviaComponent 
-                      htmlProp={documentState.htmlProcessed ?? ""} 
-                      cssProp={documentState.css ?? ""} 
+                    <VistaPreviaComponent
+                      htmlProp={documentState.htmlProcessed ?? ""}
+                      cssProp={documentState.css ?? ""}
                     />
                   </div>
                 )
@@ -204,43 +204,43 @@ export const EditorStudioComponent = ({}: Props) => {
         ) : (
           <Row gutter={16} style={{ height: '100%', margin: 0 }}>
             <Col span={14} style={{ height: '100%' }}>
-              <Tabs 
+              <Tabs
                 defaultActiveKey="html"
                 items={[
-                  { 
-                    label: "HTML", 
-                    key: "html", 
+                  {
+                    label: "HTML",
+                    key: "html",
                     children: (
                       <div style={{ height: 'calc(100vh - 210px)' }}>
-                        <EditorHtmlComponent 
-                          htmlCodeprop={documentState.html} 
+                        <EditorHtmlComponent
+                          htmlCodeprop={documentState.html}
                           setHtmlCodeProp={(html) => updateDocumentState({ html })}
                           setHtmlProcesedProp={(htmlProcessed) => updateDocumentState({ htmlProcessed })}
-                          jsonStringProp={documentState.jsonData}
+                          jsonStringProp={documentState.sampleData}
                         />
                       </div>
                     )
                   },
-                  { 
-                    label: "CSS", 
-                    key: "css", 
+                  {
+                    label: "CSS",
+                    key: "css",
                     children: (
                       <div style={{ height: 'calc(100vh - 210px)' }}>
-                        <EditorCssComponent 
+                        <EditorCssComponent
                           cssProp={documentState.css}
                           setCssProp={(css) => updateDocumentState({ css })}
                         />
                       </div>
                     )
                   },
-                  { 
-                    label: "JSON", 
-                    key: "json", 
+                  {
+                    label: "JSON",
+                    key: "json",
                     children: (
                       <div style={{ height: 'calc(100vh - 210px)' }}>
-                        <EditorJsonComponent 
-                          jsonProp={JSON.stringify(documentState.jsonData)} 
-                          setJsonProp={(json) => updateDocumentState({ jsonData: JSON.parse(json) })}
+                        <EditorJsonComponent
+                          jsonProp={JSON.stringify(documentState.sampleData)}
+                          setJsonProp={(json) => updateDocumentState({ sampleData: JSON.parse(json) })}
                         />
                       </div>
                     )
@@ -253,9 +253,9 @@ export const EditorStudioComponent = ({}: Props) => {
                 <Title level={5} style={{ marginTop: 0, marginBottom: 12 }}>
                   Vista Previa
                 </Title>
-                <VistaPreviaComponent 
-                  htmlProp={documentState.htmlProcessed ?? ""} 
-                  cssProp={documentState.css ?? ""} 
+                <VistaPreviaComponent
+                  htmlProp={documentState.htmlProcessed ?? ""}
+                  cssProp={documentState.css ?? ""}
                 />
               </div>
             </Col>
