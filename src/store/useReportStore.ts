@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Swal from 'sweetalert2';
 import { pick } from 'lodash';
 import type { IDocument, IFolder, ViewMode, SortOption } from "../interfaces/IGeneric";
-import { CREATE_DOCUMENT, CREATE_FOLDER, documentFieldsInput, folderFieldsInput, GET_FOLDERS, UPDATE_FOLDER } from "../graphql/operations/graphql.operations";
+import { CREATE_DOCUMENT, CREATE_FOLDER, DELETE_DOCUMENT, documentFieldsInput, folderFieldsInput, GET_ALLDOCUMENTS, GET_FOLDERS, MOVE_DOCUMENT_TO_FOLDER, UPDATE_DOCUMENT, UPDATE_FOLDER } from "../graphql/operations/graphql.operations";
 import { GraphQLService } from "../graphql/graphql.service";
 import { pickFields } from "../utils/pickFields";
 
@@ -21,9 +21,10 @@ interface ReportState {
   selectedDocuments: string[];
 
   // Document Actions
+  getDocumentsByOwner: () => Promise<IDocument[]>;
   addDocument: (document: IDocument) => Promise<void>;
   updateDocument: (updates: Partial<IDocument>) => Promise<void>;
-  delDocuments: (idDocument: string) => Promise<void>;
+  delDocument: (idDocument: string) => Promise<void>;
   addDocuments: (document: IDocument) => void;
   getDocumentById: (id: string) => IDocument | null;
   setCurrentFolder: (folderId: string | null) => void;
@@ -71,82 +72,82 @@ const initDocument: IDocument = {
   updatedAt: new Date()
 };
 
-const defaultFolders: IFolder[] = [
-  {
-    id: "123",
-    name: "Marketing Templates",
-    // idDocuments: ["e4f50b2a-0c52-4cda-b729-9fbc3c7ff0df"],
-    icon: "🎨",
-    color: "#ff6b6b",
-    description: "Plantillas para campañas de marketing",
-    createdAt: new Date('2024-01-15'),
-    updatedAt: new Date('2024-03-20')
-  },
-  {
-    id: "abc",
-    name: "Invoices 2025",
-    // idDocuments: [],
-    icon: "🧾",
-    color: "#51cf66",
-    description: "Facturas y documentos fiscales",
-    createdAt: new Date('2024-01-10'),
-    updatedAt: new Date('2024-03-18')
-  },
-  {
-    id: "def",
-    name: "Proyectos Activos",
-    // idDocuments: [],
-    icon: "📂",
-    color: "#339af0",
-    description: "Proyectos en desarrollo",
-    isShared: true,
-    sharedWith: ["user2@example.com", "user3@example.com"],
-    createdAt: new Date('2024-02-01'),
-    updatedAt: new Date('2024-03-25')
-  }
-];
+// const defaultFolders: IFolder[] = [
+//   {
+//     id: "123",
+//     name: "Marketing Templates",
+//     // idDocuments: ["e4f50b2a-0c52-4cda-b729-9fbc3c7ff0df"],
+//     icon: "🎨",
+//     color: "#ff6b6b",
+//     description: "Plantillas para campañas de marketing",
+//     createdAt: new Date('2024-01-15'),
+//     updatedAt: new Date('2024-03-20')
+//   },
+//   {
+//     id: "abc",
+//     name: "Invoices 2025",
+//     // idDocuments: [],
+//     icon: "🧾",
+//     color: "#51cf66",
+//     description: "Facturas y documentos fiscales",
+//     createdAt: new Date('2024-01-10'),
+//     updatedAt: new Date('2024-03-18')
+//   },
+//   {
+//     id: "def",
+//     name: "Proyectos Activos",
+//     // idDocuments: [],
+//     icon: "📂",
+//     color: "#339af0",
+//     description: "Proyectos en desarrollo",
+//     isShared: true,
+//     sharedWith: ["user2@example.com", "user3@example.com"],
+//     createdAt: new Date('2024-02-01'),
+//     updatedAt: new Date('2024-03-25')
+//   }
+// ];
 
-const sampleDocuments: IDocument[] = [
-  {
-    id: "e4f50b2a-0c52-4cda-b729-9fbc3c7ff0df",
-    name: "Q3 Invoice Template",
-    html: '<div>Invoice Template</div>',
-    css: 'body { margin: 0; }',
-    sampleData: {},
-    folderId: "123",
-    // type: 'invoice',
-    tags: ['factura', 'trimestral', 'template'],
-    createdAt: new Date('2024-03-15'),
-    updatedAt: new Date('2024-03-20')
-  },
-  {
-    id: uuidv4(),
-    name: "Monthly Sales Report",
-    html: '<div>Sales Report</div>',
-    css: 'body { margin: 0; }',
-    sampleData: {},
-    // type: 'report',
-    tags: ['ventas', 'mensual'],
-    createdAt: new Date('2024-03-18'),
-    updatedAt: new Date('2024-03-25')
-  },
-  {
-    id: uuidv4(),
-    name: "Marketing Campaign Q2",
-    html: '<div>Campaign Template</div>',
-    css: 'body { margin: 0; }',
-    sampleData: {},
-    // type: 'template',
-    tags: ['marketing', 'campaña'],
-    createdAt: new Date('2024-03-10'),
-    updatedAt: new Date('2024-03-22')
-  }
-];
+// const sampleDocuments: IDocument[] = [
+//   {
+//     id: "e4f50b2a-0c52-4cda-b729-9fbc3c7ff0df",
+//     name: "Q3 Invoice Template",
+//     html: '<div>Invoice Template</div>',
+//     css: 'body { margin: 0; }',
+//     sampleData: {},
+//     folderId: "123",
+//     // type: 'invoice',
+//     tags: ['factura', 'trimestral', 'template'],
+//     createdAt: new Date('2024-03-15'),
+//     updatedAt: new Date('2024-03-20')
+//   },
+//   {
+//     id: uuidv4(),
+//     name: "Monthly Sales Report",
+//     html: '<div>Sales Report</div>',
+//     css: 'body { margin: 0; }',
+//     sampleData: {},
+//     // type: 'report',
+//     tags: ['ventas', 'mensual'],
+//     createdAt: new Date('2024-03-18'),
+//     updatedAt: new Date('2024-03-25')
+//   },
+//   {
+//     id: uuidv4(),
+//     name: "Marketing Campaign Q2",
+//     html: '<div>Campaign Template</div>',
+//     css: 'body { margin: 0; }',
+//     sampleData: {},
+//     // type: 'template',
+//     tags: ['marketing', 'campaña'],
+//     createdAt: new Date('2024-03-10'),
+//     updatedAt: new Date('2024-03-22')
+//   }
+// ];
 
 const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set, get) => ({
   document: initDocument,
-  documents: sampleDocuments,
-  folders: defaultFolders,
+  documents: [],
+  folders: [],
   currentFolderId: null,
   viewMode: 'grid',
   searchQuery: '',
@@ -159,6 +160,22 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
   isOpenCreateFolderModal: false,
 
 
+  getDocumentsByOwner: async () => {
+    try {
+      const result = await GraphQLService.query(GET_ALLDOCUMENTS);
+
+      const documents = result.data?.allTemplates;
+
+      set((state) => {
+        state.documents = documents || [];
+      });
+
+      return documents;
+    } catch (error) {
+      console.error('Error al obtener documentos:', error);
+      return [];
+    }
+  },
 
   // Document Methods (manteniendo las existentes y agregando nuevas)
   addDocument: async (document: IDocument) => {
@@ -207,10 +224,15 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
 
   updateDocument: async (updates: Partial<IDocument>) => {
     try {
+
+      const documentInput = pickFields(updates, documentFieldsInput);
+      const result = await GraphQLService.mutate(UPDATE_DOCUMENT, { id: updates.id, input: documentInput });
+
+      const updated = result.data?.updateTemplate;
       set((state) => {
         state.document = {
           ...state.document,
-          ...updates,
+          ...updated,
           updatedAt: new Date()
         };
 
@@ -242,36 +264,33 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
     }
   },
 
-  delDocuments: async (idDocument: string) => {
+  delDocument: async (idDocument: string) => {
     try {
-      const { documents } = get();
-      const documentToDelete = documents.find(d => d.id === idDocument);
+      const response = await GraphQLService.mutate(DELETE_DOCUMENT, { id: idDocument });
 
-      const result = await Swal.fire({
-        icon: 'warning',
-        title: '¿Eliminar documento?',
-        text: `Esta acción no se puede deshacer`,
-        showCancelButton: true,
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar',
-        reverseButtons: true
-      });
+      if (response.data?.deleteTemplate) {
+        set((state) => {
+          state.documents = state.documents.filter((d: IDocument) => d.id !== idDocument);
+          state.selectedDocuments = state.selectedDocuments.filter(id => id !== idDocument);
+        });
 
-      if (!result.isConfirmed) return;
-
-      set((state) => {
-        state.documents = state.documents.filter((d: IDocument) => d.id !== idDocument);
-        state.selectedDocuments = state.selectedDocuments.filter(id => id !== idDocument);
-      });
+        await Swal.fire({
+          icon: 'success',
+          title: '¡Eliminado!',
+          text: `Documento eliminado correctamente`,
+          timer: 2000,
+          showConfirmButton: false,
+          toast: true,
+          position: 'top-end'
+        });
+        return;
+      }
 
       await Swal.fire({
-        icon: 'success',
-        title: '¡Eliminado!',
-        text: `Documento eliminado correctamente`,
-        timer: 2000,
-        showConfirmButton: false,
-        toast: true,
-        position: 'top-end'
+        icon: 'error',
+        title: 'Error al eliminar',
+        text: 'No se pudo eliminar el documento',
+        confirmButtonText: 'Entendido'
       });
 
     } catch (error) {
@@ -476,6 +495,15 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
 
   moveDocumentToFolder: async (documentId: string, folderId: string | null) => {
     try {
+
+      const result = await GraphQLService.mutate(MOVE_DOCUMENT_TO_FOLDER, { documentId, folderId });
+
+      console.log(result);
+
+      if (!result.data.moveDocumentToFolder) {
+        throw new Error('Error al mover el documento');
+      }
+
       set((state) => {
         // Actualizar el folderId en el documento
         const docIndex = state.documents.findIndex(d => d.id === documentId);
@@ -557,6 +585,19 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
 
   moveSingleDocument: async (documentId: string, folderId: string | null) => {
     try {
+
+      if (!documentId) {
+        throw new Error('No se proporcionó un ID de documento');
+      }
+
+      const result = await GraphQLService.mutate(MOVE_DOCUMENT_TO_FOLDER, { templateId: documentId, folderId });
+
+      console.log(result);
+
+      if (!result.data) {
+        throw new Error(result.data.error);
+      }
+
       set((state) => {
         // Actualizar el folderId en el documento
         const docIndex = state.documents.findIndex(d => d.id === documentId);
