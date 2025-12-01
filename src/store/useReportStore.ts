@@ -415,6 +415,10 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
 
       const result = await GraphQLService.mutate(UPDATE_FOLDER, { id: folderId, input: folderInput });
 
+      if (!result.data?.updateFolder) {
+        throw new Error('Error al actualizar la carpeta');
+      }
+
       set((state) => {
         const folderIndex = state.folders.findIndex(f => f.id === folderId);
         if (folderIndex >= 0) {
@@ -473,6 +477,14 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
       const { folders } = get();
       const folderToDelete = folders.find(f => f.id === folderId);
 
+      const { documents } = get();
+      const updatedDocuments = documents.map(doc => {
+        if (doc.folderId === folderId) {
+          return { ...doc, folderId: null };
+        }
+        return doc;
+      });
+
       if (!folderToDelete) return;
 
       const result = await Swal.fire({
@@ -489,6 +501,7 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
 
       set((state) => {
         state.folders = state.folders.filter(f => f.id !== folderId);
+        state.documents = updatedDocuments;
       });
 
       await Swal.fire({

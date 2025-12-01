@@ -11,7 +11,7 @@ export interface IDocument {
   css: string;
   jsonSchema?: Record<string, any>;
   sampleData: Record<string, any>;
-  folderId?: string | undefined;
+  folderId?: string | undefined | null;
   status?: 'draft' | 'published' | 'unpublished' | 'archived';
   tags?: string[];
   owner?: string;
