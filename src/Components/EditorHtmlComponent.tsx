@@ -30,7 +30,6 @@ export const EditorHtmlComponent = React.memo(({
       const processed = template(jsonData);
       return processed;
     } catch (error) {
-      console.error("Error compilando template:", error);
       throw error;
     }
   }, []);
@@ -76,7 +75,6 @@ export const EditorHtmlComponent = React.memo(({
 
   // Procesar cuando cambia el JSON
   useEffect(() => {
-    console.log("JSON cambiado, reprocesando...", jsonStringProp);
     debouncedProcess(htmlCodeprop, jsonStringProp);
   }, [jsonStringProp]);
 

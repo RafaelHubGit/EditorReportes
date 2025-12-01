@@ -72,3 +72,9 @@ export const UPDATE_FOLDER = gql`
     }
     ${FOLDER_FIELDS_FRAGMENT}
 `;
+
+export const DELETE_FOLDER = gql`
+    mutation DeleteFolder($id: ID!) {
+        deleteFolder(id: $id)
+    }
+`;

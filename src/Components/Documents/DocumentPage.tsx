@@ -1,5 +1,5 @@
 // DocumentPage.tsx - Versión completa
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
     Button,
     Card,
@@ -59,15 +59,20 @@ export const DocumentPage = () => {
     } = useReportStore();
 
     useEffect(() => {
+        
         getFolders();
         getDocumentsByOwner();
     }, []);
+
+    useEffect(() => {
+        console.log("documents :", documents);
+    }, [documents]);
 
 
     // Documentos filtrados y ordenados
     const filteredDocuments = useMemo(() => {
 
-        let filtered = documents.filter(doc => !doc.folderId);
+        let filtered = documents.filter(doc => doc.folderId === null);
 
         if (searchQuery) {
             filtered = filtered.filter(doc =>

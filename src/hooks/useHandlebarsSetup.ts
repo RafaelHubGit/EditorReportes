@@ -29,7 +29,6 @@ const setupHandlebarsHelpers = () => {
         // Helper compare personalizado
         registerCustomCompareHelper();
         
-        console.log("✅ Handlebars helpers registrados correctamente");
     } catch (error) {
         console.error("❌ Error registrando helpers:", error);
     }
@@ -177,7 +176,6 @@ const registerCustomCompareHelper = () => {
             case "===": return a === b ? options.fn(this) : options.inverse(this);
             case "!==": return a !== b ? options.fn(this) : options.inverse(this);
             default:
-            console.warn(`Operador "${operator}" no soportado en helper compare`);
             return options.inverse(this);
         }
         }

@@ -53,11 +53,8 @@ export const EditorStudioComponent = ({ }: Props) => {
 
 
   useEffect(() => {
-    console.log("document opertatio : ", operation)
-    console.log("document id : ", documentId)
     if (operation === types.documentEdit && documentId) {
       const existingDocument = getDocumentById(documentId);
-      console.log("exist document : ", existingDocument)
       if (existingDocument) {
         setDocumentState(existingDocument);
       }

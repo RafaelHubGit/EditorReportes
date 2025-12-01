@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Swal from 'sweetalert2';
 import { pick } from 'lodash';
 import type { IDocument, IFolder, ViewMode, SortOption } from "../interfaces/IGeneric";
-import { CREATE_DOCUMENT, CREATE_FOLDER, DELETE_DOCUMENT, documentFieldsInput, folderFieldsInput, GET_ALLDOCUMENTS, GET_FOLDERS, MOVE_DOCUMENT_TO_FOLDER, UPDATE_DOCUMENT, UPDATE_FOLDER } from "../graphql/operations/graphql.operations";
+import { CREATE_DOCUMENT, CREATE_FOLDER, DELETE_DOCUMENT, DELETE_FOLDER, documentFieldsInput, folderFieldsInput, GET_ALLDOCUMENTS, GET_FOLDERS, MOVE_DOCUMENT_TO_FOLDER, UPDATE_DOCUMENT, UPDATE_FOLDER } from "../graphql/operations/graphql.operations";
 import { GraphQLService } from "../graphql/graphql.service";
 import { pickFields } from "../utils/pickFields";
 
@@ -181,12 +181,19 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
   addDocument: async (document: IDocument) => {
     try {
 
+     
+
       const documentInput = pickFields(document, documentFieldsInput);
       const result = await GraphQLService.mutate(CREATE_DOCUMENT, { input: documentInput }); //TODO: Mejorar el try catch para que funcione en este caso
 
+      
+
       const created = result.data?.createTemplate;
 
+      
+
       set((state) => {
+        
         const docWithId = {
           ...document,
           id: created?.id,
@@ -195,9 +202,15 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
           updatedAt: created?.updatedAt
         };
 
+        
+
         state.document = docWithId;
-        const exists = state.documents.some((d: IDocument) => d.id === docWithId.id);
-        if (!exists) state.documents.unshift(docWithId);
+        state.documents = [...state.documents, docWithId];
+
+        
+        
+        // const exists = state.documents.some((d: IDocument) => d.id === docWithId.id);
+        // if (!exists) state.documents.unshift(docWithId);
       });
 
       await Swal.fire({
@@ -450,6 +463,13 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
 
   deleteFolder: async (folderId: string) => {
     try {
+
+      const response = await GraphQLService.mutate(DELETE_FOLDER, { id: folderId });
+
+      if (!response.data?.deleteFolder) {
+        throw new Error('Error al eliminar la carpeta');
+      }
+
       const { folders } = get();
       const folderToDelete = folders.find(f => f.id === folderId);
 
@@ -458,7 +478,7 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
       const result = await Swal.fire({
         icon: 'warning',
         title: '¿Eliminar carpeta?',
-        text: `La carpeta "${folderToDelete.name}" y su contenido se eliminarán`,
+        text: `La carpeta "${folderToDelete.name}" será eliminada, el contenido de la carpeta se moverá a la carpeta raíz`,
         showCancelButton: true,
         confirmButtonText: 'Sí, eliminar',
         cancelButtonText: 'Cancelar',
@@ -498,7 +518,7 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
 
       const result = await GraphQLService.mutate(MOVE_DOCUMENT_TO_FOLDER, { documentId, folderId });
 
-      console.log(result);
+      
 
       if (!result.data.moveDocumentToFolder) {
         throw new Error('Error al mover el documento');
@@ -591,8 +611,6 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
       }
 
       const result = await GraphQLService.mutate(MOVE_DOCUMENT_TO_FOLDER, { templateId: documentId, folderId });
-
-      console.log(result);
 
       if (!result.data) {
         throw new Error(result.data.error);
