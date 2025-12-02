@@ -3,7 +3,7 @@ import { MailOutlined, LockOutlined, GoogleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { ModalSignUpComponent } from './ModalSIgnInComponent';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const { Title, Text, Link } = Typography;
 
@@ -12,10 +12,17 @@ const { Title, Text, Link } = Typography;
 export const LoginCard = () => {
 
     const navigate = useNavigate();
-    const login   = useAuthStore.getState().login; //For moment
+    const login   = useAuthStore( (state) => state.login );
     const [form] = Form.useForm();
 
     const [isModalVisible, setIsModalVisible] = useState(false);
+
+    useEffect(() => {
+        form.setFieldsValue({
+            email: 'prueba@hola.com',
+            password: '123456'
+        });
+    }, []);
 
     const handleFinish = async (values: { email: string; password: string }) => {
         // const res = await api.login(values);           // your API call
@@ -28,8 +35,28 @@ export const LoginCard = () => {
         navigate('/app');
     };
 
+    const handleLogin = async () => {
+        const values = await form.validateFields();
+
+        if ( values?.errorFields?.length > 0 ) {
+            return;
+        }
+
+        const user = {
+            email: values.email,
+            password: values.password
+        };
+
+        const resp = await login(user);
+
+        if ( resp ) {
+            form.resetFields();
+            navigate('/app');
+        }
+    };
+
     const devLogin = () => {
-        login('dev-token');   
+        // login('dev-token');   
         console.log("deberia pasar aca ")         // stores token + sets isAuth = true
         navigate('/app');              // jump to the protected branch
     };
@@ -61,16 +88,52 @@ export const LoginCard = () => {
                 </Title>
             </div>
 
-            <Form.Item style={{ marginBottom: 0 }}>
-                <Button 
-                    type="primary" 
-                    htmlType="submit" 
-                    block size="large"
-                    onClick={devLogin}
+            <Form
+                form={form}
+                layout="vertical"
+                name="login_form"
+                initialValues={{ remember: true }}
+            >
+                <Form.Item
+                    name="email"
+                    rules={[
+                        { required: true, message: 'Por favor, ingresa tu correo electrónico' },
+                        { type: 'email', message: 'El formato de correo electrónico no es válido.' },
+                    ]}
+                    hasFeedback
                 >
-                    Iniciar sesión
-                </Button>
-            </Form.Item>
+                    <Input
+                        prefix={<MailOutlined />}
+                        placeholder="Correo electrónico"
+                        size="large"
+                    />
+                </Form.Item>
+                <Form.Item
+                    name="password"
+                    rules={[
+                        { required: true, message: 'Por favor, ingresa tu contraseña' },
+                    ]}
+                    hasFeedback
+                >
+                    <Input.Password
+                        prefix={<LockOutlined />}
+                        placeholder="Contraseña"
+                        size="large"
+                    />
+                </Form.Item>
+
+                <Form.Item style={{ marginBottom: 0 }}>
+                    <Button 
+                        type="primary" 
+                        htmlType="submit" 
+                        block size="large"
+                        onClick={handleLogin}
+                    >
+                        Iniciar sesión
+                    </Button>
+                </Form.Item>
+            </Form>
+
 
             {/* Google sign-in */}
             <Divider plain style={{ margin: '24px 0' }}>

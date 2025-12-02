@@ -100,7 +100,6 @@ export const ModalSignUpComponent = ({ open, setOpen }: Props) => {
               required: true,
               message: 'Por favor, ingresa tu contraseña.',
             },
-            // You can add more rules like minLength here if needed
           ]}
           hasFeedback
         >

@@ -8,17 +8,21 @@ import Sider from "antd/es/layout/Sider";
 import { useState } from "react";
 import { Link } from 'react-router-dom';
 import { types } from "../types/types";
+import { useAuthStore } from "../store/useAuthStore";
 
 
 
 export const MenuComponent = () => {
+
+    const user = useAuthStore((state) => state.user);
+    const logout = useAuthStore((state) => state.logout);
 
     const [collapsed, setCollapsed] = useState(false);
     const menuItems:  MenuProps['items'] = [
         {
             key: 'user',
             icon: <AppstoreOutlined />,
-            label: "Nombre del usuario",
+            label: user?.name,
             children: [
                 {
                     key: 'nu1',
@@ -34,7 +38,8 @@ export const MenuComponent = () => {
                 },
                 {
                     key: 'nu4',
-                    label: 'Salir de mi cuenta'
+                    label: 'Cerrar sesión',
+                    onClick: () => logout()
                 }
             ]
         },
@@ -42,14 +47,14 @@ export const MenuComponent = () => {
             key: 'documents',
             label: <Link to="/app/documents">Documentos</Link>
         },
-        {
-            key: 'snippets',
-            label: 'Fragmentos segunda version'
-        },
-        {
-            key: 'team',
-            label: 'Equipo de trabajo 2da version'
-        },
+        // {
+        //     key: 'snippets',
+        //     label: 'Fragmentos segunda version'
+        // },
+        // {
+        //     key: 'team',
+        //     label: 'Equipo de trabajo 2da version'
+        // },
         {
             key: 'apyKey',
             label: 'API Key'

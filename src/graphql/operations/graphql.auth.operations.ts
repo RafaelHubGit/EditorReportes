@@ -10,3 +10,17 @@ export const REGISTER_USER = gql`
         }
     }
 `;
+
+export const LOGIN_USER = gql`
+    mutation Login($input: LoginInput!) {
+        login(input: $input) {
+            refreshToken
+            token
+            user {
+                id
+                name
+                email
+            }
+        }
+    }
+`;

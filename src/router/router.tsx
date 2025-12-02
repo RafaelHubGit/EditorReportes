@@ -1,11 +1,6 @@
 // router.tsx - Versión final
 import { Navigate, type RouteObject } from "react-router-dom";
 import { LoginComponent } from "../auth/LoginComponent";
-import { EditorCssComponent } from "../Components/EditorCssComponent";
-import { EditorHtmlComponent } from "../Components/EditorHtmlComponent";
-import { EditorJsonComponent } from "../Components/EditorJsonComponent";
-import HomeComponent from "../Components/HomeComponent";
-import { VistaPreviaComponent } from "../Components/VistaPreviaComponent";
 import LayoutApp from "../layouts/LayoutApp";
 import { RequireAuth } from "../auth/RequireAuth";
 import { DocumentPage } from "../Components/Documents/DocumentPage";
