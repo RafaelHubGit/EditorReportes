@@ -136,11 +136,11 @@ export const LoginCard = () => {
 
 
             {/* Google sign-in */}
-            <Divider plain style={{ margin: '24px 0' }}>
+            {/* <Divider plain style={{ margin: '24px 0' }}>
                 o
-            </Divider>
+            </Divider> */}
 
-            <Button
+            {/* <Button
                 block
                 icon={<GoogleOutlined />}
                 // style={{ height: 40, marginBottom: 24 }}
@@ -148,7 +148,7 @@ export const LoginCard = () => {
                 onClick={devLogin}
             >
                 Inicia sesión con Google
-            </Button>
+            </Button> */}
 
             {/* Footer links */}
             <div
