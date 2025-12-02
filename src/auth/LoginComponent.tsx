@@ -5,6 +5,7 @@ import { HeroBlockComponent } from './HeroBlockComponent';
 import ang from '../assets/ang.png';
 
 export const LoginComponent = () => {
+
     return (
         <div
             className='login-component'
