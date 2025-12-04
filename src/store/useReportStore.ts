@@ -93,6 +93,8 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
     try {
       const result = await GraphQLService.query(GET_ALLDOCUMENTS);
 
+      console.log("result : ", result)
+
       const documents = result.data?.allTemplates;
 
       set((state) => {

@@ -1,7 +1,7 @@
 // src/auth/useAuthStore.ts
 import { create, type StateCreator } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import { LOGIN_USER, REGISTER_USER } from '../graphql/operations/graphql.auth.operations';
+import { LOGIN_USER, REFRESH_TOKEN, REGISTER_USER } from '../graphql/operations/graphql.auth.operations';
 import { GraphQLService } from '../graphql/graphql.service';
 import Swal from 'sweetalert2';
 import { immer } from 'zustand/middleware/immer';
@@ -21,6 +21,7 @@ interface AuthState {
     register: (user: { name: string; email: string; password: string }) => Promise<boolean>;
     login: (user: { email: string; password: string }) => Promise<boolean>;
     logout: () => void;
+    refreshToken: () => Promise<boolean>;
 }
 
 
@@ -110,6 +111,8 @@ const authStore: StateCreator<AuthState, [["zustand/immer", never]]> = (set, get
             }
 
             localStorage.setItem('refreshToken', refreshToken);
+            localStorage.setItem('token', token);
+            localStorage.setItem('user', JSON.stringify(user));
             
             set({ 
                 token, 
@@ -133,8 +136,46 @@ const authStore: StateCreator<AuthState, [["zustand/immer", never]]> = (set, get
     },
     logout: () => {
         localStorage.removeItem('refreshToken');
+        localStorage.removeItem('token');
         localStorage.removeItem('user');
         set({ token: null, isAuth: false, user: null });
+    },
+    refreshToken: async () => {
+        try {
+            const refreshTokenLocal = localStorage.getItem('refreshToken');
+            console.log("refreshTokenLocal : ", refreshTokenLocal)
+
+            if (!refreshTokenLocal) {
+                return false;
+            }
+
+            const response = await GraphQLService.mutate(REFRESH_TOKEN, { input: { refreshToken: refreshTokenLocal } });
+            
+            console.log("response REFRESH TOKEN: ", response)
+            
+            if (response?.error || !response.data?.refreshToken) {
+                throw response?.error || new Error('Token refresh failed: empty response from server.');
+            }
+            
+            const { token, refreshToken } = response.data?.refreshToken;
+            
+            if (!token || !refreshToken) {
+                throw new Error('Error al refrescar el token');
+            }
+            
+            localStorage.setItem('refreshToken', refreshToken);
+            localStorage.setItem('token', token);
+            
+            set({ 
+                token,
+                isAuth: true,
+            });
+            
+            return true;
+        } catch(error){
+            console.error('Error al refrescar el token:', error);
+            return false;
+        }
     }
 });
 
