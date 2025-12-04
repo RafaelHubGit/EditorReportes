@@ -26,9 +26,9 @@ interface AuthState {
 
 
 const authStore: StateCreator<AuthState, [["zustand/immer", never]]> = (set, get) => ({
-    token: null,
-    isAuth: false,
-    user: null,
+    token: localStorage.getItem('token'),
+    isAuth: !!localStorage.getItem('token'),
+    user: JSON.parse(localStorage.getItem('user') || 'null'),
    
     // Actions
     register: async (user): Promise<boolean> => {
@@ -113,6 +113,7 @@ const authStore: StateCreator<AuthState, [["zustand/immer", never]]> = (set, get
             localStorage.setItem('refreshToken', refreshToken);
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(user));
+            localStorage.setItem('isAuth', 'true');
             
             set({ 
                 token, 
@@ -138,6 +139,7 @@ const authStore: StateCreator<AuthState, [["zustand/immer", never]]> = (set, get
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        localStorage.removeItem('isAuth');
         set({ token: null, isAuth: false, user: null });
     },
     refreshToken: async () => {
@@ -165,6 +167,7 @@ const authStore: StateCreator<AuthState, [["zustand/immer", never]]> = (set, get
             
             localStorage.setItem('refreshToken', refreshToken);
             localStorage.setItem('token', token);
+            localStorage.setItem('isAuth', JSON.stringify(true));
             
             set({ 
                 token,
