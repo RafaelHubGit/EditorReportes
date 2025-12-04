@@ -34,7 +34,7 @@ const { Search } = Input;
 
 export const DocumentPage = () => {
 
-    const getFolders = useReportStore(state => state.getFolders);
+    const getFoldersByOwner = useReportStore(state => state.getFoldersByOwner);
     const getDocumentsByOwner = useReportStore(state => state.getDocumentsByOwner);
 
     const setIsOpenCreateFolderModal = useReportStore(state => state.setIsOpenCreateFolderModal);
@@ -60,13 +60,13 @@ export const DocumentPage = () => {
 
     useEffect(() => {
         
-        getFolders();
+        getFoldersByOwner();
         getDocumentsByOwner();
     }, []);
 
     useEffect(() => {
-        console.log("documents :", documents);
-    }, [documents]);
+        console.log("folders :", folders);
+    }, [folders]);
 
 
     // Documentos filtrados y ordenados

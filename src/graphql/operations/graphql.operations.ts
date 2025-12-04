@@ -16,6 +16,16 @@ export const GET_ALLDOCUMENTS = gql`
     }
     ${DOCUMENT_FIELDS_FRAGMENT}
 `;
+
+export const GET_DOCUMENT_BY_USER = gql`
+    query TemplatesByUser {
+        templatesByUser {
+            ...DocumentFields
+        }
+    }
+    ${DOCUMENT_FIELDS_FRAGMENT}
+`;
+
 export const CREATE_DOCUMENT = gql`
     mutation createTemplate($input: TemplateInput!) {
         createTemplate(input: $input) {
@@ -49,6 +59,15 @@ export const MOVE_DOCUMENT_TO_FOLDER = gql`
 export const GET_FOLDERS = gql`
     query Folders {
         folders {
+            ...FolderFields
+        } 
+    }
+    ${FOLDER_FIELDS_FRAGMENT}
+`;
+
+export const GET_FOLDERS_BY_USER = gql`
+    query FoldersByUser {
+        foldersByUser {
             ...FolderFields
         } 
     }

@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Swal from 'sweetalert2';
 import { pick } from 'lodash';
 import type { IDocument, IFolder, ViewMode, SortOption } from "../interfaces/IGeneric";
-import { CREATE_DOCUMENT, CREATE_FOLDER, DELETE_DOCUMENT, DELETE_FOLDER, documentFieldsInput, folderFieldsInput, GET_ALLDOCUMENTS, GET_FOLDERS, MOVE_DOCUMENT_TO_FOLDER, UPDATE_DOCUMENT, UPDATE_FOLDER } from "../graphql/operations/graphql.operations";
+import { CREATE_DOCUMENT, CREATE_FOLDER, DELETE_DOCUMENT, DELETE_FOLDER, documentFieldsInput, folderFieldsInput, GET_ALLDOCUMENTS, GET_DOCUMENT_BY_USER, GET_FOLDERS, GET_FOLDERS_BY_USER, MOVE_DOCUMENT_TO_FOLDER, UPDATE_DOCUMENT, UPDATE_FOLDER } from "../graphql/operations/graphql.operations";
 import { GraphQLService } from "../graphql/graphql.service";
 import { pickFields } from "../utils/pickFields";
 
@@ -32,9 +32,10 @@ interface ReportState {
   searchDocuments: (query: string) => IDocument[];
 
   // Folder Actions
+  getFoldersByOwner: () => Promise<IFolder[]>;
+  getFolders: () => Promise<IFolder[]>;
   addFolder: (folder: Omit<IFolder, 'id'>) => Promise<void>;
   updateFolder: (folderId: string, updates: Partial<IFolder>) => Promise<void>;
-  getFolders: () => Promise<IFolder[]>;
   deleteFolder: (folderId: string) => Promise<void>;
   moveDocumentToFolder: (documentId: string, folderId: string | null) => Promise<void>;
 
@@ -91,11 +92,9 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
 
   getDocumentsByOwner: async () => {
     try {
-      const result = await GraphQLService.query(GET_ALLDOCUMENTS);
+      const result = await GraphQLService.query(GET_DOCUMENT_BY_USER);
 
-      console.log("result : ", result)
-
-      const documents = result.data?.allTemplates;
+      const documents = result.data?.templatesByUser;
 
       set((state) => {
         state.documents = documents || [];
@@ -296,6 +295,42 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
 
   // Folder Methods
   // En useReportStore.ts - cambiar la firma de addFolder
+
+  getFolders: async () => {
+    try {
+      const folders_api: IFolder[] = await GraphQLService.query(GET_FOLDERS).then((res: any) => res.data.folders);
+
+      set((state) => {
+        state.folders = folders_api;
+      });
+
+      return folders_api;
+    } catch (error) {
+      console.error('Error en getFolders:', error);
+      throw error;
+    }
+  },
+
+  getFoldersByOwner: async () => {
+    try {
+      const folders_api: IFolder[] = await GraphQLService.query(GET_FOLDERS_BY_USER).then((res: any) => res.data.foldersByUser);
+
+      if (folders_api.length === 0) {
+        return [];
+      }
+
+      set((state) => {
+        state.folders = folders_api;
+      });
+
+      return folders_api;
+    } catch (error) {
+      console.error('Error en getFolders:', error);
+      throw error;
+    }
+  },
+
+
   addFolder: async (folderData: Omit<IFolder, 'id'>) => {
     try {
       const newFolder: IFolder = {
@@ -377,21 +412,6 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
         text: 'No se pudieron guardar los cambios',
         confirmButtonText: 'Entendido'
       });
-      throw error;
-    }
-  },
-
-  getFolders: async () => {
-    try {
-      const folders_api: IFolder[] = await GraphQLService.query(GET_FOLDERS).then((res: any) => res.data.folders);
-
-      set((state) => {
-        state.folders = folders_api;
-      });
-
-      return folders_api;
-    } catch (error) {
-      console.error('Error en getFolders:', error);
       throw error;
     }
   },
