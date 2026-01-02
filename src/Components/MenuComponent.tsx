@@ -57,7 +57,7 @@ export const MenuComponent = () => {
         // },
         {
             key: 'apyKey',
-            label: 'API Key'
+            label: <Link to="/app/api-key">API Key</Link>,
         },
         {
             key: 'studio',

@@ -6,6 +6,7 @@ import { RequireAuth } from "../auth/RequireAuth";
 import { DocumentPage } from "../Components/Documents/DocumentPage";
 import { EditorStudioComponent } from "../Components/EditorStudioComponent";
 import { FolderPage } from "../Components/Documents/Folderpage";
+import { ApiKeyPage } from "../Components/ApiKey/ApiKeyPage";
 
 const routes: RouteObject[] = [
   {
@@ -27,6 +28,7 @@ const routes: RouteObject[] = [
       { path: "editor/:operation?/:documentId?", element: <EditorStudioComponent/> },
       { path: "documents", element: <DocumentPage /> },
       { path: "folders/:folderId", element: <FolderPage /> },
+      { path: "api-key", element: <ApiKeyPage /> },
     ],
   },
   { path: '*', element: <Navigate to="/app" replace /> },
