@@ -1,7 +1,6 @@
 import { create, type StateCreator } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-// NO importamos Swal aquí. El store debe ser "ciego" a la UI.
 
 import { 
     GET_API_KEY_BY_USER_ID, 
@@ -22,16 +21,14 @@ export interface IApiKey {
 interface ApiKeyState {
     apiKeys: IApiKey[];
     isLoading: boolean;
-    error: string | null; // Agregamos manejo de errores
+    error: string | null; 
 
     // Actions
     getApiKeysByUser: (userId: string) => Promise<void>;
     
-    // Cambiamos el return a la key creada o null, para que el componente sepa qué pasó
     createApiKey: (userId: string, type: 'development' | 'production') => Promise<IApiKey | null>;
     
-    // Corregimos los argumentos para coincidir con tu Schema GraphQL (ApiKeyRenewInput)
-    renewApiKey: (apiKey: string, type: string, userId: string) => Promise<IApiKey | null>;
+    renewApiKey: (apiKey: string, userId: string) => Promise<IApiKey | null>;
     
     clearError: () => void;
 }
@@ -83,22 +80,18 @@ const apiKeyStore: StateCreator<ApiKeyState, [["zustand/immer", never]]> = (set,
         }
     },
 
-    renewApiKey: async (apiKey, type, userId) => {
+    renewApiKey: async (apiKey, userId) => {
         set({ isLoading: true, error: null });
         try {
-            // CORRECCIÓN IMPORTANTE:
-            // Tu backend espera: input: { apiKey, type, userId }
-            // Antes estabas enviando solo apiKeyId, lo cual fallaría.
             const response = await GraphQLService.mutate(RENEW_API_KEY, { 
-                input: { apiKey, type, userId } 
+                input: { apiKey } 
             });
 
             if (response?.error) throw new Error(response.error);
             const renewedKey = response.data?.renewApiKey;
 
             set((state) => {
-                // Actualizamos la lista buscando por ID o por Tipo
-                const index = state.apiKeys.findIndex(k => k.type === type);
+                const index = state.apiKeys.findIndex(k => k.apiKey === apiKey);
                 if (index !== -1) {
                     state.apiKeys[index] = renewedKey;
                 }

@@ -1,4 +1,4 @@
-// src/hooks/useApiKey.ts
+
 import { useEffect, useMemo } from 'react';
 import Swal from 'sweetalert2';
 
@@ -7,7 +7,7 @@ import { useApiKeyStore } from '../store/useApiKeyStore';
 
 // Opciones opcionales para el hook
 interface UseApiKeyOptions {
-    autoFetch?: boolean; // ¿Quieres que cargue los datos al montar?
+    autoFetch?: boolean; 
     autoCreateMissing?: boolean;
 }
 
@@ -15,7 +15,7 @@ export const useApiKeyActions = ({
     autoFetch = false, 
     autoCreateMissing = false 
 }: UseApiKeyOptions = {}) => {
-    // 1. ACCESO A LOS STORES (Separación de Datos)
+    // 1. ACCESO A LOS STORES
     const { 
         apiKeys, 
         isLoading, 
@@ -34,11 +34,6 @@ export const useApiKeyActions = ({
     const prodApiKey = useMemo(() => 
         apiKeys.find(k => k.type === 'production'), 
     [apiKeys]);
-
-    useEffect(() => {
-        console.log('apiKeys', apiKeys);
-    }, [apiKeys]);
-
 
     useEffect(() => {
         if (autoFetch && user?.id) {
@@ -96,13 +91,11 @@ export const useApiKeyActions = ({
             
             // Crear dev key si falta
             if (!devApiKey) {
-                console.log('Creating missing development key...');
                 await handleCreateKey('development');
             }
             
             // Crear prod key si falta
             if (!prodApiKey) {
-                console.log('Creating missing production key...');
                 await handleCreateKey('production');
             }
         };
@@ -110,8 +103,8 @@ export const useApiKeyActions = ({
         createMissingKeys();
     }, [isLoading, devApiKey, prodApiKey, error, user?.id, autoCreateMissing, apiKeys]);
 
-    // C) Renovar Key (con Confirmación + Feedback)
-    const handleRenewKey = async (currentKey: string, type: 'development' | 'production') => {
+    // C) Renovar Key 
+    const handleRenewKey = async (currentKey: string) => {
         if (!user) return;
 
         // Confirmación de seguridad
@@ -134,7 +127,7 @@ export const useApiKeyActions = ({
             allowOutsideClick: false
         });
 
-        const result = await renewApiKey(currentKey, type, user.id);
+        const result = await renewApiKey(currentKey, user.id);
 
         if (result) {
             Swal.fire('¡Renovada!', 'La API Key ha sido actualizada.', 'success');

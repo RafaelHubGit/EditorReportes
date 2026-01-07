@@ -38,18 +38,19 @@ export const ApiKeyCard = ({ title, type, value, onRegenerate }: Props) => {
   };
 
   const confirmRegenerate = () => {
-    Modal.confirm({
-      title: 'Are you sure you want to regenerate this key?',
-      icon: <ReloadOutlined style={{ color: 'red' }} />,
-      content: 'The current key will stop working immediately. You will need to update all your applications.',
-      okText: 'Yes, Regenerate',
-      okType: 'danger',
-      cancelText: 'Cancel',
-      onOk() {
-        onRegenerate();
-        message.success('New API Key generated successfully');
-      },
-    });
+    onRegenerate();
+    // Modal.confirm({
+    //   title: 'Are you sure you want to regenerate this key?',
+    //   icon: <ReloadOutlined style={{ color: 'red' }} />,
+    //   content: 'The current key will stop working immediately. You will need to update all your applications.',
+    //   okText: 'Yes, Regenerate',
+    //   okType: 'danger',
+    //   cancelText: 'Cancel',
+    //   onOk() {
+    //     onRegenerate();
+    //     message.success('New API Key generated successfully');
+    //   },
+    // });
   };
 
   return (

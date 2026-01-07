@@ -36,7 +36,7 @@ export const ApiKeyPage = () => {
                 title="Development Key"
                 type="dev"
                 value={devApiKey?.apiKey ?? ''}
-                onRegenerate={() => renewKey(devApiKey?.apiKey ?? '', 'development')}
+                onRegenerate={() => renewKey(devApiKey?.apiKey ?? '')}
             />
 
             {/* 2. Prod Key Card */}
@@ -44,7 +44,7 @@ export const ApiKeyPage = () => {
                 title="Production Key"
                 type="prod"
                 value={prodApiKey?.apiKey ?? ''}
-                onRegenerate={() => renewKey(prodApiKey?.apiKey ?? '', 'production')}
+                onRegenerate={() => renewKey(prodApiKey?.apiKey ?? '')}
             />
             
         </div>
