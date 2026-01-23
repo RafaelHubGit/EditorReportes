@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const GET_API_KEY_BY_USER_ID = gql`
-    query GetApiKeyByUserId($userId: String!) {
-        getApiKeyByUserId(userId: $userId) {
+    query GetActiveApiKeysByUserId($userId: String!) {
+        getActiveApiKeysByUserId(userId: $userId) {
             id
             userId
             type

@@ -26,6 +26,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useReportStore } from "../store/useReportStore";
 import type { IDocument } from "../interfaces/IGeneric";
 import { initDocument } from "../store/initOrganization";
+import { pdfService } from "../services/pdf.service";
+import { useApiKeyActions } from "../hooks/useApiKeyActions";
 
 const { Title, Text } = Typography;
 
@@ -41,6 +43,14 @@ export const EditorStudioComponent = ({ }: Props) => {
   const updateDocument = useReportStore(state => state.updateDocument);
   const addDocument = useReportStore(state => state.addDocument);
   const getDocumentById = useReportStore(state => state.getDocumentById);
+
+  const { 
+          devApiKey, 
+          prodApiKey,
+      } = useApiKeyActions({ 
+          autoFetch: true,
+          autoCreateMissing: false
+      }); 
 
   const { token } = theme.useToken();
   const [isSplit, setIsSplit] = useState(false);
@@ -79,9 +89,22 @@ export const EditorStudioComponent = ({ }: Props) => {
     }
   }
 
+  const handleExportPdf = () => {
+
+    console.log("apikey studio", devApiKey?.apiKey);
+    console.log("documentId studio", documentState.id);
+    pdfService(devApiKey?.apiKey || '', documentState.id);
+  }
+
   const itemsDrop: MenuProps["items"] = [
-    { key: "export", label: "Exportar a PDF" },
-    { key: "share", label: "Compartir (próximamente)" },
+    { 
+      key: "export", 
+      label: "Exportar a PDF", 
+      onClick: () => {
+        handleExportPdf();
+      }
+    },
+    // { key: "share", label: "Compartir (próximamente)" },
   ];
 
   return (
