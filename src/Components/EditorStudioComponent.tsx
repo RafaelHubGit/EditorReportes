@@ -28,6 +28,7 @@ import type { IDocument } from "../interfaces/IGeneric";
 import { initDocument } from "../store/initOrganization";
 import { pdfService } from "../services/pdf.service";
 import { useApiKeyActions } from "../hooks/useApiKeyActions";
+import Swal from "sweetalert2";
 
 const { Title, Text } = Typography;
 
@@ -89,11 +90,73 @@ export const EditorStudioComponent = ({ }: Props) => {
     }
   }
 
-  const handleExportPdf = () => {
+  const handleExportPdf = async () => {
 
-    console.log("apikey studio", devApiKey?.apiKey);
-    console.log("documentId studio", documentState.id);
-    pdfService(devApiKey?.apiKey || '', documentState.id);
+    Swal.fire({
+      title: 'Generando PDF...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+    const requestPdf = await pdfService(devApiKey?.apiKey || '', documentState.id);
+
+    if (!requestPdf.success) {
+      Swal.close();
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: "No se pudo generar el PDF, intente nuevamente"
+      });
+      return;
+    }
+
+    console.log("requestPdf", requestPdf);
+
+    Swal.close();
+
+    const pdfData = `data:application/pdf;base64,${requestPdf.pdfBase64}`;
+
+
+    Swal.fire({
+      title: 'PDF Generado',
+      width: '90%',
+      html: `
+        <div style="position: relative; width: 100%; height: 500px;">
+          <iframe 
+            src="${pdfData}" 
+            style="width: 100%; height: 100%; border: none;"
+            title="PDF Preview"
+          ></iframe>
+          <div style="margin-top: 15px; text-align: center;">
+            <button 
+              id="downloadPdfBtn" 
+              class="swal2-confirm swal2-styled"
+              style="margin-top: 10px;"
+            >
+              Descargar PDF
+            </button>
+          </div>
+        </div>
+      `,
+      showConfirmButton: false,
+      // confirmButtonText: 'Cerrar',
+      showCloseButton: true,  // ← Esto añade la X en la esquina derecha
+      // closeButtonHtml: '&times;', // Opcional: personalizar el icono
+      
+      didOpen: () => {
+        // Evento para el botón de descarga
+        document.getElementById('downloadPdfBtn')?.addEventListener('click', () => {
+          const link = document.createElement('a');
+          link.href = pdfData;
+          link.download = `documento_${new Date().toISOString().split('T')[0]}.pdf`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        });
+      }
+    });
+
   }
 
   const itemsDrop: MenuProps["items"] = [
