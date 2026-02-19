@@ -75,8 +75,17 @@ export const initDocument: IDocument = {
             { "name": "Service C", "quantity": 3, "price": "$15" }
         ],
         "total": "$95"
-    }
-    ,
+    },
+    printConfig: {
+        layout: { 
+            format: 'letter', 
+            orientation: 'portrait', 
+            width: 216, 
+            height: 279 
+        },
+        margins: { top: 10, right: 10, bottom: 10, left: 10 },
+        options: { scale: 100, printBackground: true, pageNumbers: false }
+    },    
     createdAt: new Date(),
     updatedAt: new Date(),
     userCreated: "",

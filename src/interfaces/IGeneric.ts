@@ -1,3 +1,4 @@
+import type { IPrintConfig } from "./IPrintSettings";
 
 
 
@@ -14,6 +15,7 @@ export interface IDocument {
   folderId?: string | undefined | null;
   status?: 'draft' | 'published' | 'unpublished' | 'archived';
   tags?: string[];
+  printConfig: IPrintConfig;
   owner?: string;
   createdAt?: Date;
   updatedAt?: Date;

@@ -29,12 +29,14 @@ import { initDocument } from "../store/initOrganization";
 import { pdfService } from "../services/pdf.service";
 import { useApiKeyActions } from "../hooks/useApiKeyActions";
 import Swal from "sweetalert2";
+import PrintSettingsPanel from "./PageConfiguration/PrintSettingsPanel";
 
 const { Title, Text } = Typography;
 
 type Props = {
 
 }
+
 
 export const EditorStudioComponent = ({ }: Props) => {
 
@@ -266,6 +268,21 @@ export const EditorStudioComponent = ({ }: Props) => {
                     <EditorJsonComponent
                       jsonProp={JSON.stringify(documentState.sampleData)}
                       setJsonProp={(json) => updateDocumentState({ sampleData: JSON.parse(json) })}
+                    />
+                  </div>
+                )
+              },
+              {
+                label: "Configuración de página",
+                key: "config",
+                children: (
+                  <div style={{ 
+                    height: 'calc(100vh - 210px)',
+                    overflow: 'auto'
+                    }}>
+                    <PrintSettingsPanel
+                      config={documentState.printConfig}
+                      setConfig={(newConfig) => updateDocumentState({ printConfig: newConfig })}
                     />
                   </div>
                 )

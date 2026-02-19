@@ -2,3 +2,29 @@
 
 //TODO: Revisar por que no se actualiza el array de documentos en el documentPage al crear uno nuevo
 
+
+
+
+2. se deben ir poniendo la cantidad de peticiones que el usuario hizo, esto para controlar el limite de peticiones
+
+3. ya se hizo la prueba base64, hacer la prueba con el otro 
+4. validar cual es el nvp para ya lanzarlo
+5. checar si es necesario meter la configuracion de la pagina o de momento se lanza asi 
+6. al crear o editar un documento, se ven los 3 puntos que solo muestra el creear pdf, sacarlo de ahi 
+7. debe haber una pagina de bievenida o algo 
+8. se debe crear la documentacion 
+9. si se realiza alguna modificacion, debe mostrar que el documento no se ha guardado
+10. creacion de footer y header por separado
+11. como se manejaran las imagenes?
+
+
+
+12. cuantos planes se van a manejar? 
+12.1. monkey pdf tiene 4 y uno free por 30 dias
+13. en free y started la duracion maxima por pdf es de 30seg (sera para manejar el tiempo de ejecucion y el tamaño de los pdf?)
+
+
+
+
+
+*** actualizar la bd para que acepte las configuraciones de pagina
