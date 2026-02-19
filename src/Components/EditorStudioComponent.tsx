@@ -295,6 +295,7 @@ export const EditorStudioComponent = ({ }: Props) => {
                     <VistaPreviaComponent
                       htmlProp={documentState.htmlProcessed ?? ""}
                       cssProp={documentState.css ?? ""}
+                      printConfig={documentState.printConfig}
                     />
                   </div>
                 )
@@ -345,6 +346,21 @@ export const EditorStudioComponent = ({ }: Props) => {
                       </div>
                     )
                   },
+                  {
+                    label: "Configuración de página",
+                    key: "config",
+                    children: (
+                      <div style={{ 
+                        height: 'calc(100vh - 210px)',
+                        overflow: 'auto'
+                        }}>
+                        <PrintSettingsPanel
+                          config={documentState.printConfig}
+                          setConfig={(newConfig) => updateDocumentState({ printConfig: newConfig })}
+                        />
+                      </div>
+                    )
+                  },
                 ]}
               />
             </Col>
@@ -356,6 +372,7 @@ export const EditorStudioComponent = ({ }: Props) => {
                 <VistaPreviaComponent
                   htmlProp={documentState.htmlProcessed ?? ""}
                   cssProp={documentState.css ?? ""}
+                  printConfig={documentState.printConfig}
                 />
               </div>
             </Col>
