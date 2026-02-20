@@ -1,6 +1,6 @@
 // MonacoCodeEditor.tsx - Versión con formateo
 import { useEffect } from 'react';
-import Editor from "@monaco-editor/react";
+import Editor, { useMonaco } from "@monaco-editor/react";
 import type { OnMount } from "@monaco-editor/react";
 import { useCodeFormatter } from "../../hooks/useCodeFormatter";
 
@@ -15,6 +15,7 @@ type Props = {
     schema?: object;
     path?: string;
     onFormat?: number; // Nueva prop para formateo externo
+    autocompleteJson?: Record<string, any>;
 };
 
 export default function MonacoCodeEditor({
@@ -24,8 +25,10 @@ export default function MonacoCodeEditor({
     height = "100%",
     schema,
     path,
-    onFormat
+    onFormat,
+    autocompleteJson
 }: Props) {
+    const monaco = useMonaco();
     const { formatCode } = useCodeFormatter();
 
     const handleMount: OnMount = (editor, monaco) => {
@@ -93,6 +96,56 @@ export default function MonacoCodeEditor({
         const formatted = formatCode(value, language);
         onChange(formatted);
     };
+
+    useEffect(() => {
+        if (!monaco || !autocompleteJson || language !== 'html') return;
+
+        // Función para aplanar el JSON (ej: "cliente.nombre")
+        const getSuggestions = (obj: any, monaco: any, prefix = ""): any[] => {
+            let suggestions: any[] = [];
+            for (const key in obj) {
+            const fullPath = prefix ? `${prefix}.${key}` : key;
+            
+            suggestions.push({
+                label: fullPath,
+                kind: monaco.languages.CompletionItemKind.Variable,
+                insertText: fullPath,
+                detail: typeof obj[key] === 'object' ? 'Objeto' : String(obj[key]),
+                range: null // Monaco lo calcula automáticamente si es null
+            });
+
+            if (typeof obj[key] === "object" && obj[key] !== null && !Array.isArray(obj[key])) {
+                suggestions = suggestions.concat(getSuggestions(obj[key], monaco, fullPath));
+            }
+            }
+            return suggestions;
+        };
+
+        // Registramos el proveedor
+        const provider = monaco.languages.registerCompletionItemProvider('html', {
+            triggerCharacters: ['{'],
+            provideCompletionItems: (model, position) => {
+            const textUntilPosition = model.getValueInRange({
+                startLineNumber: position.lineNumber,
+                startColumn: 1,
+                endLineNumber: position.lineNumber,
+                endColumn: position.column,
+            });
+
+            // Solo sugerir si el usuario escribió "{{"
+            if (!textUntilPosition.endsWith('{{')) {
+                return { suggestions: [] };
+            }
+
+            return {
+                suggestions: getSuggestions(autocompleteJson, monaco)
+            };
+            },
+        });
+
+        // LIMPIEZA: IMPORTANTE
+        return () => provider.dispose(); 
+    }, [autocompleteJson, language]);
 
 
     return (

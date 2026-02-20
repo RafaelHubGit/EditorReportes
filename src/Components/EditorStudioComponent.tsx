@@ -251,6 +251,7 @@ export const EditorStudioComponent = ({ }: Props) => {
                     <EditorHtmlComponent
                       htmlCodeprop={documentState.html}
                       setHtmlCodeProp={(html) => updateDocumentState({ html })}
+                      jsonStringProp={documentState.sampleData}
                     />
                   </div>
                 )
@@ -345,6 +346,7 @@ export const EditorStudioComponent = ({ }: Props) => {
                         <EditorHtmlComponent
                           htmlCodeprop={documentState.html}
                           setHtmlCodeProp={(html) => updateDocumentState({ html })}
+                          jsonStringProp={documentState.sampleData}
                         />
                       </div>
                     )
@@ -397,6 +399,7 @@ export const EditorStudioComponent = ({ }: Props) => {
                         css={documentState.headerCss || ""}
                         onChangeHtml={(html) => updateDocumentState({ headerHtml: html })}
                         onChangeCss={(css) => updateDocumentState({ headerCss: css })}
+                        jsonStringProp={documentState.sampleData}
                       />
                     )
                   },
@@ -409,6 +412,7 @@ export const EditorStudioComponent = ({ }: Props) => {
                         css={documentState.footerCss || ""}
                         onChangeHtml={(html) => updateDocumentState({ footerHtml: html })}
                         onChangeCss={(css) => updateDocumentState({ footerCss: css })}
+                        jsonStringProp={documentState.sampleData}
                       />
                     )
                   },

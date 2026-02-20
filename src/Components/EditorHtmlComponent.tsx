@@ -6,11 +6,13 @@ import { EditorBaseComponent } from "./EditorBaseComponent";
 type Props = {
   htmlCodeprop: string;
   setHtmlCodeProp: (html: string) => void;
+  jsonStringProp?: Record<string, any>;
 }
 
 export const EditorHtmlComponent = React.memo(({
   htmlCodeprop,
-  setHtmlCodeProp
+  setHtmlCodeProp,
+  jsonStringProp
 }: Props) => {
   const [error, setError] = useState("");
 
@@ -32,6 +34,7 @@ export const EditorHtmlComponent = React.memo(({
       onChange={handleChange}
       language="html"
       error={error}
+      autocompleteJson={jsonStringProp || {}}
     />
   );
 });

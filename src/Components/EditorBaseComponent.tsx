@@ -13,6 +13,7 @@ interface Props {
   jsonSchema?: object;
   error?: string;
   path?: string;
+  autocompleteJson?: Record<string, any>; // Sirve para Autocompletado para HTML
 }
 
 export const EditorBaseComponent = memo(({
@@ -23,6 +24,7 @@ export const EditorBaseComponent = memo(({
   jsonSchema,
   error,
   path, 
+  autocompleteJson
 }: Props) => {
   const { formatCode, isValidCode } = useCodeFormatter();
   const [formatTrigger, setFormatTrigger] = useState(0);
@@ -80,6 +82,7 @@ export const EditorBaseComponent = memo(({
           onChange={onChange}
           language={language}
           onFormat={formatTrigger} // Pasar el trigger como prop
+          autocompleteJson={autocompleteJson || {}}
         />
       </div>
 

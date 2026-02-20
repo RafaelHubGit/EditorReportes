@@ -10,6 +10,7 @@ type Props = {
   css: string;
   onChangeHtml: (val: string) => void;
   onChangeCss: (val: string) => void;
+  jsonStringProp?: Record<string, any>;
 };
 
 export const EditorSectionComponent = ({ 
@@ -17,6 +18,7 @@ export const EditorSectionComponent = ({
   css, 
   onChangeHtml, 
   onChangeCss, 
+  jsonStringProp
 }: Props) => {
 
   return (
@@ -31,6 +33,7 @@ export const EditorSectionComponent = ({
               <EditorHtmlComponent
                 htmlCodeprop={html}
                 setHtmlCodeProp={onChangeHtml}
+                jsonStringProp={jsonStringProp || {}}
               />
             </div>
           ),
