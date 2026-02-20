@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Button,
   Dropdown,
@@ -31,6 +31,7 @@ import { useApiKeyActions } from "../hooks/useApiKeyActions";
 import Swal from "sweetalert2";
 import PrintSettingsPanel from "./PageConfiguration/PrintSettingsPanel";
 import { EditorSectionComponent } from "./EditorSectionComponent";
+import { generateFinalHtml } from "../utils/reportEngine";
 
 const { Title, Text } = Typography;
 
@@ -63,9 +64,6 @@ export const EditorStudioComponent = ({ }: Props) => {
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
 
-  // const documentTitle = documentState.name;
-
-
   useEffect(() => {
     if (operation === types.documentEdit && documentId) {
       const existingDocument = getDocumentById(documentId);
@@ -86,7 +84,6 @@ export const EditorStudioComponent = ({ }: Props) => {
   const handleSave = () => {
     if (operation == types.documentNew) {
       addDocument(documentState);
-      // navigate(`/editor/${types.documentEdit}/${documentState.id}`);
       navigate(`${types.documentEdit}/${documentState.id}`);
     } else {
       updateDocument(documentState);
@@ -119,7 +116,6 @@ export const EditorStudioComponent = ({ }: Props) => {
     Swal.close();
 
     const pdfData = `data:application/pdf;base64,${requestPdf.pdfBase64}`;
-
 
     Swal.fire({
       title: 'PDF Generado',
@@ -172,6 +168,18 @@ export const EditorStudioComponent = ({ }: Props) => {
     },
     // { key: "share", label: "Compartir (próximamente)" },
   ];
+
+    const finalReportHtml = useMemo(() => {
+      return generateFinalHtml({
+        html: documentState.html || "",
+        css: documentState.css || "",
+        headerHtml: documentState.headerHtml || "",
+        headerCss: documentState.headerCss || "",
+        footerHtml: documentState.footerHtml || "",
+        footerCss: documentState.footerCss || "",
+        data: documentState.sampleData
+      });
+    }, [documentState, documentState.sampleData, documentState.html, documentState.css, documentState.headerHtml, documentState.headerCss, documentState.footerHtml, documentState.footerCss]); // Se recalcula si cualquier parte del documento cambia
 
   return (
     <div className="studio-container">
@@ -243,8 +251,6 @@ export const EditorStudioComponent = ({ }: Props) => {
                     <EditorHtmlComponent
                       htmlCodeprop={documentState.html}
                       setHtmlCodeProp={(html) => updateDocumentState({ html })}
-                      setHtmlProcesedProp={(htmlProcessed) => updateDocumentState({ htmlProcessed })}
-                      jsonStringProp={documentState.sampleData}
                     />
                   </div>
                 )
@@ -297,9 +303,6 @@ export const EditorStudioComponent = ({ }: Props) => {
                     css={documentState.headerCss || ""}
                     onChangeHtml={(html) => updateDocumentState({ headerHtml: html })}
                     onChangeCss={(css) => updateDocumentState({ headerCss: css })}
-                    
-                    setHtmlProcessed={(htmlP) => updateDocumentState({ headerHtmlProcessed: htmlP })}
-                    sampleData={documentState.sampleData}
                   />
                 )
               },
@@ -312,9 +315,6 @@ export const EditorStudioComponent = ({ }: Props) => {
                     css={documentState.footerCss || ""}
                     onChangeHtml={(html) => updateDocumentState({ footerHtml: html })}
                     onChangeCss={(css) => updateDocumentState({ footerCss: css })}
-                    
-                    setHtmlProcessed={(htmlP) => updateDocumentState({ footerHtmlProcessed: htmlP })}
-                    sampleData={documentState.sampleData}
                   />
                 )
               },
@@ -324,14 +324,7 @@ export const EditorStudioComponent = ({ }: Props) => {
                 children: (
                   <div style={{ height: 'calc(100vh - 150px)' }}>
                     <VistaPreviaComponent
-                      htmlProp={documentState.htmlProcessed ?? ""}
-                      cssProp={documentState.css ?? ""}
-                      printConfig={documentState.printConfig}
-
-                      headerHtml={documentState.headerHtmlProcessed || ""}
-                      headerCss={documentState.headerCss || ""}
-                      footerHtml={documentState.footerHtmlProcessed || ""}
-                      footerCss={documentState.footerCss || ""}
+                      htmlProp={finalReportHtml}
                     />
                   </div>
                 )
@@ -352,8 +345,6 @@ export const EditorStudioComponent = ({ }: Props) => {
                         <EditorHtmlComponent
                           htmlCodeprop={documentState.html}
                           setHtmlCodeProp={(html) => updateDocumentState({ html })}
-                          setHtmlProcesedProp={(htmlProcessed) => updateDocumentState({ htmlProcessed })}
-                          jsonStringProp={documentState.sampleData}
                         />
                       </div>
                     )
@@ -406,8 +397,6 @@ export const EditorStudioComponent = ({ }: Props) => {
                         css={documentState.headerCss || ""}
                         onChangeHtml={(html) => updateDocumentState({ headerHtml: html })}
                         onChangeCss={(css) => updateDocumentState({ headerCss: css })}
-                        sampleData={documentState.sampleData}
-                        setHtmlProcessed={(htmlP) => updateDocumentState({ headerHtmlProcessed: htmlP })}
                       />
                     )
                   },
@@ -420,8 +409,6 @@ export const EditorStudioComponent = ({ }: Props) => {
                         css={documentState.footerCss || ""}
                         onChangeHtml={(html) => updateDocumentState({ footerHtml: html })}
                         onChangeCss={(css) => updateDocumentState({ footerCss: css })}
-                        sampleData={documentState.sampleData}
-                        setHtmlProcessed={(htmlP) => updateDocumentState({ footerHtmlProcessed: htmlP })}
                       />
                     )
                   },
@@ -434,14 +421,7 @@ export const EditorStudioComponent = ({ }: Props) => {
                   Vista Previa
                 </Title>
                 <VistaPreviaComponent
-                  htmlProp={documentState.htmlProcessed ?? ""}
-                  cssProp={documentState.css ?? ""}
-                  printConfig={documentState.printConfig}
-
-                  headerHtml={documentState.headerHtmlProcessed || ""}
-                  headerCss={documentState.headerCss || ""}
-                  footerHtml={documentState.footerHtmlProcessed || ""}
-                  footerCss={documentState.footerCss || ""}
+                  htmlProp={finalReportHtml}
                 />
               </div>
             </Col>

@@ -66,9 +66,31 @@ const initDocument: IDocument = {
   id: '',
   name: 'Nuevo Documento',
   html: '<h1>Nuevo Reporte</h1>',
-  htmlProcessed: '',
   css: '',
   sampleData: {},
+  headerHtml: '',
+  headerCss: '',
+  footerHtml: '',
+  footerCss: '',
+  printConfig: {
+    layout: {
+      orientation: 'portrait',
+      format: 'A4',
+      width: 210,
+      height: 297,
+    },
+    margins: {
+      top: 10,
+      right: 10,
+      bottom: 10,
+      left: 10
+    },
+    options: {
+      scale: 1,
+      printBackground: true,
+      pageNumbers: true
+    }
+  },
   createdAt: new Date(),
   updatedAt: new Date()
 };
