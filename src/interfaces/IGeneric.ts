@@ -8,14 +8,22 @@ export interface IDocument {
   id: string;
   name: string;
   html: string;
-  htmlProcessed?: string;
   css: string;
   jsonSchema?: Record<string, any>;
   sampleData: Record<string, any>;
+  htmlProcessed?: string;
+  printConfig: IPrintConfig;
+
+  headerHtml?: string;
+  headerCss?: string;
+  headerHtmlProcessed?: string;
+  footerHtml?: string;
+  footerCss?: string;
+  footerHtmlProcessed?: string;
+  
   folderId?: string | undefined | null;
   status?: 'draft' | 'published' | 'unpublished' | 'archived';
   tags?: string[];
-  printConfig: IPrintConfig;
   owner?: string;
   createdAt?: Date;
   updatedAt?: Date;

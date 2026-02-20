@@ -28,3 +28,7 @@
 
 
 *** actualizar la bd para que acepte las configuraciones de pagina
+
+
+
+**** separar el envio de informacion a un DTO

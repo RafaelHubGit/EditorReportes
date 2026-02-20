@@ -30,6 +30,7 @@ import { pdfService } from "../services/pdf.service";
 import { useApiKeyActions } from "../hooks/useApiKeyActions";
 import Swal from "sweetalert2";
 import PrintSettingsPanel from "./PageConfiguration/PrintSettingsPanel";
+import { EditorSectionComponent } from "./EditorSectionComponent";
 
 const { Title, Text } = Typography;
 
@@ -288,6 +289,36 @@ export const EditorStudioComponent = ({ }: Props) => {
                 )
               },
               {
+                label: "Encabezado",
+                key: "header",
+                children: (
+                  <EditorSectionComponent
+                    html={documentState.headerHtml || ""}
+                    css={documentState.headerCss || ""}
+                    onChangeHtml={(html) => updateDocumentState({ headerHtml: html })}
+                    onChangeCss={(css) => updateDocumentState({ headerCss: css })}
+                    
+                    setHtmlProcessed={(htmlP) => updateDocumentState({ headerHtmlProcessed: htmlP })}
+                    sampleData={documentState.sampleData}
+                  />
+                )
+              },
+              {
+                label: "Pie de página",
+                key: "footer",
+                children: (
+                  <EditorSectionComponent
+                    html={documentState.footerHtml || ""}
+                    css={documentState.footerCss || ""}
+                    onChangeHtml={(html) => updateDocumentState({ footerHtml: html })}
+                    onChangeCss={(css) => updateDocumentState({ footerCss: css })}
+                    
+                    setHtmlProcessed={(htmlP) => updateDocumentState({ footerHtmlProcessed: htmlP })}
+                    sampleData={documentState.sampleData}
+                  />
+                )
+              },
+              {
                 label: "Vista Previa",
                 key: "preview",
                 children: (
@@ -296,6 +327,11 @@ export const EditorStudioComponent = ({ }: Props) => {
                       htmlProp={documentState.htmlProcessed ?? ""}
                       cssProp={documentState.css ?? ""}
                       printConfig={documentState.printConfig}
+
+                      headerHtml={documentState.headerHtmlProcessed || ""}
+                      headerCss={documentState.headerCss || ""}
+                      footerHtml={documentState.footerHtmlProcessed || ""}
+                      footerCss={documentState.footerCss || ""}
                     />
                   </div>
                 )
@@ -361,6 +397,34 @@ export const EditorStudioComponent = ({ }: Props) => {
                       </div>
                     )
                   },
+                  {
+                    label: "Encabezado",
+                    key: "header",
+                    children: (
+                      <EditorSectionComponent
+                        html={documentState.headerHtml || ""}
+                        css={documentState.headerCss || ""}
+                        onChangeHtml={(html) => updateDocumentState({ headerHtml: html })}
+                        onChangeCss={(css) => updateDocumentState({ headerCss: css })}
+                        sampleData={documentState.sampleData}
+                        setHtmlProcessed={(htmlP) => updateDocumentState({ headerHtmlProcessed: htmlP })}
+                      />
+                    )
+                  },
+                  {
+                    label: "Pie de página",
+                    key: "footer",
+                    children: (
+                      <EditorSectionComponent
+                        html={documentState.footerHtml || ""}
+                        css={documentState.footerCss || ""}
+                        onChangeHtml={(html) => updateDocumentState({ footerHtml: html })}
+                        onChangeCss={(css) => updateDocumentState({ footerCss: css })}
+                        sampleData={documentState.sampleData}
+                        setHtmlProcessed={(htmlP) => updateDocumentState({ footerHtmlProcessed: htmlP })}
+                      />
+                    )
+                  },
                 ]}
               />
             </Col>
@@ -373,6 +437,11 @@ export const EditorStudioComponent = ({ }: Props) => {
                   htmlProp={documentState.htmlProcessed ?? ""}
                   cssProp={documentState.css ?? ""}
                   printConfig={documentState.printConfig}
+
+                  headerHtml={documentState.headerHtmlProcessed || ""}
+                  headerCss={documentState.headerCss || ""}
+                  footerHtml={documentState.footerHtmlProcessed || ""}
+                  footerCss={documentState.footerCss || ""}
                 />
               </div>
             </Col>

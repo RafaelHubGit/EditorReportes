@@ -9,10 +9,38 @@ const { Title, Text } = Typography;
 type Props = {
   htmlProp: string;
   cssProp: string;
-  printConfig: IPrintConfig
+  printConfig: IPrintConfig,
+
+  headerHtml?: string;
+  headerCss?: string;
+  footerHtml?: string;
+  footerCss?: string;
 }
 
-export const VistaPreviaComponent = ({ htmlProp, cssProp, printConfig }: Props) => {
+export const VistaPreviaComponent = ({
+  htmlProp,
+  cssProp,
+  printConfig,
+  headerHtml = "",
+  headerCss = "",
+  footerHtml = "",
+  footerCss = ""
+}: Props) => {
+
+  const combinedStyles = `
+    /* Estilos base del documento */
+    ${cssProp}
+
+    /* Estilos específicos para el encabezado */
+    #report-header-container {
+      ${headerCss}
+    }
+
+    /* Estilos específicos para el pie de página */
+    #report-footer-container {
+      ${footerCss}
+    }
+  `;
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const scrollYRef = useRef(0);
@@ -51,6 +79,7 @@ export const VistaPreviaComponent = ({ htmlProp, cssProp, printConfig }: Props) 
       const full = `
         <html>
           <head>
+            <style>${combinedStyles}</style>
             <style>
               /* Estilos base del simulador */
               body {
@@ -83,9 +112,17 @@ export const VistaPreviaComponent = ({ htmlProp, cssProp, printConfig }: Props) 
             </style>
           </head>
           <body>
+            <header id="report-header-container">
+              ${headerHtml}
+            </header>
+
             <div class="paper-sheet">
               ${htmlProp}
             </div>
+
+            <footer id="report-footer-container">
+              ${footerHtml}
+            </footer>
           </body>
         </html>
       `;
