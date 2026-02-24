@@ -150,8 +150,8 @@ export const initDocument: IDocument = {
     headerHtml: `<div style="width:100%; text-align:right; font-size:10px; border-bottom:1px solid #eee;">Acme Corp | Propuesta Confidencial</div>`,
     footerHtml: `<div style="width:100%; display:flex; justify-content:space-between; font-size:10px; border-top:1px solid #eee;"><span>© 2026 Acme Corp</span><span>Página <span class="pageNumber"></span> / <span class="totalPages"></span></span></div>`,
     printConfig: {
-        layout: { format: 'letter', orientation: 'portrait', width: 216, height: 279 },
-        margins: { top: 25, right: 20, bottom: 25, left: 20 },
+        layout: { format: 'letter', orientation: false, width: 216, height: 279, unit: 'mm' },
+        margin: { top: 25, right: 20, bottom: 25, left: 20 },
         options: { scale: 100, printBackground: true, pageNumbers: true }
     },
     createdAt: new Date(),

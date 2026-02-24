@@ -2,8 +2,6 @@ import type { IPrintConfig } from "./IPrintSettings";
 
 
 
-
-// IGeneric.ts - Versión mejorada
 export interface IDocument {
   id: string;
   name: string;
@@ -13,10 +11,10 @@ export interface IDocument {
   sampleData: Record<string, any>;
   printConfig: IPrintConfig;
 
-  headerHtml?: string;
-  headerCss?: string;
-  footerHtml?: string;
-  footerCss?: string;
+  htmlHeader?: string;
+  cssHeader?: string;
+  htmlFooter?: string;
+  cssFooter?: string;
   
   folderId?: string | undefined | null;
   status?: 'draft' | 'published' | 'unpublished' | 'archived';

@@ -9,6 +9,9 @@ import type { IDocument, IFolder, ViewMode, SortOption } from "../interfaces/IGe
 import { CREATE_DOCUMENT, CREATE_FOLDER, DELETE_DOCUMENT, DELETE_FOLDER, documentFieldsInput, folderFieldsInput, GET_ALLDOCUMENTS, GET_DOCUMENT_BY_USER, GET_FOLDERS, GET_FOLDERS_BY_USER, MOVE_DOCUMENT_TO_FOLDER, UPDATE_DOCUMENT, UPDATE_FOLDER } from "../graphql/operations/graphql.operations";
 import { GraphQLService } from "../graphql/graphql.service";
 import { pickFields } from "../utils/pickFields";
+import { DocumentDTO } from "../dto/Document.schema";
+import z from "zod";
+import { adaptApiToDocument } from "../utils/documentAdapter";
 
 interface ReportState {
   document: IDocument;
@@ -68,18 +71,19 @@ const initDocument: IDocument = {
   html: '<h1>Nuevo Reporte</h1>',
   css: '',
   sampleData: {},
-  headerHtml: '',
-  headerCss: '',
-  footerHtml: '',
-  footerCss: '',
+  htmlHeader: '',
+  cssHeader: '',
+  htmlFooter: '',
+  cssFooter: '',
   printConfig: {
     layout: {
-      orientation: 'portrait',
+      orientation: false,
       format: 'A4',
       width: 210,
       height: 297,
+      unit: 'mm'
     },
-    margins: {
+    margin: {
       top: 10,
       right: 10,
       bottom: 10,
@@ -118,8 +122,10 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
 
       const documents = result.data?.templatesByUser;
 
+      const cleanDocuments = documents.map((doc: any) => adaptApiToDocument(doc));
+
       set((state) => {
-        state.documents = documents || [];
+        state.documents = cleanDocuments || [];
       });
 
       return documents;
@@ -135,8 +141,9 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
 
      
 
-      const documentInput = pickFields(document, documentFieldsInput);
-      const result = await GraphQLService.mutate(CREATE_DOCUMENT, { input: documentInput }); //TODO: Mejorar el try catch para que funcione en este caso
+      // const documentInput = pickFields(document, documentFieldsInput);
+      const validatedInput = DocumentDTO.parse(document);
+      const result = await GraphQLService.mutate(CREATE_DOCUMENT, { input: validatedInput }); //TODO: Mejorar el try catch para que funcione en este caso
 
       
 
@@ -177,6 +184,9 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
 
     } catch (error) {
       console.error('Error en addDocument:', error);
+      if (error instanceof z.ZodError) {
+        console.error("Error de validación:", error);
+      }
       await Swal.fire({
         icon: 'error',
         title: 'Error al crear documento',
@@ -190,8 +200,10 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
   updateDocument: async (updates: Partial<IDocument>) => {
     try {
 
-      const documentInput = pickFields(updates, documentFieldsInput);
-      const result = await GraphQLService.mutate(UPDATE_DOCUMENT, { id: updates.id, input: documentInput });
+      // const documentInput = pickFields(updates, documentFieldsInput);
+      const validatedInput = DocumentDTO.parse(updates);
+
+      const result = await GraphQLService.mutate(UPDATE_DOCUMENT, { id: updates.id, input: validatedInput });
 
       const updated = result.data?.updateTemplate;
       set((state) => {
@@ -272,7 +284,9 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
 
   getDocumentById: (id: string) => {
     const { documents } = get();
-    return documents.find(doc => doc.id === id) || null;
+    const doc = documents.find(doc => doc.id === id) || null;
+    console.log("doc", doc);
+    return doc ? adaptApiToDocument(doc) : null;
   },
 
   addDocuments: (document: IDocument) =>

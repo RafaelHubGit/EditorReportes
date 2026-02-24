@@ -7,9 +7,6 @@
 2. si se realiza alguna modificacion, debe mostrar que el documento no se ha guardado
 3. documentacion
 
-*** actualizar la bd para que acepte las configuraciones de pagina
-**** separar el envio de informacion a un DTO
-
 
 
 12. cuantos planes se van a manejar? 
@@ -17,3 +14,15 @@
 13. en free y started la duracion maxima por pdf es de 30seg (sera para manejar el tiempo de ejecucion y el tamaño de los pdf?)
 
 
+**para poder generar un pdf (aunque sea de prueba) se tiene que guardar para que el back pueda obtener la informacion y generarlo
+
+
+
+nota!!!!:
+Clases especiales de Puppeteer
+Para que los números de página funcionen, tu footerHtml debería poder contener estas clases que Puppeteer reconoce automáticamente:
+
+<span class="pageNumber"></span> (Página actual)
+
+<span class="totalPages"></span> (Total de páginas)
+Si no las contemplas en tu esquema, el usuario no podrá hacer folios dinámicos.

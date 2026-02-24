@@ -6,6 +6,23 @@ export const DOCUMENT_FIELDS_FRAGMENT = gql`
         name
         html
         css
+        htmlHeader
+        htmlFooter
+        cssHeader
+        cssFooter
+        pageConfig{
+            format
+            height
+            landscape
+            margin{
+                top
+                right
+                bottom
+                left
+            }
+            unit
+            width
+        }
         jsonSchema
         sampleData
         owner

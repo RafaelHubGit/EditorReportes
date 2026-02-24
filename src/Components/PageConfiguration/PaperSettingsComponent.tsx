@@ -78,7 +78,7 @@ export const PaperSettingsComponent = ({ layout, onLayoutChange }: PaperSettings
       const selectedSize = PAPER_SIZES[newFormat];
       newWidth = selectedSize?.w;
       newHeight = selectedSize?.h;
-      newOrientation = 'portrait';
+      newOrientation = false; // vertical
     } else if (newFormat === 'custom') {
       // Limpiar los valores cuando se selecciona custom
       newWidth = 0;
@@ -101,7 +101,7 @@ export const PaperSettingsComponent = ({ layout, onLayoutChange }: PaperSettings
     });
   };
 
-  const handleOrientationChange = (newOrientation: 'portrait' | 'landscape') => {
+  const handleOrientationChange = (newOrientation: boolean) => {
     // if (layout.format === 'custom') return;
 
     const currentW = layout.width || 0;
@@ -110,10 +110,12 @@ export const PaperSettingsComponent = ({ layout, onLayoutChange }: PaperSettings
     let finalW = currentW;
     let finalH = currentH;
 
-    if (newOrientation === 'landscape' && currentH > currentW) {
+    if (newOrientation === true // horizontal
+      && currentH > currentW) {
         finalW = currentH;
         finalH = currentW;
-    } else if (newOrientation === 'portrait' && currentW > currentH) {
+    } else if (newOrientation === false // vertical
+      && currentW > currentH) {
         finalW = currentH;
         finalH = currentW;
     }
@@ -208,8 +210,8 @@ export const PaperSettingsComponent = ({ layout, onLayoutChange }: PaperSettings
               size="middle"
               style={{ width: '100%' }}
             >
-              <Option value="portrait">Vertical</Option>
-              <Option value="landscape">Horizontal</Option>
+              <Option value={false}>Vertical</Option>
+              <Option value={true}>Horizontal</Option>
             </Select>
           </Form.Item>
         </div>
@@ -264,7 +266,7 @@ export const PaperSettingsComponent = ({ layout, onLayoutChange }: PaperSettings
             border: '1px solid #e5e7eb'
           }}>
             ℹ️ Dimensiones predefinidas: {layout.width} x {layout.height} mm
-            {layout.orientation === 'landscape' && ' (Horizontal)'}
+            {layout.orientation === true && ' (Horizontal)'}
           </div>
         )}
       </Form>

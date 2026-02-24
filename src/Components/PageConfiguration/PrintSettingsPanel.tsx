@@ -40,7 +40,7 @@ const PrintSettingsPanel: React.FC<PrintSettingsPanelProps> = ({ config, setConf
   const handleMarginsChange = (newMargins: IMarginSettings) => {
     setConfig({
       ...config,
-      margins: newMargins
+      margin: newMargins
     });
   };
 
@@ -55,7 +55,7 @@ const PrintSettingsPanel: React.FC<PrintSettingsPanelProps> = ({ config, setConf
 
       {/* SECCIÓN 2: MÁRGENES */}
       <MarginSettingsComponent
-        margins={config.margins}
+        margins={config.margin}
         onMarginsChange={handleMarginsChange}
       />
 

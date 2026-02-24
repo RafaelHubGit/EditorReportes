@@ -1,9 +1,10 @@
 
 export interface ILayoutSettings {
   format: string;
-  orientation: 'portrait' | 'landscape';
+  orientation: boolean; // true = horizontal, false = vertical
   width?: number;  // Ancho final en mm
   height?: number; // Alto final en mm
+  unit: 'mm' | 'cm' | 'in' | 'px'; // Unidad de medida
 }
 
 export interface IMarginSettings {
@@ -21,6 +22,6 @@ export interface IOptionSettings {
 
 export interface IPrintConfig {
   layout: ILayoutSettings;
-  margins: IMarginSettings;
+  margin: IMarginSettings;
   options: IOptionSettings;
 }

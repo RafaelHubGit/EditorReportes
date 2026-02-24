@@ -83,6 +83,7 @@ export const EditorStudioComponent = ({ }: Props) => {
 
   const handleSave = () => {
     if (operation == types.documentNew) {
+      console.log("documentState", documentState);
       addDocument(documentState);
       navigate(`${types.documentEdit}/${documentState.id}`);
     } else {
@@ -173,13 +174,13 @@ export const EditorStudioComponent = ({ }: Props) => {
       return generateFinalHtml({
         html: documentState.html || "",
         css: documentState.css || "",
-        headerHtml: documentState.headerHtml || "",
-        headerCss: documentState.headerCss || "",
-        footerHtml: documentState.footerHtml || "",
-        footerCss: documentState.footerCss || "",
+        headerHtml: documentState.htmlHeader || "",
+        headerCss: documentState.cssHeader || "",
+        footerHtml: documentState.htmlFooter || "",
+        footerCss: documentState.cssFooter || "",
         data: documentState.sampleData
       });
-    }, [documentState, documentState.sampleData, documentState.html, documentState.css, documentState.headerHtml, documentState.headerCss, documentState.footerHtml, documentState.footerCss]); // Se recalcula si cualquier parte del documento cambia
+    }, [documentState, documentState.sampleData, documentState.html, documentState.css, documentState.htmlHeader, documentState.cssHeader, documentState.htmlFooter, documentState.cssFooter]); // Se recalcula si cualquier parte del documento cambia
 
   return (
     <div className="studio-container">
@@ -300,10 +301,10 @@ export const EditorStudioComponent = ({ }: Props) => {
                 key: "header",
                 children: (
                   <EditorSectionComponent
-                    html={documentState.headerHtml || ""}
-                    css={documentState.headerCss || ""}
-                    onChangeHtml={(html) => updateDocumentState({ headerHtml: html })}
-                    onChangeCss={(css) => updateDocumentState({ headerCss: css })}
+                    html={documentState.htmlHeader || ""}
+                    css={documentState.cssHeader || ""}
+                    onChangeHtml={(html) => updateDocumentState({ htmlHeader: html })}
+                    onChangeCss={(css) => updateDocumentState({ cssHeader: css })}
                   />
                 )
               },
@@ -312,10 +313,10 @@ export const EditorStudioComponent = ({ }: Props) => {
                 key: "footer",
                 children: (
                   <EditorSectionComponent
-                    html={documentState.footerHtml || ""}
-                    css={documentState.footerCss || ""}
-                    onChangeHtml={(html) => updateDocumentState({ footerHtml: html })}
-                    onChangeCss={(css) => updateDocumentState({ footerCss: css })}
+                    html={documentState.htmlFooter || ""}
+                    css={documentState.cssFooter || ""}
+                    onChangeHtml={(html) => updateDocumentState({ htmlFooter: html })}
+                    onChangeCss={(css) => updateDocumentState({ cssFooter: css })}
                   />
                 )
               },
@@ -395,10 +396,10 @@ export const EditorStudioComponent = ({ }: Props) => {
                     key: "header",
                     children: (
                       <EditorSectionComponent
-                        html={documentState.headerHtml || ""}
-                        css={documentState.headerCss || ""}
-                        onChangeHtml={(html) => updateDocumentState({ headerHtml: html })}
-                        onChangeCss={(css) => updateDocumentState({ headerCss: css })}
+                        html={documentState.htmlHeader || ""}
+                        css={documentState.cssHeader || ""}
+                        onChangeHtml={(html) => updateDocumentState({ htmlHeader: html })}
+                        onChangeCss={(css) => updateDocumentState({ cssHeader: css })}
                         jsonStringProp={documentState.sampleData}
                       />
                     )
@@ -408,10 +409,10 @@ export const EditorStudioComponent = ({ }: Props) => {
                     key: "footer",
                     children: (
                       <EditorSectionComponent
-                        html={documentState.footerHtml || ""}
-                        css={documentState.footerCss || ""}
-                        onChangeHtml={(html) => updateDocumentState({ footerHtml: html })}
-                        onChangeCss={(css) => updateDocumentState({ footerCss: css })}
+                        html={documentState.htmlFooter || ""}
+                        css={documentState.cssFooter || ""}
+                        onChangeHtml={(html) => updateDocumentState({ htmlFooter: html })}
+                        onChangeCss={(css) => updateDocumentState({ cssFooter: css })}
                         jsonStringProp={documentState.sampleData}
                       />
                     )
