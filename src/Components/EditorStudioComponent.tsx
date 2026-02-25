@@ -100,12 +100,23 @@ export const EditorStudioComponent = ({ }: Props) => {
 
 
   const handleSave = async () => {
+
+    Swal.fire({
+      title: 'Guardando documento...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
     if (operation == types.documentNew) {
       await addDocument(documentState);
       navigate(`${types.documentEdit}/${documentState.id}`);
+      Swal.close();
       setHasUnsavedChanges(false);
     } else {
       await updateDocument(documentState);
+      Swal.close();
       setHasUnsavedChanges(false);
     }
   }
@@ -255,14 +266,14 @@ export const EditorStudioComponent = ({ }: Props) => {
             <Button
               type={hasUnsavedChanges ? "default" : "primary"}
               onClick={ handleExportPdf }
-              disabled={hasUnsavedChanges}
-              title={hasUnsavedChanges ? "Debes guardar los cambios antes de exportar a PDF" : "Exportar a PDF"}
+              disabled={(hasUnsavedChanges || operation === types.documentNew)}
+              title={(hasUnsavedChanges || operation === types.documentNew) ? "Debes guardar los cambios antes de exportar a PDF" : "Exportar a PDF"}
             >
               Exportar a PDF  
             </Button>
 
             <Button 
-              type={hasUnsavedChanges ? "primary" : "default"}
+              type={(hasUnsavedChanges || operation === types.documentNew) ? "primary" : "default"}
               onClick={handleSave}
             >
               Guardar

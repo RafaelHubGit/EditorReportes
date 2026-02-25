@@ -1,10 +1,12 @@
 
 
-****TODO: Revisar por que no se actualiza el array de documentos en el documentPage al crear uno nuevo
+Pagina de administrador
+1. reestablecimiento de contrasenhas
+2. 
+
 
 
 1. se debe mostrar la pagina como de bienvenida, debe mostrar cuantos documentos se han creado, cuantos se han generado, cuantos documentos les queda del mes y todo lo demas
-2. si se realiza alguna modificacion, debe mostrar que el documento no se ha guardado
 3. documentacion
 
 
@@ -14,7 +16,6 @@
 13. en free y started la duracion maxima por pdf es de 30seg (sera para manejar el tiempo de ejecucion y el tamaño de los pdf?)
 
 
-**para poder generar un pdf (aunque sea de prueba) se tiene que guardar para que el back pueda obtener la informacion y generarlo
 
 
 
