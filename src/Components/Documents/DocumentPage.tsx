@@ -59,20 +59,18 @@ export const DocumentPage = () => {
     } = useReportStore();
 
     useEffect(() => {
-        
-        getFoldersByOwner();
-        getDocumentsByOwner();
+        // Solo pedimos al servidor si el store está vacío
+        // Si ya hay documentos, confiamos en el estado actual del Store
+        if (documents.length === 0) { // no quitar!!! si se quita al regresar no actualiza los agregados
+            getFoldersByOwner();
+            getDocumentsByOwner();
+        }
     }, []);
-
-    useEffect(() => {
-        console.log("folders :", folders);
-    }, [folders]);
-
-
+    
     // Documentos filtrados y ordenados
     const filteredDocuments = useMemo(() => {
 
-        let filtered = documents.filter(doc => doc.folderId === null);
+        let filtered = documents.filter(doc => doc.folderId === null || doc.folderId === undefined);
 
         if (searchQuery) {
             filtered = filtered.filter(doc =>

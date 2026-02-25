@@ -99,13 +99,13 @@ export const EditorStudioComponent = ({ }: Props) => {
   };
 
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (operation == types.documentNew) {
-      addDocument(documentState);
+      await addDocument(documentState);
       navigate(`${types.documentEdit}/${documentState.id}`);
       setHasUnsavedChanges(false);
     } else {
-      updateDocument(documentState);
+      await updateDocument(documentState);
       setHasUnsavedChanges(false);
     }
   }

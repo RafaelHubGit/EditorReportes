@@ -122,8 +122,6 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
 
       const documents = result.data?.templatesByUser;
 
-      console.log('documents:', documents);
-
       const cleanDocuments = documents.map((doc: any) => adaptApiToDocument(doc));
 
       set((state) => {
@@ -140,38 +138,16 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
   // Document Methods (manteniendo las existentes y agregando nuevas)
   addDocument: async (document: IDocument) => {
     try {
-
-     
-
       // const documentInput = pickFields(document, documentFieldsInput);
       const validatedInput = DocumentDTO.parse(document);
-      const result = await GraphQLService.mutate(CREATE_DOCUMENT, { input: validatedInput }); //TODO: Mejorar el try catch para que funcione en este caso
-
-      
+      const result = await GraphQLService.mutate(CREATE_DOCUMENT, { input: validatedInput }); //TODO: Mejorar el 
 
       const created = result.data?.createTemplate;
 
-      
-
       set((state) => {
-        
-        const docWithId = {
-          ...document,
-          id: created?.id,
-          folderId: document.folderId || undefined,
-          createdAt: created?.createdAt,
-          updatedAt: created?.updatedAt
-        };
-
-        
-
-        state.document = docWithId;
-        state.documents = [...state.documents, docWithId];
-
-        
-        
-        // const exists = state.documents.some((d: IDocument) => d.id === docWithId.id);
-        // if (!exists) state.documents.unshift(docWithId);
+        // Usar unshift para que aparezca de primero
+        state.documents.unshift(created);
+        state.document = created;
       });
 
       await Swal.fire({
