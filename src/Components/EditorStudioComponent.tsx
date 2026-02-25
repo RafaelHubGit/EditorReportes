@@ -49,6 +49,9 @@ export const EditorStudioComponent = ({ }: Props) => {
   const addDocument = useReportStore(state => state.addDocument);
   const getDocumentById = useReportStore(state => state.getDocumentById);
 
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+
   const { 
           devApiKey, 
           prodApiKey,
@@ -73,6 +76,21 @@ export const EditorStudioComponent = ({ }: Props) => {
     }
   }, [documentId]);
 
+  // useEffect para detectar cambios comparando con el documento en store
+  useEffect(() => {
+    if (operation === types.documentEdit && documentId) {
+      const storedDocument = getDocumentById(documentId);
+      if (storedDocument) {
+        const hasChanges = JSON.stringify(documentState) !== JSON.stringify(storedDocument);
+        setHasUnsavedChanges(hasChanges);
+      }
+    } else if (operation === types.documentNew) {
+      // Para nuevo documento, comparar con initDocument
+      const hasChanges = JSON.stringify(documentState) !== JSON.stringify(initDocument);
+      setHasUnsavedChanges(hasChanges);
+    }
+  }, [documentState, documentId, operation]);
+
   const updateDocumentState = (updates: Partial<IDocument>) => {
     setDocumentState(prevState => ({
       ...prevState,
@@ -83,12 +101,12 @@ export const EditorStudioComponent = ({ }: Props) => {
 
   const handleSave = () => {
     if (operation == types.documentNew) {
-      console.log("documentState", documentState);
       addDocument(documentState);
       navigate(`${types.documentEdit}/${documentState.id}`);
+      setHasUnsavedChanges(false);
     } else {
-      console.log("documentState", documentState);
       updateDocument(documentState);
+      setHasUnsavedChanges(false);
     }
   }
 
@@ -223,6 +241,7 @@ export const EditorStudioComponent = ({ }: Props) => {
         <Col>
           <Space>
             <Button
+              type="primary"
               icon={isSplit ? <ColumnHeightOutlined /> : <ColumnWidthOutlined />}
               onClick={() => setIsSplit((v) => !v)}
             >
@@ -234,12 +253,18 @@ export const EditorStudioComponent = ({ }: Props) => {
             </Dropdown> */}
 
             <Button
+              type={hasUnsavedChanges ? "default" : "primary"}
               onClick={ handleExportPdf }
+              disabled={hasUnsavedChanges}
+              title={hasUnsavedChanges ? "Debes guardar los cambios antes de exportar a PDF" : "Exportar a PDF"}
             >
               Exportar a PDF  
             </Button>
 
-            <Button type="primary" onClick={handleSave}>
+            <Button 
+              type={hasUnsavedChanges ? "primary" : "default"}
+              onClick={handleSave}
+            >
               Guardar
             </Button>
           </Space>
