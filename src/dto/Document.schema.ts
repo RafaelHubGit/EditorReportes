@@ -9,7 +9,7 @@ const PageConfigSchema = z.object({
     height: z.number().optional(),
     orientation: z.boolean().optional(), // En el JSON del store es orientation
   }).optional(),
-  margins: z.object({
+  margin: z.object({
     top: z.union([z.string(), z.number()]).optional(),
     right: z.union([z.string(), z.number()]).optional(),
     bottom: z.union([z.string(), z.number()]).optional(),
@@ -53,10 +53,10 @@ export const DocumentDTO = z.object({
     height: data.printConfig.layout?.height,
     landscape: data.printConfig.layout?.orientation, // Mapeo de orientation -> landscape
     margin: {
-      top: String(data.printConfig.margins?.top ?? "0"),
-      right: String(data.printConfig.margins?.right ?? "0"),
-      bottom: String(data.printConfig.margins?.bottom ?? "0"),
-      left: String(data.printConfig.margins?.left ?? "0"),
+      top: String(data.printConfig.margin?.top ?? "0"),
+      right: String(data.printConfig.margin?.right ?? "0"),
+      bottom: String(data.printConfig.margin?.bottom ?? "0"),
+      left: String(data.printConfig.margin?.left ?? "0"),
     }
   },
   sampleData: data.sampleData,

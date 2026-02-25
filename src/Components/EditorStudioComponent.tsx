@@ -87,6 +87,7 @@ export const EditorStudioComponent = ({ }: Props) => {
       addDocument(documentState);
       navigate(`${types.documentEdit}/${documentState.id}`);
     } else {
+      console.log("documentState", documentState);
       updateDocument(documentState);
     }
   }
@@ -228,9 +229,15 @@ export const EditorStudioComponent = ({ }: Props) => {
               {isSplit ? "Unificar vista" : "Dividir vista"}
             </Button>
 
-            <Dropdown menu={{ items: itemsDrop }} placement="bottomRight">
+            {/* <Dropdown menu={{ items: itemsDrop }} placement="bottomRight">
               <Button icon={<MoreOutlined />} />
-            </Dropdown>
+            </Dropdown> */}
+
+            <Button
+              onClick={ handleExportPdf }
+            >
+              Exportar a PDF  
+            </Button>
 
             <Button type="primary" onClick={handleSave}>
               Guardar

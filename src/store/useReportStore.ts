@@ -200,8 +200,12 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
   updateDocument: async (updates: Partial<IDocument>) => {
     try {
 
+      console.log("updates : ", updates);
+
       // const documentInput = pickFields(updates, documentFieldsInput);
       const validatedInput = DocumentDTO.parse(updates);
+
+      console.log("validatedInput : ", validatedInput);
 
       const result = await GraphQLService.mutate(UPDATE_DOCUMENT, { id: updates.id, input: validatedInput });
 
