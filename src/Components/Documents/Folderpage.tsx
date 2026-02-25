@@ -130,7 +130,13 @@ export const FolderPage = () => {
     }
 
     return (
-        <section style={{ padding: 80 }}>
+        <section
+            style={{
+                padding: 30,
+                overflowY: 'auto'
+            }}
+            className='tabs-container'
+        >
             {/* Breadcrumb */}
             <Breadcrumb
                 items={breadcrumbItems}

@@ -307,7 +307,7 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
 
     let filteredDocs = documents;
 
-    filteredDocs = documents.filter(doc => doc.folderId);
+    filteredDocs = documents.filter(doc => doc.folderId === targetFolderId);
 
     // Aplicar ordenamiento
     filteredDocs = [...filteredDocs].sort((a, b) => {
