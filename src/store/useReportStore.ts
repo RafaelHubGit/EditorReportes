@@ -122,6 +122,8 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
 
       const documents = result.data?.templatesByUser;
 
+      console.log('documents:', documents);
+
       const cleanDocuments = documents.map((doc: any) => adaptApiToDocument(doc));
 
       set((state) => {
@@ -200,13 +202,8 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
   updateDocument: async (updates: Partial<IDocument>) => {
     try {
 
-      console.log("updates : ", updates);
-
       // const documentInput = pickFields(updates, documentFieldsInput);
       const validatedInput = DocumentDTO.parse(updates);
-
-      console.log("validatedInput : ", validatedInput);
-
       const result = await GraphQLService.mutate(UPDATE_DOCUMENT, { id: updates.id, input: validatedInput });
 
       const updated = result.data?.updateTemplate;

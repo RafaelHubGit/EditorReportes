@@ -147,8 +147,8 @@ export const initDocument: IDocument = {
         "total": "$47,328.00",
         "termsAndConditions": "Este presupuesto tiene una validez de 30 días. Los pagos se realizarán 50% al inicio y 50% contra entrega de hitos. Cualquier cambio en el alcance original resultará en un ajuste de costos previa aprobación por escrito de ambas partes..."
     },
-    headerHtml: `<div style="width:100%; text-align:right; font-size:10px; border-bottom:1px solid #eee;">Acme Corp | Propuesta Confidencial</div>`,
-    footerHtml: `<div style="width:100%; display:flex; justify-content:space-between; font-size:10px; border-top:1px solid #eee;"><span>© 2026 Acme Corp</span><span>Página <span class="pageNumber"></span> / <span class="totalPages"></span></span></div>`,
+    htmlHeader: `<div style="width:100%; text-align:right; font-size:10px; border-bottom:1px solid #eee;">Acme Corp | Propuesta Confidencial</div>`,
+    htmlFooter: `<div style="width:100%; display:flex; justify-content:space-between; font-size:10px; border-top:1px solid #eee;"><span>© 2026 Acme Corp</span><span>Página <span class="pageNumber"></span> / <span class="totalPages"></span></span></div>`,
     printConfig: {
         layout: { format: 'letter', orientation: false, width: 216, height: 279, unit: 'mm' },
         margin: { top: 25, right: 20, bottom: 25, left: 20 },
