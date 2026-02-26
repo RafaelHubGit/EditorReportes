@@ -1,7 +1,7 @@
 // src/auth/useAuthStore.ts
 import { create, type StateCreator } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import { LOGIN_USER, REFRESH_TOKEN, REGISTER_USER } from '../graphql/operations/graphql.auth.operations';
+import { GET_ALL_USERS, LOGIN_USER, REFRESH_TOKEN, REGISTER_USER, RESET_USER_PASSWORD, TOGGLE_USER_STATUS } from '../graphql/operations/graphql.auth.operations';
 import { GraphQLService } from '../graphql/graphql.service';
 import Swal from 'sweetalert2';
 import { immer } from 'zustand/middleware/immer';
@@ -10,18 +10,34 @@ interface IUser {
     id: string;
     name: string;
     email: string;
+    active?: boolean
+}
+
+interface IUserAdmin {
+    id: string;
+    name: string;
+    email: string;
+    active: boolean;
+    created_at: string;
 }
 
 interface AuthState {
     token: string | null;
     isAuth: boolean;
     user: IUser | null;
+    users: IUserAdmin[];
+    loading: boolean;
     
     // Actions
     register: (user: { name: string; email: string; password: string }) => Promise<boolean>;
     login: (user: { email: string; password: string }) => Promise<boolean>;
     logout: () => void;
     refreshToken: () => Promise<boolean>;
+
+    // Actions
+    getAllUsers: () => Promise<void>;
+    toggleStatus: (id: string, active: boolean) => Promise<void>;
+    resetPassword: (id: string) => Promise<void>;
 }
 
 
@@ -29,6 +45,8 @@ const authStore: StateCreator<AuthState, [["zustand/immer", never]]> = (set, get
     token: localStorage.getItem('token'),
     isAuth: !!localStorage.getItem('token'),
     user: JSON.parse(localStorage.getItem('user') || 'null'),
+    users: [],
+    loading: false,
    
     // Actions
     register: async (user): Promise<boolean> => {
@@ -179,7 +197,58 @@ const authStore: StateCreator<AuthState, [["zustand/immer", never]]> = (set, get
             console.error('Error al refrescar el token:', error);
             return false;
         }
+    },
+
+    getAllUsers: async () => {
+        set({ loading: true });
+        try {
+            const result = await GraphQLService.query(GET_ALL_USERS);
+            if (result.data?.users) {
+                set({ users: result.data.users });
+            }
+        } catch (error) {
+            console.error("Error fetching users:", error);
+        } finally {
+            set({ loading: false });
+        }
+    },
+
+    toggleStatus: async (id: string, active: boolean) => {
+        try {
+            const activeV = !active;
+            const result = await GraphQLService.mutate(TOGGLE_USER_STATUS, { id, active: activeV });
+            if (result.data?.toggleUserStatus) {
+                set((state) => {
+                    const user = state.users.find(u => u.id === id);
+                    if (user) user.active = result.data.toggleUserStatus.active;
+                });
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Estado actualizado',
+                    timer: 1000,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end'
+                });
+            }
+        } catch (error) {
+            Swal.fire('Error', 'No se pudo cambiar el estado', 'error');
+        }
+    },
+
+    resetPassword: async (id: string) => {
+
+        try {
+            const result = await GraphQLService.mutate(RESET_USER_PASSWORD, { id });
+            if (result.data?.resetUserPassword) {
+                Swal.fire('¡Éxito!', 'Contraseña restablecida correctamente', 'success');
+            }
+        } catch (error) {
+            Swal.fire('Error', 'No se pudo realizar el reset', 'error');
+        } 
     }
+
 });
 
 export const useAuthStore = create<AuthState>()(

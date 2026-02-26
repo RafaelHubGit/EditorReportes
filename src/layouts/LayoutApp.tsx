@@ -1,13 +1,37 @@
-import React from "react";
-import { Avatar, Col, Dropdown, Layout, type MenuProps } from "antd";
-import { EditorStudioComponent } from "../Components/EditorStudioComponent";
+import React, { useEffect } from "react";
+import { Layout, type MenuProps } from "antd";
 import { MenuComponent } from '../Components/MenuComponent';
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/useAuthStore";
+import Swal from "sweetalert2";
 
 
 
 const LayoutApp: React.FC = () => {
+
+  const navigate = useNavigate();
+  const userStore  = useAuthStore( state => state.user );
+
+  useEffect(() => {
+    
+    if (userStore && userStore.active === false) {
+        
+        Swal.fire({
+            icon: 'error',
+            title: 'Cuenta Desactivada',
+            text: 'Tu usuario está actualmente desactivado, contacta con la administración para que te reactiven.',
+            confirmButtonText: 'Entendido',
+            allowOutsideClick: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                navigate("/login");
+            }
+        });
+    }
+
+  }, [userStore])
+  
 
 
   const items: MenuProps['items'] = [

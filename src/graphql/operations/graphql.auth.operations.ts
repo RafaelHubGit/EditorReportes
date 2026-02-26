@@ -20,6 +20,7 @@ export const LOGIN_USER = gql`
                 id
                 name
                 email
+                active
             }
         }
     }
@@ -31,5 +32,32 @@ export const REFRESH_TOKEN = gql`
             token
             refreshToken
         }
+    }
+`;
+
+export const GET_ALL_USERS = gql`
+    query GetUsers {
+        users {
+            id
+            name
+            email
+            active
+            createdAt
+        }
+    }
+`;
+
+export const TOGGLE_USER_STATUS = gql`
+    mutation ToggleUserStatus($id: ID!, $active: Boolean!) {
+        toggleUserStatus(id: $id, active: $active) {
+            id
+            active
+        }
+    }
+`;
+
+export const RESET_USER_PASSWORD = gql`
+    mutation ResetUserPassword($id: ID!) {
+        resetUserPassword(id: $id)
     }
 `;
