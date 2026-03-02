@@ -8,6 +8,7 @@ import { EditorStudioComponent } from "../Components/EditorStudioComponent";
 import { FolderPage } from "../Components/Documents/Folderpage";
 import { ApiKeyPage } from "../Components/ApiKey/ApiKeyPage";
 import { AdminUsersPage } from "../Components/Admin/AdminUsersPage";
+import { VerifyEmailPage } from "../auth/VerifyEmailPage";
 
 const routes: RouteObject[] = [
   {
@@ -17,6 +18,10 @@ const routes: RouteObject[] = [
   {
     path: "/login",
     element: <LoginComponent />,
+  },
+  {
+    path: "/verify-email",
+    element: <VerifyEmailPage />,
   },
   {
     path: "/app",
