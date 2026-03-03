@@ -85,7 +85,7 @@ export const VerifyEmailPage = () => {
           subTitle="Tu correo ha sido confirmado. Ahora tienes acceso total a todas las funcionalidades."
           icon={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
           extra={[
-            <Button type="primary" key="dashboard" onClick={() => navigate('/app/documents')} size="large">
+            <Button type="primary" key="dashboard" onClick={() => navigate('/app/login')} size="large">
               Ir al Dashboard
             </Button>
           ]}

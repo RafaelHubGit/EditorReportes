@@ -5,6 +5,8 @@ import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import Swal from "sweetalert2";
+import { useAuthActions } from "../hooks/useAuthActions";
+import { useStore } from "zustand";
 
 
 
@@ -12,8 +14,14 @@ const LayoutApp: React.FC = () => {
 
   const navigate = useNavigate();
   const userStore  = useAuthStore( state => state.user );
+  const {handleUnverifiedUser} =  useAuthActions( );
 
   useEffect(() => {
+
+    if ( userStore && !userStore?.is_verified ){
+      const emailVar = userStore.email;
+      handleUnverifiedUser( emailVar );
+    }
     
     if (userStore && userStore.active === false) {
         

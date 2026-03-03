@@ -82,3 +82,10 @@ export const RESET_USER_PASSWORD = gql`
         resetUserPassword(id: $id)
     }
 `;
+
+
+export const RESEND_VERIFICATION_EMAIL = gql`
+    mutation ResendVerificationEmail($email: String!) {
+        resendVerificationEmail( email: $email )
+    }
+`;

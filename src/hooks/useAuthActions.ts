@@ -1,6 +1,8 @@
 // src/hooks/useAuthActions.ts
 import Swal from 'sweetalert2';
 import { useAuthStore } from '../store/useAuthStore';
+import { GraphQLService } from '../graphql/graphql.service';
+import { RESEND_VERIFICATION_EMAIL } from '../graphql/operations/graphql.auth.operations';
 
 
 export const useAuthActions = () => {
@@ -10,10 +12,7 @@ export const useAuthActions = () => {
         const result = await store.login(credentials);
 
         if (result.success) {
-            if (result.code === 'NOT_VERIFIED') {
-                await Swal.fire('Verificación', 'Usuario no verificado. Revise su correo.', 'warning');
-            }
-            Swal.fire({
+            await Swal.fire({
                 icon: 'success',
                 title: '¡Bienvenido!',
                 text: `Hola, ${result.message}`,
@@ -28,6 +27,38 @@ export const useAuthActions = () => {
             Swal.fire('Error', errorMessages[result.code!] || result.message, 'error');
         }
         return result.success;
+    };
+
+    const handleUnverifiedUser = async (email?: string) => {
+        const result = await Swal.fire({
+            title: 'Usuario no verificado',
+            text: 'Tu cuenta aún no ha sido activada. Revisa tu bandeja de entrada o solicita un nuevo enlace.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Reenviar correo',
+            cancelButtonText: 'Ok',
+            showLoaderOnConfirm: true,
+            preConfirm: async () => {
+                try {
+                    if (!email) throw new Error("No se encontró el correo del usuario");
+                    
+                    await GraphQLService.mutate(RESEND_VERIFICATION_EMAIL, { email });
+                    return true;
+                } catch (error: any) {
+                    Swal.showValidationMessage(`Error: ${error.message}`);
+                }
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        });
+
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: '¡Enviado!',
+                text: 'Se envió un correo electrónico de verificación; si no lo encuentra en la bandeja de entrada, por favor búsquelo en la carpeta de spam.',
+                icon: 'success',
+                confirmButtonText: 'Entendido'
+            });
+        }
     };
 
     const handleRegister = async (data: any) => {
@@ -94,6 +125,7 @@ export const useAuthActions = () => {
 
     return {
         handleLogin,
+        handleUnverifiedUser,
         handleRegister,
         handleToggleStatus,
         handleResetPassword,
