@@ -40,7 +40,7 @@ export const LOGIN_USER = gql`
                 email
                 active
                 is_verified
-                created_at
+                createdAt
             }
         }
     }

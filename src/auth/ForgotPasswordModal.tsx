@@ -1,0 +1,93 @@
+import { useState } from 'react';
+import { Modal, Form, Input, Button, Typography, Alert, Result } from 'antd';
+import { MailOutlined } from '@ant-design/icons';
+import { REQUEST_PASSWORD_RECOVERY } from '../graphql/operations/graphql.auth.operations';
+import { useMutation } from '@apollo/client/react';
+
+const { Text } = Typography;
+
+interface Props {
+  open: boolean;
+  onClose: () => void;
+}
+
+export const ForgotPasswordModal = ({ open, onClose }: Props) => {
+  const [submitted, setSubmitted] = useState(false);
+  const [form] = Form.useForm();
+  
+  // Mutación para solicitar el correo
+  const [requestRecovery, { loading, error }] = useMutation(REQUEST_PASSWORD_RECOVERY);
+
+  const onFinish = async (values: { email: string }) => {
+    try {
+      await requestRecovery({ variables: { email: values.email } });
+      setSubmitted(true); // Éxito genérico por seguridad
+    } catch (e) {
+      console.error("Error en recuperación:", e);
+    }
+  };
+
+  const handleAfterClose = () => {
+    setSubmitted(false);
+    form.resetFields();
+  };
+
+  return (
+    <Modal
+      title="Recuperar contraseña"
+      open={open}
+      onCancel={onClose}
+      afterClose={handleAfterClose}
+      footer={null} // Quitamos botones por defecto para usar los del Form
+      destroyOnClose
+    >
+      {submitted ? (
+        <Result
+          status="success"
+          title="Correo enviado"
+          subTitle="Si el correo existe en nuestro sistema, recibirás las instrucciones en unos minutos."
+          extra={[
+            <Button type="primary" key="close" onClick={onClose}>
+              Entendido
+            </Button>
+          ]}
+        />
+      ) : (
+        <Form form={form} layout="vertical" onFinish={onFinish} style={{ marginTop: 20 }}>
+          <Text type="secondary" style={{ display: 'block', marginBottom: 20 }}>
+            Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu cuenta.
+          </Text>
+
+          {/* Manejo de errores de cooldown o bloqueos */}
+          {error && (
+            <Alert 
+              message={error.message} 
+              type="error" 
+              showIcon 
+              style={{ marginBottom: 16 }} 
+            />
+          )}
+
+          <Form.Item
+            name="email"
+            rules={[
+              { required: true, message: 'El correo es obligatorio' },
+              { type: 'email', message: 'Ingresa un correo válido' }
+            ]}
+          >
+            <Input prefix={<MailOutlined />} placeholder="ejemplo@correo.com" size="large" />
+          </Form.Item>
+
+          <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
+            <Button onClick={onClose} style={{ marginRight: 8 }}>
+              Cancelar
+            </Button>
+            <Button type="primary" htmlType="submit" loading={loading}>
+              Enviar enlace
+            </Button>
+          </Form.Item>
+        </Form>
+      )}
+    </Modal>
+  );
+};

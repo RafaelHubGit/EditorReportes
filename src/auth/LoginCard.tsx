@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { ModalSignUpComponent } from './ModalSIgnInComponent';
 import { useEffect, useState } from 'react';
+import { ForgotPasswordModal } from './ForgotPasswordModal';
 
 const { Title, Text, Link } = Typography;
 
@@ -16,6 +17,7 @@ export const LoginCard = () => {
     const [form] = Form.useForm();
 
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isRecoveryModalVisible, setIsRecoveryModalVisible] = useState(false);
 
     useEffect(() => {
         form.setFieldsValue({
@@ -161,12 +163,24 @@ export const LoginCard = () => {
                 <Text>
                     ¿No tienes cuenta? <Link href="#" onClick={() => setIsModalVisible(true)}>Regístrate</Link>
                 </Text>
-                <Link href="#">¿Olvidaste tu contraseña?</Link>
+                <Link 
+                    href="#" 
+                    onClick={(e) => {
+                        e.preventDefault();
+                        setIsRecoveryModalVisible(true);
+                    }}
+                >
+                    ¿Olvidaste tu contraseña?
+                </Link>
             </div>
 
             <ModalSignUpComponent
                 open={isModalVisible}
                 setOpen={setIsModalVisible}
+            />
+            <ForgotPasswordModal
+                open={isRecoveryModalVisible} 
+                onClose={() => setIsRecoveryModalVisible(false)} 
             />
         </Card>
     )

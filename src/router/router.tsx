@@ -9,6 +9,7 @@ import { FolderPage } from "../Components/Documents/Folderpage";
 import { ApiKeyPage } from "../Components/ApiKey/ApiKeyPage";
 import { AdminUsersPage } from "../Components/Admin/AdminUsersPage";
 import { VerifyEmailPage } from "../auth/VerifyEmailPage";
+import { ResetPasswordPage } from "../auth/ResetPasswordPage";
 
 const routes: RouteObject[] = [
   {
@@ -22,6 +23,10 @@ const routes: RouteObject[] = [
   {
     path: "/verify-email",
     element: <VerifyEmailPage />,
+  },
+  {
+    path: "/reset-password",
+    element: <ResetPasswordPage />,
   },
   {
     path: "/app",
