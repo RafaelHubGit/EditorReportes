@@ -40,6 +40,7 @@ export const LOGIN_USER = gql`
                 email
                 active
                 is_verified
+                isAdmin
                 createdAt
             }
         }

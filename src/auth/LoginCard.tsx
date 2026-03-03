@@ -5,6 +5,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { ModalSignUpComponent } from './ModalSIgnInComponent';
 import { useEffect, useState } from 'react';
 import { ForgotPasswordModal } from './ForgotPasswordModal';
+import { useAuthActions } from '../hooks/useAuthActions';
 
 const { Title, Text, Link } = Typography;
 
@@ -14,6 +15,7 @@ export const LoginCard = () => {
 
     const navigate = useNavigate();
     const login   = useAuthStore( (state) => state.login );
+    const { handleLogin: loginAction } = useAuthActions();
     const [form] = Form.useForm();
 
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -37,23 +39,43 @@ export const LoginCard = () => {
         navigate('/app');
     };
 
+    // const handleLogin = async () => {
+    //     const values = await form.validateFields();
+
+    //     if ( values?.errorFields?.length > 0 ) {
+    //         return;
+    //     }
+
+    //     const user = {
+    //         email: values.email,
+    //         password: values.password
+    //     };
+
+    //     const resp = await login(user);
+
+    //     if ( resp ) {
+    //         form.resetFields();
+    //         navigate('/app');
+    //     }
+    // };
+
     const handleLogin = async () => {
-        const values = await form.validateFields();
+        try {
+            const values = await form.validateFields(); //
+            
+            // The hook triggers the Swal alerts and returns a boolean
+            const success = await loginAction({
+                email: values.email,
+                password: values.password
+            }); //
 
-        if ( values?.errorFields?.length > 0 ) {
-            return;
-        }
-
-        const user = {
-            email: values.email,
-            password: values.password
-        };
-
-        const resp = await login(user);
-
-        if ( resp ) {
-            form.resetFields();
-            navigate('/app');
+            if (success) {
+                form.resetFields(); //
+                navigate('/app'); //
+            }
+        } catch (error) {
+            // Ant Design handles field validation errors automatically
+            console.error('Validation failed:', error);
         }
     };
 

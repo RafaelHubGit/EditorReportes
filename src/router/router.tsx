@@ -10,6 +10,7 @@ import { ApiKeyPage } from "../Components/ApiKey/ApiKeyPage";
 import { AdminUsersPage } from "../Components/Admin/AdminUsersPage";
 import { VerifyEmailPage } from "../auth/VerifyEmailPage";
 import { ResetPasswordPage } from "../auth/ResetPasswordPage";
+import { AdminGuard } from "../auth/Guard/AdminGuard";
 
 const routes: RouteObject[] = [
   {
@@ -40,7 +41,14 @@ const routes: RouteObject[] = [
       { path: "documents", element: <DocumentPage /> },
       { path: "folders/:folderId", element: <FolderPage /> },
       { path: "api-key", element: <ApiKeyPage /> },
-      { path: 'admin', element: <AdminUsersPage />}
+      { 
+        path: 'admin', 
+        element: (
+          <AdminGuard>
+            <AdminUsersPage />
+          </AdminGuard>
+        ) 
+      }
     ],
   },
   { path: '*', element: <Navigate to="/app" replace /> },

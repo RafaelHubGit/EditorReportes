@@ -8,12 +8,15 @@ import {
 } from '@ant-design/icons';
 import { useAuthStore } from '../../store/useAuthStore';
 import Swal from 'sweetalert2';
+import { useAuthActions } from '../../hooks/useAuthActions';
 
 
 const { Title } = Typography;
 
 export const AdminUsersPage: React.FC = () => {
-    const { users, loading, getAllUsers, toggleStatus, resetPassword } = useAuthStore();
+    const { getAllUsers, users, loading } = useAuthStore();
+    const { handleToggleStatus, handleResetPassword } = useAuthActions();
+
 
     useEffect(() => {
         getAllUsers();
@@ -33,60 +36,60 @@ export const AdminUsersPage: React.FC = () => {
         Swal.close();
     }
 
-    const handleResetPassword = async ( id: string ) => {
+    // const handleResetPassword = async ( id: string ) => {
 
-        const confirm = await Swal.fire({
-            title: '¿Estás seguro de resetear la contraseña?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Sí, resetear'
-        });
+    //     const confirm = await Swal.fire({
+    //         title: '¿Estás seguro de resetear la contraseña?',
+    //         icon: 'warning',
+    //         showCancelButton: true,
+    //         confirmButtonText: 'Sí, resetear'
+    //     });
 
-        if (confirm.isConfirmed) {
-            // MOSTRAMOS LOADING
-            Swal.fire({
-                title: 'Procesando...',
-                allowOutsideClick: false,
-                didOpen: () => { Swal.showLoading() }
-            });
+    //     if (confirm.isConfirmed) {
+    //         // MOSTRAMOS LOADING
+    //         Swal.fire({
+    //             title: 'Procesando...',
+    //             allowOutsideClick: false,
+    //             didOpen: () => { Swal.showLoading() }
+    //         });
 
-            await resetPassword( id );
+    //         await resetPassword( id );
 
-        }
-    }
+    //     }
+    // }
 
-    const handleToggleStatus = async (id: string, active: boolean) => {
-        // Dinamizamos el texto según el estado actual
-        const accion = active ? 'inactivar' : 'activar';
+    // const handleToggleStatus = async (id: string, active: boolean) => {
+    //     // Dinamizamos el texto según el estado actual
+    //     const accion = active ? 'inactivar' : 'activar';
 
-        const confirm = await Swal.fire({
-            title: `¿Estás seguro de ${accion} al usuario?`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Sí, continuar', // Antes decía "resetear"
-            cancelButtonText: 'Cancelar'
-        });
+    //     const confirm = await Swal.fire({
+    //         title: `¿Estás seguro de ${accion} al usuario?`,
+    //         icon: 'warning',
+    //         showCancelButton: true,
+    //         confirmButtonText: 'Sí, continuar', // Antes decía "resetear"
+    //         cancelButtonText: 'Cancelar'
+    //     });
 
-        if (confirm.isConfirmed) {
-            // 1. Mostramos el loading inmediatamente
-            Swal.fire({
-                title: 'Procesando...',
-                allowOutsideClick: false,
-                didOpen: () => { Swal.showLoading() }
-            });
+    //     if (confirm.isConfirmed) {
+    //         // 1. Mostramos el loading inmediatamente
+    //         Swal.fire({
+    //             title: 'Procesando...',
+    //             allowOutsideClick: false,
+    //             didOpen: () => { Swal.showLoading() }
+    //         });
 
-            try {
-                // 2. IMPORTANTE: Usar await para esperar la respuesta del servidor
-                // Pasamos 'active' para que el store sepa qué valor negar o validar
-                await toggleStatus(id, active); 
+    //         try {
+    //             // 2. IMPORTANTE: Usar await para esperar la respuesta del servidor
+    //             // Pasamos 'active' para que el store sepa qué valor negar o validar
+    //             await toggleStatus(id, active); 
                 
-                // 3. El Swal.close() o el Swal de éxito debería estar DENTRO de toggleStatus
-                // o lo puedes poner aquí si toggleStatus no lanza alertas.
-            } catch (error) {
-                Swal.fire('Error', 'No se pudo actualizar el estado', 'error');
-            }
-        }
-    };
+    //             // 3. El Swal.close() o el Swal de éxito debería estar DENTRO de toggleStatus
+    //             // o lo puedes poner aquí si toggleStatus no lanza alertas.
+    //         } catch (error) {
+    //             Swal.fire('Error', 'No se pudo actualizar el estado', 'error');
+    //         }
+    //     }
+    // };
 
     const columns = [
         {

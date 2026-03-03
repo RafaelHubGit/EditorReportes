@@ -1,6 +1,7 @@
 import { Modal, Form, Input, Button } from 'antd';
 import { UserOutlined, MailOutlined, LockOutlined } from '@ant-design/icons';
 import { useAuthStore } from '../store/useAuthStore';
+import { useAuthActions } from '../hooks/useAuthActions';
 
 
 interface Props {
@@ -12,28 +13,52 @@ export const ModalSignUpComponent = ({ open, setOpen }: Props) => {
   const [form] = Form.useForm();
 
   const register = useAuthStore( (state) => state.register );
+  const { handleRegister } = useAuthActions();
+
+  // const handleOk = async () => {
+  //   const values = await form.validateFields();
+
+  //   if ( values?.errorFields?.length > 0 ) {
+  //     return;
+  //   }
+
+  //   const user = {
+  //     name: values.name,
+  //     email: values.email,
+  //     password: values.password
+  //   };
+    
+  //   const resp = await register(user);
+    
+
+  //   if ( resp ) {
+  //     form.resetFields();
+  //     setOpen(false);
+  //   }
+    
+  // };
 
   const handleOk = async () => {
-    const values = await form.validateFields();
+    try {
+      const values = await form.validateFields(); // 
 
-    if ( values?.errorFields?.length > 0 ) {
-      return;
+      const user = {
+        name: values.name,
+        email: values.email,
+        password: values.password
+      };
+      
+      // handleRegister now manages all Swal success/error alerts internally
+      const success = await handleRegister(user); // 
+
+      if (success) {
+        form.resetFields();
+        setOpen(false);
+      }
+    } catch (error) {
+      // Ant Design highlights the validation errors automatically
+      console.error('Validation Failed:', error);
     }
-
-    const user = {
-      name: values.name,
-      email: values.email,
-      password: values.password
-    };
-    
-    const resp = await register(user);
-    
-
-    if ( resp ) {
-      form.resetFields();
-      setOpen(false);
-    }
-    
   };
 
   const handleCancel = () => {

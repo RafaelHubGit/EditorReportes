@@ -10,12 +10,12 @@ import { Link } from 'react-router-dom';
 import { types } from "../types/types";
 import { useAuthStore } from "../store/useAuthStore";
 
-
-
 export const MenuComponent = () => {
 
     const user = useAuthStore((state) => state.user);
     const logout = useAuthStore((state) => state.logout);
+
+    const canAdmin = useAuthStore(state => state.canAdminister());
 
     const [collapsed, setCollapsed] = useState(false);
     const menuItems:  MenuProps['items'] = [
@@ -64,6 +64,10 @@ export const MenuComponent = () => {
             icon: <AppstoreOutlined />,
             label: <Link to={`/app/editor?op=${types.documentNew}`}>Nuevo Documento</Link>,
         },
+        ...(canAdmin ? [{
+            key: 'adminUsers',
+            label: <Link to={`/app/admin`}>Administración Usuarios</Link>,
+        }] : []),
         {
             key: `divider1`,
             type: 'divider'
