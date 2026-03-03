@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, Form, Input, Button, Typography, Alert, Result } from 'antd';
+import { Modal, Form, Input, Button, Typography, Alert, Result, Popconfirm } from 'antd';
 import { MailOutlined } from '@ant-design/icons';
 import { REQUEST_PASSWORD_RECOVERY } from '../graphql/operations/graphql.auth.operations';
 import { useMutation } from '@apollo/client/react';
@@ -14,6 +14,7 @@ interface Props {
 export const ForgotPasswordModal = ({ open, onClose }: Props) => {
   const [submitted, setSubmitted] = useState(false);
   const [form] = Form.useForm();
+  const [userEmail, setUserEmail] = useState('');
   
   // Mutación para solicitar el correo
   const [requestRecovery, { loading, error }] = useMutation(REQUEST_PASSWORD_RECOVERY);
@@ -21,6 +22,7 @@ export const ForgotPasswordModal = ({ open, onClose }: Props) => {
   const onFinish = async (values: { email: string }) => {
     try {
       await requestRecovery({ variables: { email: values.email } });
+      setUserEmail(values.email);
       setSubmitted(true); // Éxito genérico por seguridad
     } catch (e) {
       console.error("Error en recuperación:", e);
@@ -38,14 +40,19 @@ export const ForgotPasswordModal = ({ open, onClose }: Props) => {
       open={open}
       onCancel={onClose}
       afterClose={handleAfterClose}
-      footer={null} // Quitamos botones por defecto para usar los del Form
+      footer={null} 
       destroyOnClose
     >
       {submitted ? (
         <Result
           status="success"
-          title="Correo enviado"
-          subTitle="Si el correo existe en nuestro sistema, recibirás las instrucciones en unos minutos."
+          title={`Correo enviado a ${userEmail}`}
+          subTitle={
+            <span>
+              Si el correo existe en nuestro sistema, recibirás las instrucciones en unos minutos. 
+              <b> Si no lo encuentras en tu bandeja de entrada, búscalo en la carpeta de spam o correo no deseado.</b>
+            </span>
+          }
           extra={[
             <Button type="primary" key="close" onClick={onClose}>
               Entendido
@@ -82,9 +89,22 @@ export const ForgotPasswordModal = ({ open, onClose }: Props) => {
             <Button onClick={onClose} style={{ marginRight: 8 }}>
               Cancelar
             </Button>
-            <Button type="primary" htmlType="submit" loading={loading}>
-              Enviar enlace
-            </Button>
+            <Popconfirm
+              title="Confirmación"
+              description={() => (
+                <span>
+                  ¿Seguro de enviar el correo a <b>{form.getFieldValue('email')}</b>?
+                </span>
+              )}
+              onConfirm={() => form.submit()} // Manual trigger after confirmation
+              okText="Sí, enviar"
+              cancelText="No"
+              disabled={loading}
+            >
+              <Button type="primary" loading={loading}>
+                Enviar enlace
+              </Button>
+            </Popconfirm>
           </Form.Item>
         </Form>
       )}

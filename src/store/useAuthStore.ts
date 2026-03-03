@@ -97,9 +97,13 @@ const authStore: StateCreator<AuthState, [["zustand/immer", never]]> = (set, get
         try{
             const response = await GraphQLService.mutate(LOGIN_USER, { input: userVar });
 
-            if (response?.error || !response.data?.login) {
+            if (response?.errors || !response.data?.login) {
                 const invalidCredentialsError = response.error?.errors.find(
-                    (error: any) => error.message === 'Invalid credentials'
+                    (error: any) => error.code === 'INVALID_CREDENTIALS'
+                );
+
+                const accountExpired = response.error?.errors.find(
+                    (error: any) => error.code === 'ACCOUNT_EXPIRED'
                 );
 
                 if (invalidCredentialsError) {
@@ -107,6 +111,17 @@ const authStore: StateCreator<AuthState, [["zustand/immer", never]]> = (set, get
                         icon: 'error',
                         title: '¡Usuario o contraseña incorrectos!',
                         text: 'Valide sus credenciales e intente de nuevo.',
+                        confirmButtonText: 'Entendido',
+                        showCancelButton: false
+                    });
+                    return false;
+                }
+
+                if (accountExpired) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Usuario no validado',
+                        text: 'El usuario será eliminado en los proximos dias debido a que no fue validado.',
                         confirmButtonText: 'Entendido',
                         showCancelButton: false
                     });
