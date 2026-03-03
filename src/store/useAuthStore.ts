@@ -143,6 +143,15 @@ const authStore: StateCreator<AuthState, [["zustand/immer", never]]> = (set, get
                 throw new Error('Error al iniciar sesión');
             }
 
+            if ( !user.is_verified ){
+                await Swal.fire({
+                    icon: 'warning',
+                    title:'Verificación',
+                    text: 'El usuario no ha sido verificado, de no verificarlo, será eliminado.',
+                    confirmButtonText: 'Entendido'
+                });
+            }
+
             localStorage.setItem('refreshToken', refreshToken);
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(user));
@@ -185,8 +194,7 @@ const authStore: StateCreator<AuthState, [["zustand/immer", never]]> = (set, get
             }
 
             const response = await GraphQLService.mutate(REFRESH_TOKEN, { input: { refreshToken: refreshTokenLocal } });
-            
-            console.log("response REFRESH TOKEN: ", response)
+        
             
             if (response?.error || !response.data?.refreshToken) {
                 throw response?.error || new Error('Token refresh failed: empty response from server.');
