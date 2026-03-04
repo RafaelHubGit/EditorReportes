@@ -11,6 +11,7 @@ import { AdminUsersPage } from "../Components/Admin/AdminUsersPage";
 import { VerifyEmailPage } from "../auth/VerifyEmailPage";
 import { ResetPasswordPage } from "../auth/ResetPasswordPage";
 import { AdminGuard } from "../auth/Guard/AdminGuard";
+import { ChangePasswordComponent } from "../auth/ChangePasswordComponent";
 
 const routes: RouteObject[] = [
   {
@@ -41,6 +42,7 @@ const routes: RouteObject[] = [
       { path: "documents", element: <DocumentPage /> },
       { path: "folders/:folderId", element: <FolderPage /> },
       { path: "api-key", element: <ApiKeyPage /> },
+      { path: "changePassword", element: <ChangePasswordComponent/>},
       { 
         path: 'admin', 
         element: (

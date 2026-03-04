@@ -37,10 +37,14 @@ export const MenuComponent = () => {
                     label: 'Mi estatus'
                 },
                 {
+                    key:'changePassword',
+                    label: <Link to="changePassword"> Cambio de contraseña </Link>,
+                },
+                {
                     key: 'nu4',
                     label: 'Cerrar sesión',
                     onClick: () => logout()
-                }
+                },
             ]
         },
         {

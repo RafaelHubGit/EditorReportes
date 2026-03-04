@@ -23,6 +23,12 @@ export const RESET_PASSWORD_WITH_TOKEN = gql`
     }
 `;
 
+export const CHANGE_PASSWORD = gql`
+    mutation ChangePassword( $oldPassword: String!, $newPassword: String! ){
+        changePassword( oldPassword: $oldPassword, newPassword: $newPassword )
+    }
+`;
+
 export const VERIFY_EMAIL = gql`
     mutation VerifyEmail($token: String!) {
         verifyEmail(token: $token)
