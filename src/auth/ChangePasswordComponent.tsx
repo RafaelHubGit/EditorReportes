@@ -1,22 +1,30 @@
-import React, { useState } from 'react';
+import { useRef, useState } from 'react';
+import 'altcha';
 import { Form, Input, Button, Card, Typography, message } from 'antd';
 import { LockOutlined } from '@ant-design/icons';
 import { GraphQLService } from '../graphql/graphql.service';
 import { CHANGE_PASSWORD } from '../graphql/operations/graphql.auth.operations';
 import Swal from 'sweetalert2';
+import { AltchaComponent } from '../Components/Altcha/AltchaComponent';
 
 const { Title } = Typography;
 
 export const ChangePasswordComponent = () => {
+
+  const [altchaPayload, setAltchaPayload] = useState<string | null>(null);
+  const [resetAltcha, setResetAltcha] = useState(false);
+
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
   const onFinish = async (values: any) => {
     setLoading(true);
     try {
-      
-      // Simulación de petición
-      const result = await GraphQLService.mutate(CHANGE_PASSWORD, { oldPassword: values.oldPassword, newPassword: values.newPassword });
+     
+      const result = await GraphQLService.mutate(CHANGE_PASSWORD, 
+        { oldPassword: values.oldPassword, newPassword: values.newPassword },
+        { headers: { 'x-altcha-payload': altchaPayload || '' } } 
+      );
 
       if (result?.error) {
         Swal.fire({
@@ -25,15 +33,19 @@ export const ChangePasswordComponent = () => {
           text: 'La contraseña actual no coincide o es inválida.',
           confirmButtonColor: '#1890ff'
         });
+        setResetAltcha(true);
         return;
       };
       
       message.success('Contraseña actualizada correctamente');
       form.resetFields();
+      setResetAltcha(true);
     } catch (error) {
       message.error('Error al actualizar la contraseña');
+      setResetAltcha(true);
     } finally {
       setLoading(false);
+      setResetAltcha(true);
     }
   };
 
@@ -98,6 +110,13 @@ export const ChangePasswordComponent = () => {
             placeholder="Repite la nueva contraseña" 
           />
         </Form.Item>
+
+        <div style={{ marginBottom: 16 }}>
+          <AltchaComponent
+            onVerify={(payload) => setAltchaPayload(payload)}
+            reset={resetAltcha}
+          />
+        </div>
 
         <Form.Item>
           <Button type="primary" htmlType="submit" loading={loading} block>

@@ -22,12 +22,16 @@ export class GraphQLService {
 
     static async mutate<T = any>(
         mutation: DocumentNode,
-        variables?: any
+        variables?: any,
+        options: { headers?: Record<string, string> } = {}
     ): Promise<any> {
         try {
         const result = await apolloClient.mutate({
             mutation,
             variables,
+            context: {
+                headers: options.headers
+            }
         });
         return result;
         } catch (error) {

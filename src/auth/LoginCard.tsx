@@ -6,6 +6,8 @@ import { ModalSignUpComponent } from './ModalSIgnInComponent';
 import { useEffect, useState } from 'react';
 import { ForgotPasswordModal } from './ForgotPasswordModal';
 import { useAuthActions } from '../hooks/useAuthActions';
+import { AltchaComponent } from '../Components/Altcha/AltchaComponent';
+import { useAltcha } from '../hooks/useAltcha';
 
 const { Title, Text, Link } = Typography;
 
@@ -14,7 +16,15 @@ const { Title, Text, Link } = Typography;
 export const LoginCard = () => {
 
     const navigate = useNavigate();
-    const login   = useAuthStore( (state) => state.login );
+
+    const { 
+        altchaPayload, 
+        resetAltcha, 
+        handleAltchaVerify, 
+        validateAltcha,
+        resetAltchaComponent 
+    } = useAltcha();
+
     const { handleLogin: loginAction } = useAuthActions();
     const [form] = Form.useForm();
 
@@ -28,38 +38,11 @@ export const LoginCard = () => {
         });
     }, []);
 
-    const handleFinish = async (values: { email: string; password: string }) => {
-        // const res = await api.login(values);           // your API call
-        // if (res.ok) {
-        //     useAuthStore.getState().login(res.token);    // <— update Zustand
-        //     navigate('/app/editor');
-        // } else {
-        //     message.error('Credenciales incorrectas');
-        // }
-        navigate('/app');
-    };
-
-    // const handleLogin = async () => {
-    //     const values = await form.validateFields();
-
-    //     if ( values?.errorFields?.length > 0 ) {
-    //         return;
-    //     }
-
-    //     const user = {
-    //         email: values.email,
-    //         password: values.password
-    //     };
-
-    //     const resp = await login(user);
-
-    //     if ( resp ) {
-    //         form.resetFields();
-    //         navigate('/app');
-    //     }
-    // };
 
     const handleLogin = async () => {
+        if (!validateAltcha()) {
+            return;
+        }
         try {
             const values = await form.validateFields(); //
             
@@ -67,22 +50,18 @@ export const LoginCard = () => {
             const success = await loginAction({
                 email: values.email,
                 password: values.password
-            }); //
+            }, altchaPayload!); //
 
             if (success) {
                 form.resetFields(); //
                 navigate('/app'); //
             }
+            resetAltchaComponent();
         } catch (error) {
             // Ant Design handles field validation errors automatically
             console.error('Validation failed:', error);
+            resetAltchaComponent();
         }
-    };
-
-    const devLogin = () => {
-        // login('dev-token');   
-        console.log("deberia pasar aca ")         // stores token + sets isAuth = true
-        navigate('/app');              // jump to the protected branch
     };
 
     return (
@@ -145,6 +124,11 @@ export const LoginCard = () => {
                         size="large"
                     />
                 </Form.Item>
+
+                <AltchaComponent
+                    onVerify={handleAltchaVerify}
+                    reset={resetAltcha}
+                />
 
                 <Form.Item style={{ marginBottom: 0 }}>
                     <Button 

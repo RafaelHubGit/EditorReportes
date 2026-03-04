@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { Modal, Form, Input, Button, Typography, Alert, Result, Popconfirm } from 'antd';
 import { MailOutlined } from '@ant-design/icons';
 import { REQUEST_PASSWORD_RECOVERY } from '../graphql/operations/graphql.auth.operations';
-import { useMutation } from '@apollo/client/react';
+import { AltchaComponent } from '../Components/Altcha/AltchaComponent';
+import { useGraphQL } from '../hooks/useGraphql';
+import Swal from 'sweetalert2';
+import { useAltcha } from '../hooks/useAltcha';
 
 const { Text } = Typography;
 
@@ -12,20 +15,40 @@ interface Props {
 }
 
 export const ForgotPasswordModal = ({ open, onClose }: Props) => {
+  
+  const { 
+        altchaPayload, 
+        resetAltcha, 
+        handleAltchaVerify, 
+        validateAltcha,
+        resetAltchaComponent 
+    } = useAltcha();
+
   const [submitted, setSubmitted] = useState(false);
   const [form] = Form.useForm();
   const [userEmail, setUserEmail] = useState('');
   
-  // Mutación para solicitar el correo
-  const [requestRecovery, { loading, error }] = useMutation(REQUEST_PASSWORD_RECOVERY);
+  // // Mutación para solicitar el correo
+  // const [requestRecovery, { loading, error }] = useMutation(REQUEST_PASSWORD_RECOVERY);
+    const { mutate, loading, error } = useGraphQL();
+
 
   const onFinish = async (values: { email: string }) => {
+
+    if (!validateAltcha()) {
+        return;
+    }
     try {
-      await requestRecovery({ variables: { email: values.email } });
+      await mutate(REQUEST_PASSWORD_RECOVERY, 
+          { variables: { email: values.email } },
+          { headers: { 'x-altcha-payload': altchaPayload!} } 
+      );
       setUserEmail(values.email);
       setSubmitted(true); // Éxito genérico por seguridad
+      resetAltchaComponent();
     } catch (e) {
       console.error("Error en recuperación:", e);
+      resetAltchaComponent();
     }
   };
 
@@ -85,6 +108,11 @@ export const ForgotPasswordModal = ({ open, onClose }: Props) => {
             <Input prefix={<MailOutlined />} placeholder="ejemplo@correo.com" size="large" />
           </Form.Item>
 
+          <AltchaComponent
+            onVerify={handleAltchaVerify}
+            reset={resetAltcha}
+          />
+
           <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
             <Button onClick={onClose} style={{ marginRight: 8 }}>
               Cancelar
@@ -96,7 +124,9 @@ export const ForgotPasswordModal = ({ open, onClose }: Props) => {
                   ¿Seguro de enviar el correo a <b>{form.getFieldValue('email')}</b>?
                 </span>
               )}
-              onConfirm={() => form.submit()} // Manual trigger after confirmation
+              onConfirm={() => {
+                      form.submit();
+              }}
               okText="Sí, enviar"
               cancelText="No"
               disabled={loading}

@@ -38,8 +38,8 @@ interface AuthState {
 
     canAdminister: () => boolean;
     
-    register: (user: { name: string; email: string; password: string }) => Promise<AuthResult>;
-    login: (user: { email: string; password: string }) => Promise<AuthResult>;
+    register: (user: { name: string; email: string; password: string }, altchaPayload: string) => Promise<AuthResult>;
+    login: (user: { email: string; password: string }, altchaPayload: string) => Promise<AuthResult>;
     logout: () => void;
     refreshToken: () => Promise<boolean>;
     getAllUsers: () => Promise<void>;
@@ -60,9 +60,12 @@ const authStore: StateCreator<AuthState, [["zustand/immer", never]]> = (set, get
         return adminAccess;
     },
 
-    register: async (user) => {
+    register: async (user, altchaPayload) => {
         try {
-            const result = await GraphQLService.mutate(REGISTER_USER, { input: user });
+            const result = await GraphQLService.mutate(REGISTER_USER, 
+                { input: user },
+                { headers: { 'x-altcha-payload': altchaPayload || '' } } 
+            );
             if (result?.error || !result.data?.register) {
                 const error = result.error?.errors?.[0];
                 return { 
@@ -77,9 +80,12 @@ const authStore: StateCreator<AuthState, [["zustand/immer", never]]> = (set, get
         }
     },
 
-    login: async (userVar) => {
+    login: async (userVar, altchaPayload) => {
         try {
-            const response = await GraphQLService.mutate(LOGIN_USER, { input: userVar });
+            const response = await GraphQLService.mutate(LOGIN_USER, 
+                { input: userVar },
+                { headers: { 'x-altcha-payload': altchaPayload || '' } } 
+            );
             const error = response.error?.errors?.[0];
 
             if (response?.errors || !response.data?.login) {

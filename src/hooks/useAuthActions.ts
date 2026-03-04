@@ -8,8 +8,8 @@ import { RESEND_VERIFICATION_EMAIL } from '../graphql/operations/graphql.auth.op
 export const useAuthActions = () => {
     const store = useAuthStore();
 
-    const handleLogin = async (credentials: { email: string; password: string }) => {
-        const result = await store.login(credentials);
+    const handleLogin = async (credentials: { email: string; password: string }, altchaPayload: string) => {
+        const result = await store.login(credentials, altchaPayload);
 
         if (result.success) {
             await Swal.fire({
@@ -61,8 +61,8 @@ export const useAuthActions = () => {
         }
     };
 
-    const handleRegister = async (data: any) => {
-        const result = await store.register(data);
+    const handleRegister = async (data: any, altchaPayload: string) => {
+        const result = await store.register(data, altchaPayload);
         if (result.success) {
             Swal.fire({
                 title: '¡Éxito!',

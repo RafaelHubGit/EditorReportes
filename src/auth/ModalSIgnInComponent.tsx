@@ -2,6 +2,9 @@ import { Modal, Form, Input, Button } from 'antd';
 import { UserOutlined, MailOutlined, LockOutlined } from '@ant-design/icons';
 import { useAuthStore } from '../store/useAuthStore';
 import { useAuthActions } from '../hooks/useAuthActions';
+import { useState } from 'react';
+import { AltchaComponent } from '../Components/Altcha/AltchaComponent';
+import { useAltcha } from '../hooks/useAltcha';
 
 
 interface Props {
@@ -12,33 +15,21 @@ interface Props {
 export const ModalSignUpComponent = ({ open, setOpen }: Props) => {
   const [form] = Form.useForm();
 
-  const register = useAuthStore( (state) => state.register );
+  const { 
+        altchaPayload, 
+        resetAltcha, 
+        handleAltchaVerify, 
+        validateAltcha,
+        resetAltchaComponent 
+    } = useAltcha();
+
   const { handleRegister } = useAuthActions();
 
-  // const handleOk = async () => {
-  //   const values = await form.validateFields();
-
-  //   if ( values?.errorFields?.length > 0 ) {
-  //     return;
-  //   }
-
-  //   const user = {
-  //     name: values.name,
-  //     email: values.email,
-  //     password: values.password
-  //   };
-    
-  //   const resp = await register(user);
-    
-
-  //   if ( resp ) {
-  //     form.resetFields();
-  //     setOpen(false);
-  //   }
-    
-  // };
 
   const handleOk = async () => {
+    if (!validateAltcha()) {
+        return;
+    }
     try {
       const values = await form.validateFields(); // 
 
@@ -49,21 +40,24 @@ export const ModalSignUpComponent = ({ open, setOpen }: Props) => {
       };
       
       // handleRegister now manages all Swal success/error alerts internally
-      const success = await handleRegister(user); // 
+      const success = await handleRegister(user, altchaPayload! ); // 
 
       if (success) {
         form.resetFields();
         setOpen(false);
+        resetAltchaComponent();
       }
     } catch (error) {
       // Ant Design highlights the validation errors automatically
       console.error('Validation Failed:', error);
+      resetAltchaComponent();
     }
   };
 
   const handleCancel = () => {
     form.resetFields();
     setOpen(false);
+    resetAltchaComponent();
   };
 
   return (
@@ -156,6 +150,11 @@ export const ModalSignUpComponent = ({ open, setOpen }: Props) => {
           <Input.Password prefix={<LockOutlined />} placeholder="Repetir contraseña" />
         </Form.Item>
       </Form>
+
+      <AltchaComponent
+        onVerify={handleAltchaVerify}
+        reset={resetAltcha}
+      />
     </Modal>
   );
 };
