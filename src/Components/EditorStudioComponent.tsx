@@ -121,73 +121,185 @@ export const EditorStudioComponent = ({ }: Props) => {
     }
   }
 
-  const handleExportPdf = async () => {
+  // const handleExportPdf = async () => {
 
-    Swal.fire({
-      title: 'Generando PDF...',
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
+  //   Swal.fire({
+  //     title: 'Generando PDF...',
+  //     allowOutsideClick: false,
+  //     didOpen: () => {
+  //       Swal.showLoading();
+  //     }
+  //   });
+  //   const requestPdf = await pdfService(devApiKey?.apiKey || '', documentState.id);
+
+  //   if (!requestPdf.success) {
+  //     Swal.close();
+  //     Swal.fire({
+  //       icon: 'error',
+  //       title: 'Error',
+  //       text: "No se pudo generar el PDF, intente nuevamente"
+  //     });
+  //     return;
+  //   }
+
+  //   console.log("requestPdf", requestPdf);
+
+  //   Swal.close();
+
+  //   const pdfData = `data:application/pdf;base64,${requestPdf.pdfBase64}`;
+
+  //   Swal.fire({
+  //     title: 'PDF Generado',
+  //     width: '90%',
+  //     html: `
+  //       <div style="position: relative; width: 100%; height: 500px;">
+  //         <iframe 
+  //           src="${pdfData}" 
+  //           style="width: 100%; height: 100%; border: none;"
+  //           title="PDF Preview"
+  //         ></iframe>
+  //         <div style="margin-top: 15px; text-align: center;">
+  //           <button 
+  //             id="downloadPdfBtn" 
+  //             class="swal2-confirm swal2-styled"
+  //             style="margin-top: 10px;"
+  //           >
+  //             Descargar PDF
+  //           </button>
+  //         </div>
+  //       </div>
+  //     `,
+  //     showConfirmButton: false,
+  //     // confirmButtonText: 'Cerrar',
+  //     showCloseButton: true,  // ← Esto añade la X en la esquina derecha
+  //     // closeButtonHtml: '&times;', // Opcional: personalizar el icono
+      
+  //     didOpen: () => {
+  //       // Evento para el botón de descarga
+  //       document.getElementById('downloadPdfBtn')?.addEventListener('click', () => {
+  //         const link = document.createElement('a');
+  //         link.href = pdfData;
+  //         link.download = `documento_${new Date().toISOString().split('T')[0]}.pdf`;
+  //         document.body.appendChild(link);
+  //         link.click();
+  //         document.body.removeChild(link);
+  //       });
+  //     }
+  //   });
+
+  // }
+
+  const handleExportPdf = async () => {
+  Swal.fire({
+    title: 'Generando PDF...',
+    html: 'Iniciando proceso...',
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading();
+    },
+    showConfirmButton: false
+  });
+
+  try {
+    // PASO 1: Encolar
     const requestPdf = await pdfService(devApiKey?.apiKey || '', documentState.id);
 
-    if (!requestPdf.success) {
+    if (!requestPdf.success || !requestPdf.jobId) {
       Swal.close();
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: "No se pudo generar el PDF, intente nuevamente"
+        text: requestPdf.message || "No se pudo encolar el PDF"
       });
       return;
     }
 
-    console.log("requestPdf", requestPdf);
-
-    Swal.close();
-
-    const pdfData = `data:application/pdf;base64,${requestPdf.pdfBase64}`;
-
-    Swal.fire({
-      title: 'PDF Generado',
-      width: '90%',
-      html: `
-        <div style="position: relative; width: 100%; height: 500px;">
-          <iframe 
-            src="${pdfData}" 
-            style="width: 100%; height: 100%; border: none;"
-            title="PDF Preview"
-          ></iframe>
-          <div style="margin-top: 15px; text-align: center;">
-            <button 
-              id="downloadPdfBtn" 
-              class="swal2-confirm swal2-styled"
-              style="margin-top: 10px;"
-            >
-              Descargar PDF
-            </button>
-          </div>
-        </div>
-      `,
-      showConfirmButton: false,
-      // confirmButtonText: 'Cerrar',
-      showCloseButton: true,  // ← Esto añade la X en la esquina derecha
-      // closeButtonHtml: '&times;', // Opcional: personalizar el icono
-      
-      didOpen: () => {
-        // Evento para el botón de descarga
-        document.getElementById('downloadPdfBtn')?.addEventListener('click', () => {
-          const link = document.createElement('a');
-          link.href = pdfData;
-          link.download = `documento_${new Date().toISOString().split('T')[0]}.pdf`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        });
-      }
+    // PASO 2: Escuchar SSE
+    const eventSource = new EventSource(`${import.meta.env.VITE_API_BACK_URL}/api/sse/pdf-status/${requestPdf.jobId}`);
+    
+    eventSource.addEventListener('progreso', (event) => {
+      const data = JSON.parse(event.data);
+      Swal.update({
+        title: 'Generando PDF...',
+        html: `Progreso: ${data.porcentaje}%`
+      });
     });
 
+    eventSource.addEventListener('completado', (event) => {
+      const data = JSON.parse(event.data);
+      eventSource.close();
+      Swal.close();
+
+      // Mostrar el PDF (tu código existente)
+      const pdfData = `data:application/pdf;base64,${data.pdfBase64}`;
+      Swal.fire({
+        title: 'PDF Generado',
+        width: '90%',
+        html: `
+          <div style="position: relative; width: 100%; height: 500px;">
+            <iframe 
+              src="${pdfData}" 
+              style="width: 100%; height: 100%; border: none;"
+              title="PDF Preview"
+            ></iframe>
+            <div style="margin-top: 15px; text-align: center;">
+              <button 
+                id="downloadPdfBtn" 
+                class="swal2-confirm swal2-styled"
+                style="margin-top: 10px;"
+              >
+                Descargar PDF
+              </button>
+            </div>
+          </div>
+        `,
+        showConfirmButton: false,
+        showCloseButton: true,
+        didOpen: () => {
+          document.getElementById('downloadPdfBtn')?.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.href = pdfData;
+            link.download = `documento_${new Date().toISOString().split('T')[0]}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          });
+        }
+      });
+    });
+
+    eventSource.addEventListener('error', (event) => {
+      const data = JSON.parse(event.data);
+      eventSource.close();
+      Swal.close();
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: data.message || "Error generando PDF"
+      });
+    });
+
+    // Timeout de seguridad (ej: 2 minutos)
+    setTimeout(() => {
+      eventSource.close();
+      Swal.close();
+      Swal.fire({
+        icon: 'error',
+        title: 'Tiempo agotado',
+        text: 'La generación del PDF tomó demasiado tiempo'
+      });
+    }, 120000);
+
+  } catch (error: any) {
+    console.error("Error:", error);
+    Swal.close();
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: error.message || "Error inesperado"
+    });
   }
+}
 
   const itemsDrop: MenuProps["items"] = [
     { 
