@@ -1,6 +1,6 @@
 
 
-const baseUrl = import.meta.env.VITE_API_PDF_URL;
+const baseUrl = import.meta.env.VITE_API_BACK_URL;
 const token = localStorage.getItem("token");
 
 // export const pdfService = async ( apikey: string, documentId: string ) => {
@@ -28,8 +28,10 @@ const token = localStorage.getItem("token");
 
 export const pdfService = async (apiKey: string, documentId: string) => {
     try {
+                console.log(`📤 Encolando PDF para documento: ${documentId}`);
+
         // 1. Encolar el trabajo - esto responde INMEDIATAMENTE con un jobId
-        const response = await fetch(`${baseUrl}/generatePdf`, {
+        const response = await fetch(`${baseUrl}/api/pdf/generatePdf`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -69,7 +71,7 @@ export const pdfService = async (apiKey: string, documentId: string) => {
 export const generarMiPDF =  async (apiKey: string, documentId: string) => {
     try {
         // PASO 1: Encolar
-        const result = await pdfService('mi-api-key', 'doc-123');
+        const result = await pdfService(apiKey, documentId);
         
         if (result.success) {
             console.log('PDF encolado con ID:', result.jobId);
