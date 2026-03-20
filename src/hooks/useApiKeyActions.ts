@@ -104,10 +104,62 @@ export const useApiKeyActions = ({
     }, [isLoading, devApiKey, prodApiKey, error, user?.id, autoCreateMissing, apiKeys]);
 
     // C) Renovar Key 
+    // const handleRenewKey = async (currentKey: string) => {
+    //     if (!user) return;
+
+    //     // Confirmación de seguridad
+    //     const confirm = await Swal.fire({
+    //         title: '¿Regenerar llave?',
+    //         text: "La llave actual dejará de funcionar inmediatamente. ¿Estás seguro?",
+    //         icon: 'warning',
+    //         showCancelButton: true,
+    //         confirmButtonColor: '#d33',
+    //         cancelButtonColor: '#3085d6',
+    //         confirmButtonText: 'Sí, regenerar',
+    //         cancelButtonText: 'Cancelar'
+    //     });
+
+    //     if (!confirm.isConfirmed) return;
+
+    //     Swal.fire({
+    //         title: 'Regenerando...',
+    //         didOpen: () => Swal.showLoading(),
+    //         allowOutsideClick: false
+    //     });
+
+    //     const result = await renewApiKey(currentKey, user.id);
+
+    //     if (result) {
+    //         Swal.fire('¡Renovada!', 'La API Key ha sido actualizada.', 'success');
+    //     } else {
+    //         Swal.fire('Error', 'Hubo un problema técnico al renovar.', 'error');
+    //     }
+    // };
     const handleRenewKey = async (currentKey: string) => {
         if (!user) return;
 
-        // Confirmación de seguridad
+        // Si no hay key válida, crear una nueva en lugar de regenerar
+        if (!currentKey || currentKey.trim() === '') {
+            // Determinar el tipo basado en qué key falta
+            const typeToCreate = !devApiKey ? 'development' : 'production';
+            
+            const confirm = await Swal.fire({
+                title: '¿Crear llave?',
+                text: `No se encontró una llave de ${typeToCreate} válida. ¿Quieres crear una nueva?`,
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, crear',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (confirm.isConfirmed) {
+                await handleCreateKey(typeToCreate);
+            }
+            return;
+        }
+
+        // Confirmación de seguridad para regenerar
         const confirm = await Swal.fire({
             title: '¿Regenerar llave?',
             text: "La llave actual dejará de funcionar inmediatamente. ¿Estás seguro?",

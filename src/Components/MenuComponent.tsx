@@ -26,7 +26,7 @@ export const MenuComponent = () => {
             children: [
                 {
                     key: 'nu1',
-                    label: "Mi cuenta"
+                    label: <Link to="dashboard">Mi cuenta</Link>
                 },
                 {
                     key: 'nu2',

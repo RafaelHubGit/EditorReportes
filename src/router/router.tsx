@@ -12,6 +12,7 @@ import { VerifyEmailPage } from "../auth/VerifyEmailPage";
 import { ResetPasswordPage } from "../auth/ResetPasswordPage";
 import { AdminGuard } from "../auth/Guard/AdminGuard";
 import { ChangePasswordComponent } from "../auth/ChangePasswordComponent";
+import Dashboard from "../Components/Dashboard/DashboardPage";
 
 const routes: RouteObject[] = [
   {
@@ -40,6 +41,7 @@ const routes: RouteObject[] = [
     children: [
       { path: "editor/:operation?/:documentId?", element: <EditorStudioComponent/> },
       { path: "documents", element: <DocumentPage /> },
+      { path: "dashboard", element: <Dashboard /> },
       { path: "folders/:folderId", element: <FolderPage /> },
       { path: "api-key", element: <ApiKeyPage /> },
       { path: "changePassword", element: <ChangePasswordComponent/>},
