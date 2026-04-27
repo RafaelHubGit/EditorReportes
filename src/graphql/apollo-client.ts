@@ -63,6 +63,14 @@ const errorLink = new ApolloLink((operation, forward) => {
               observer.complete();
             }
           } else {
+            const isEmailNotVerified = result.errors.some(
+              (err: any) => err.code === 'EMAIL_NOT_VERIFIED' || err.message === 'Email verification required'
+            );
+
+            if (isEmailNotVerified) {
+              window.dispatchEvent(new CustomEvent('auth:email_not_verified'));
+            }
+
             // Not a token error - pass through
             observer.next(result);
           }

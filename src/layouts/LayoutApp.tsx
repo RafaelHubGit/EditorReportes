@@ -22,6 +22,14 @@ const LayoutApp: React.FC = () => {
       const emailVar = userStore.email;
       handleUnverifiedUser( emailVar );
     }
+
+    const handleEmailNotVerified = () => {
+      if (userStore?.email) {
+        handleUnverifiedUser(userStore.email);
+      }
+    };
+
+    window.addEventListener('auth:email_not_verified', handleEmailNotVerified);
     
     if (userStore && userStore.active === false) {
         
@@ -37,6 +45,10 @@ const LayoutApp: React.FC = () => {
             }
         });
     }
+
+    return () => {
+      window.removeEventListener('auth:email_not_verified', handleEmailNotVerified);
+    };
 
   }, [userStore])
   
