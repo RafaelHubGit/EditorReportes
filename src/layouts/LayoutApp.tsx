@@ -17,10 +17,8 @@ const LayoutApp: React.FC = () => {
   const {handleUnverifiedUser} =  useAuthActions( );
 
   useEffect(() => {
-
-    if ( userStore && !userStore?.is_verified ){
-      const emailVar = userStore.email;
-      handleUnverifiedUser( emailVar );
+    if ( userStore?.is_verified ){
+      return;
     }
 
     const handleEmailNotVerified = () => {
