@@ -43,8 +43,6 @@ const apiKeyStore: StateCreator<ApiKeyState, [["zustand/immer", never]]> = (set,
         try {
             const response = await GraphQLService.query(GET_API_KEY_BY_USER_ID, { userId });
 
-            console.log("response", response);
-
             if (response?.error) throw new Error(response.error);
 
             const keys = response.data?.getActiveApiKeysByUserId || [];

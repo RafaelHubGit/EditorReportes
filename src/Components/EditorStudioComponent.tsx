@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { Button, Row, Col, Typography, Space, theme, Modal } from "antd";
 import { ColumnWidthOutlined, ColumnHeightOutlined, HistoryOutlined } from "@ant-design/icons";
 import { VistaPreviaComponent } from "./VistaPreviaComponent";
@@ -57,6 +57,7 @@ export const EditorStudioComponent = () => {
   // ── Determinar si el documento actual es editable ─────────────────────────
   // Solo se puede editar si es un draft. Producción e históricas son read-only.
   const isReadOnly = !documentState.is_draft && operation !== types.documentNew;
+  
 
   // ── Guardar ───────────────────────────────────────────────────────────────
   const handleSave = async () => {

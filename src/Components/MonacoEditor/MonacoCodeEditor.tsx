@@ -38,6 +38,7 @@ export default function MonacoCodeEditor({
     const { formatCode } = useCodeFormatter();
 
     const handleMount: OnMount = (editor, monaco) => {
+
         editor.updateOptions({
             automaticLayout: true,
             fontSize: 14,
@@ -59,15 +60,23 @@ export default function MonacoCodeEditor({
         });
 
         // Si está en modo bloqueado, capturar intentos de escritura
-        if (readOnly && onAttemptEditLocked) {
+        if (onAttemptEditLocked) {
             editor.onKeyDown((e) => {
-                // Ignorar teclas de navegación/selección
-                const navKeys = [monaco.KeyCode.ArrowUp, monaco.KeyCode.ArrowDown, monaco.KeyCode.ArrowLeft, monaco.KeyCode.ArrowRight, monaco.KeyCode.PageUp, monaco.KeyCode.PageDown, monaco.KeyCode.Home, monaco.KeyCode.End];
-                if (!navKeys.includes(e.keyCode)) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onAttemptEditLocked();
+                const currentReadOnly = editor.getOption(monaco.editor.EditorOption.readOnly);
+
+                if (currentReadOnly) {
+                    // Usar códigos numéricos de teclas
+                    // 16: Shift, 17: Ctrl, 18: Alt, 37: Left, 38: Up, 39: Right, 40: Down
+                    // 33: PageUp, 34: PageDown, 35: End, 36: Home
+                    const navigationKeyCodes = [16, 17, 18, 37, 38, 39, 40, 33, 34, 35, 36];
+
+                    if (!navigationKeyCodes.includes(e.keyCode)) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onAttemptEditLocked();
+                    }
                 }
+
             });
         }
 

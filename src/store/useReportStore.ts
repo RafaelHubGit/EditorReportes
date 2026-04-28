@@ -262,7 +262,7 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
   getDocumentById: (id: string) => {
     const { documents } = get();
     const doc = documents.find(doc => doc.id === id) || null;
-    console.log("doc", doc);
+
     return doc ? adaptApiToDocument(doc) : null;
   },
 
@@ -707,25 +707,32 @@ const reportStore: StateCreator<ReportState, [["zustand/immer", never]]> = (set,
   setIsOpenCreateFolderModal: (isOpen: boolean) => set((state) => { state.isOpenCreateFolderModal = isOpen }),
 });
 
+
 export const useReportStore = create<ReportState>()(
   devtools(
-    persist(
-      immer(reportStore),
-      {
-        name: 'report-store',
-        storage: {
-          getItem: (name) => {
-            const item = localStorage.getItem(name);
-            return item ? JSON.parse(item) : null;
-          },
-          setItem: (name, value) => {
-            localStorage.setItem(name, JSON.stringify(value));
-          },
-          removeItem: (name) => {
-            localStorage.removeItem(name);
-          }
-        }
-      }
-    )
+    immer(reportStore),
+    { name: 'report-store' }
   )
 );
+// export const useReportStore = create<ReportState>()(
+//   devtools(
+//     persist(
+//       immer(reportStore),
+//       {
+//         name: 'report-store',
+//         storage: {
+//           getItem: (name) => {
+//             const item = localStorage.getItem(name);
+//             return item ? JSON.parse(item) : null;
+//           },
+//           setItem: (name, value) => {
+//             localStorage.setItem(name, JSON.stringify(value));
+//           },
+//           removeItem: (name) => {
+//             localStorage.removeItem(name);
+//           }
+//         }
+//       }
+//     )
+//   )
+// );

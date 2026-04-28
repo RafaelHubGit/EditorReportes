@@ -11,6 +11,8 @@ type Props = {
   onChangeHtml: (val: string) => void;
   onChangeCss: (val: string) => void;
   jsonStringProp?: Record<string, any>;
+  readOnly?: boolean;
+  onAttemptEditLocked?: () => void;
 };
 
 export const EditorSectionComponent = ({ 
@@ -18,7 +20,9 @@ export const EditorSectionComponent = ({
   css, 
   onChangeHtml, 
   onChangeCss, 
-  jsonStringProp
+  jsonStringProp,
+  readOnly = false,
+  onAttemptEditLocked = () => {}
 }: Props) => {
 
   return (
@@ -34,6 +38,8 @@ export const EditorSectionComponent = ({
                 htmlCodeprop={html}
                 setHtmlCodeProp={onChangeHtml}
                 jsonStringProp={jsonStringProp || {}}
+                readOnly={readOnly}
+                onAttemptEditLocked={onAttemptEditLocked}
               />
             </div>
           ),

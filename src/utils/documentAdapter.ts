@@ -57,6 +57,13 @@ export const adaptApiToDocument = (apiData: any): IDocument => {
     updatedAt: apiData.updatedAt ? new Date(apiData.updatedAt) : new Date(),
     userCreated: apiData.userCreated || '',
     userUpdated: apiData.userUpdated || '',
+
+    parent_id: apiData.parent ? apiData.parent.id : undefined,
+    is_production: apiData.is_production || false,
+    is_draft: apiData.is_draft || false,
+    version_tag: apiData.version_tag || '',
+    comment: apiData.comment || '',
+
   };
 };
 

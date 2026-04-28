@@ -13,7 +13,11 @@ type Props = {
   onAttemptEditLocked?: () => void;
 }
 
-export const EditorCssComponent = React.memo(({ cssProp, setCssProp, readOnly, onAttemptEditLocked }: Props) => {
+export const EditorCssComponent = React.memo(({ 
+  cssProp, 
+  setCssProp, 
+  readOnly = false, 
+  onAttemptEditLocked = () => {} }: Props) => {
   // const { css: cssCode, setCss } = useReporteStore();
 
   const handleCssChange = (val: string) => {

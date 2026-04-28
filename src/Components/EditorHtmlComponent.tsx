@@ -15,8 +15,8 @@ export const EditorHtmlComponent = React.memo(({
   htmlCodeprop,
   setHtmlCodeProp,
   jsonStringProp,
-  readOnly,
-  onAttemptEditLocked,
+  readOnly = false,
+  onAttemptEditLocked = () => {},
 }: Props) => {
   const [error, setError] = useState("");
 
@@ -33,6 +33,7 @@ export const EditorHtmlComponent = React.memo(({
 
   return (
     <EditorBaseComponent
+      key={`html-editor-${readOnly}`}
       label="HTML"
       value={htmlCodeprop}
       onChange={handleChange}

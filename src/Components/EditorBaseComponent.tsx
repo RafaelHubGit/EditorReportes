@@ -28,10 +28,11 @@ export const EditorBaseComponent = memo(({
   path, 
   autocompleteJson,
   readOnly = false,
-  onAttemptEditLocked,
+  onAttemptEditLocked = () => {},
 }: Props) => {
   const { formatCode, isValidCode } = useCodeFormatter();
   const [formatTrigger, setFormatTrigger] = useState(0);
+
 
   const handleFormat = () => {
     try {

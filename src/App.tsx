@@ -1,5 +1,4 @@
-import { BrowserRouter, useRoutes } from "react-router-dom"
-import EditorReportesComponent from "./Components/EditorReportesComponent"
+import { useRoutes } from "react-router-dom"
 import routes from "./router/router"
 // import LayoutApp from "./layouts/LayoutApp";
 

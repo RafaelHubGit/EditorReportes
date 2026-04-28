@@ -7,6 +7,7 @@ import PrintSettingsPanel from "./PageConfiguration/PrintSettingsPanel";
 import type { IDocument } from "../interfaces/IGeneric";
 import { VistaPreviaComponent } from "./VistaPreviaComponent";
 import { generateFinalHtml } from "../utils/reportEngine";
+import { useEffect } from "react";
 
 interface Props {
   documentState: IDocument;
@@ -17,7 +18,15 @@ interface Props {
   onAttemptEditLocked?: () => void;
 }
 
-export const EditorTabs = ({ documentState, updateDocumentState, mode, height = 'calc(100vh - 210px)', readOnly, onAttemptEditLocked }: Props) => {
+export const EditorTabs = ({ 
+  documentState, 
+  updateDocumentState, 
+  mode, 
+  height = 'calc(100vh - 210px)', 
+  readOnly = false, 
+  onAttemptEditLocked }: Props) => {
+
+
   const commonTabs = [
     {
       label: "HTML",
@@ -26,10 +35,10 @@ export const EditorTabs = ({ documentState, updateDocumentState, mode, height = 
         <div style={{ height }}>
           <EditorHtmlComponent
             htmlCodeprop={documentState.html}
-            setHtmlCodeProp={(html) => updateDocumentState({ html })}
+            setHtmlCodeProp={(html:string) => updateDocumentState({ html })}
             jsonStringProp={documentState.sampleData}
             readOnly={readOnly}
-            onAttemptEditLocked={onAttemptEditLocked}
+            onAttemptEditLocked={onAttemptEditLocked ?? (() => {})}
           />
         </div>
       )
@@ -41,9 +50,9 @@ export const EditorTabs = ({ documentState, updateDocumentState, mode, height = 
         <div style={{ height }}>
           <EditorCssComponent
             cssProp={documentState.css}
-            setCssProp={(css) => updateDocumentState({ css })}
+            setCssProp={(css:string) => updateDocumentState({ css })}
             readOnly={readOnly}
-            onAttemptEditLocked={onAttemptEditLocked}
+            onAttemptEditLocked={onAttemptEditLocked ?? (() => {})}
           />
         </div>
       )
@@ -55,9 +64,9 @@ export const EditorTabs = ({ documentState, updateDocumentState, mode, height = 
         <div style={{ height }}>
           <EditorJsonComponent
             jsonProp={JSON.stringify(documentState.sampleData)}
-            setJsonProp={(json) => updateDocumentState({ sampleData: JSON.parse(json) })}
+            setJsonProp={(json:string) => updateDocumentState({ sampleData: JSON.parse(json) })}
             readOnly={readOnly}
-            onAttemptEditLocked={onAttemptEditLocked}
+            onAttemptEditLocked={onAttemptEditLocked ?? (() => {})}
           />
         </div>
       )
@@ -84,6 +93,8 @@ export const EditorTabs = ({ documentState, updateDocumentState, mode, height = 
           onChangeHtml={(html) => updateDocumentState({ htmlHeader: html })}
           onChangeCss={(css) => updateDocumentState({ cssHeader: css })}
           jsonStringProp={documentState.sampleData}
+          readOnly={readOnly}
+          onAttemptEditLocked={onAttemptEditLocked ?? (() => {})}
         />
       )
     },
@@ -97,6 +108,8 @@ export const EditorTabs = ({ documentState, updateDocumentState, mode, height = 
           onChangeHtml={(html) => updateDocumentState({ htmlFooter: html })}
           onChangeCss={(css) => updateDocumentState({ cssFooter: css })}
           jsonStringProp={documentState.sampleData}
+          readOnly={readOnly}
+          onAttemptEditLocked={onAttemptEditLocked ?? (() => {})}
         />
       )
     }

@@ -7,7 +7,11 @@ interface Props {
   onAttemptEditLocked?: () => void;
 }
 
-export const EditorJsonComponent = ({ jsonProp, setJsonProp, readOnly, onAttemptEditLocked }: Props) => {
+export const EditorJsonComponent = ({ 
+  jsonProp, 
+  setJsonProp, 
+  readOnly = false, 
+  onAttemptEditLocked = () => {} }: Props) => {
   const handleChange = (value: string) => {
     try {
       setJsonProp(JSON.stringify(JSON.parse(value), null, 2));

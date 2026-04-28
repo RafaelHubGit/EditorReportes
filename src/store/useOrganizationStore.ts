@@ -59,11 +59,18 @@ const orgStore: StateCreator<OrgState, [["zustand/immer", never]]> = (set, get) 
         }),
 })
 
+
 export const useOrgStore = create<OrgState>()(
     devtools(
-        persist(
             immer(orgStore),
             { name: 'org-store'}
-        )
     )
 )
+// export const useOrgStore = create<OrgState>()(
+//     devtools(
+//         persist(
+//             immer(orgStore),
+//             { name: 'org-store'}
+//         )
+//     )
+// )
