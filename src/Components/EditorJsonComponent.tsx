@@ -3,9 +3,11 @@ import { EditorBaseComponent } from './EditorBaseComponent';
 interface Props {
   jsonProp: string;
   setJsonProp: (json: string) => void;
+  readOnly?: boolean;
+  onAttemptEditLocked?: () => void;
 }
 
-export const EditorJsonComponent = ({ jsonProp, setJsonProp }: Props) => {
+export const EditorJsonComponent = ({ jsonProp, setJsonProp, readOnly, onAttemptEditLocked }: Props) => {
   const handleChange = (value: string) => {
     try {
       setJsonProp(JSON.stringify(JSON.parse(value), null, 2));
@@ -20,6 +22,8 @@ export const EditorJsonComponent = ({ jsonProp, setJsonProp }: Props) => {
       value={JSON.stringify(JSON.parse(jsonProp), null, 2)}
       onChange={handleChange}
       language='json'
+      readOnly={readOnly}
+      onAttemptEditLocked={onAttemptEditLocked}
     />
   );
 };

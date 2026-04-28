@@ -97,3 +97,38 @@ export const DELETE_FOLDER = gql`
         deleteFolder(id: $id)
     }
 `;
+
+// ── Sistema de Versiones ─────────────────────────────────────────────────────
+
+export const GET_TEMPLATE_VERSIONS = gql`
+    query TemplateVersions($parentId: ID!) {
+        templateVersions(parentId: $parentId) {
+            ...DocumentFields
+        }
+    }
+    ${DOCUMENT_FIELDS_FRAGMENT}
+`;
+
+export const PUBLISH_TEMPLATE = gql`
+    mutation PublishTemplate($parentId: ID!, $input: PublishTemplateInput!) {
+        publishTemplate(parentId: $parentId, input: $input) {
+            ...DocumentFields
+        }
+    }
+    ${DOCUMENT_FIELDS_FRAGMENT}
+`;
+
+export const CREATE_DRAFT = gql`
+    mutation CreateDraft($templateId: ID!) {
+        createDraft(templateId: $templateId) {
+            ...DocumentFields
+        }
+    }
+    ${DOCUMENT_FIELDS_FRAGMENT}
+`;
+
+export const DELETE_TEMPLATE_VERSION = gql`
+    mutation DeleteTemplateVersion($id: ID!) {
+        deleteTemplateVersion(id: $id)
+    }
+`;

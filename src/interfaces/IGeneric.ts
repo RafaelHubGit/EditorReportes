@@ -24,6 +24,13 @@ export interface IDocument {
   updatedAt?: Date;
   userCreated?: string;
   userUpdated?: string;
+
+  // Sistema de Versiones
+  parent_id?: string;
+  is_production?: boolean;
+  is_draft?: boolean;
+  version_tag?: string;
+  comment?: string;
 }
 
 export interface IFolder {

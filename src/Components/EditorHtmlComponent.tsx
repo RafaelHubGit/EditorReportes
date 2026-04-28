@@ -7,12 +7,16 @@ type Props = {
   htmlCodeprop: string;
   setHtmlCodeProp: (html: string) => void;
   jsonStringProp?: Record<string, any>;
+  readOnly?: boolean;
+  onAttemptEditLocked?: () => void;
 }
 
 export const EditorHtmlComponent = React.memo(({
   htmlCodeprop,
   setHtmlCodeProp,
-  jsonStringProp
+  jsonStringProp,
+  readOnly,
+  onAttemptEditLocked,
 }: Props) => {
   const [error, setError] = useState("");
 
@@ -35,6 +39,8 @@ export const EditorHtmlComponent = React.memo(({
       language="html"
       error={error}
       autocompleteJson={jsonStringProp || {}}
+      readOnly={readOnly}
+      onAttemptEditLocked={onAttemptEditLocked}
     />
   );
 });

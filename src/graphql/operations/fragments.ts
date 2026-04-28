@@ -29,6 +29,12 @@ export const DOCUMENT_FIELDS_FRAGMENT = gql`
         folderId
         status
         tags
+        # Sistema de Versiones
+        parent_id
+        is_production
+        is_draft
+        version_tag
+        comment
         createdAt
         updatedAt
         userCreated

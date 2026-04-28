@@ -9,9 +9,11 @@ import { EditorBaseComponent } from './EditorBaseComponent';
 type Props = {
   cssProp: string;
   setCssProp: ( css: string ) => void;
+  readOnly?: boolean;
+  onAttemptEditLocked?: () => void;
 }
 
-export const EditorCssComponent = React.memo(({ cssProp, setCssProp }: Props) => {
+export const EditorCssComponent = React.memo(({ cssProp, setCssProp, readOnly, onAttemptEditLocked }: Props) => {
   // const { css: cssCode, setCss } = useReporteStore();
 
   const handleCssChange = (val: string) => {
@@ -27,7 +29,8 @@ export const EditorCssComponent = React.memo(({ cssProp, setCssProp }: Props) =>
       onChange={handleCssChange}
       language='css'
       path='file:///editor-css.css'
-      // extensions={ getExtensions.css() }
+      readOnly={readOnly}
+      onAttemptEditLocked={onAttemptEditLocked}
     />
   );
 });

@@ -13,7 +13,9 @@ interface Props {
   jsonSchema?: object;
   error?: string;
   path?: string;
-  autocompleteJson?: Record<string, any>; // Sirve para Autocompletado para HTML
+  autocompleteJson?: Record<string, any>;
+  readOnly?: boolean;
+  onAttemptEditLocked?: () => void;
 }
 
 export const EditorBaseComponent = memo(({
@@ -24,7 +26,9 @@ export const EditorBaseComponent = memo(({
   jsonSchema,
   error,
   path, 
-  autocompleteJson
+  autocompleteJson,
+  readOnly = false,
+  onAttemptEditLocked,
 }: Props) => {
   const { formatCode, isValidCode } = useCodeFormatter();
   const [formatTrigger, setFormatTrigger] = useState(0);
@@ -61,17 +65,19 @@ export const EditorBaseComponent = memo(({
         </span>
         
         <Space>
-          <Tooltip title="Formatear código (Ctrl+Shift+F)">
-            <Button 
-              type="text" 
-              icon={<FormatPainterOutlined />} 
-              onClick={handleFormat}
-              size="small"
-              style={{ color: "#fff" }}
-            >
-              Formatear
-            </Button>
-          </Tooltip>
+          {!readOnly && (
+            <Tooltip title="Formatear código (Ctrl+Shift+F)">
+              <Button 
+                type="text" 
+                icon={<FormatPainterOutlined />} 
+                onClick={handleFormat}
+                size="small"
+                style={{ color: "#fff" }}
+              >
+                Formatear
+              </Button>
+            </Tooltip>
+          )}
         </Space>
       </div>
 
@@ -81,8 +87,10 @@ export const EditorBaseComponent = memo(({
           value={value}
           onChange={onChange}
           language={language}
-          onFormat={formatTrigger} // Pasar el trigger como prop
+          onFormat={formatTrigger}
           autocompleteJson={autocompleteJson || {}}
+          readOnly={readOnly}
+          onAttemptEditLocked={onAttemptEditLocked}
         />
       </div>
 

@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
-import { Button, Row, Col, Typography, Space, theme } from "antd";
-import { ColumnWidthOutlined, ColumnHeightOutlined } from "@ant-design/icons";
+import { useState, useMemo, useCallback } from "react";
+import { Button, Row, Col, Typography, Space, theme, Modal } from "antd";
+import { ColumnWidthOutlined, ColumnHeightOutlined, HistoryOutlined } from "@ant-design/icons";
 import { VistaPreviaComponent } from "./VistaPreviaComponent";
 import { types } from "../types/types";
 import { useReportStore } from "../store/useReportStore";
@@ -8,20 +8,28 @@ import { useApiKeyActions } from "../hooks/useApiKeyActions";
 import { useDocumentState } from "../hooks/useDocumentState";
 import { usePdfExport } from "../hooks/usePdfExport";
 import { EditorTabs } from "./EditorTabs";
+import { VersionHistoryPanel } from "./VersionHistoryPanel";
+import { useTemplateVersions } from "../hooks/useTemplateVersions";
 
 import { generateFinalHtml } from "../utils/reportEngine";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { DocumentTitle } from "./DocumentTitle";
+import type { IDocument } from "../interfaces/IGeneric";
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 export const EditorStudioComponent = () => {
 
   const navigate = useNavigate();
   const { token } = theme.useToken();
   const [isSplit, setIsSplit] = useState(false);
-  
+  const [versionPanelOpen, setVersionPanelOpen] = useState(false);
+
+  // ── Modal: "crear borrador" cuando el usuario intenta editar una versión bloqueada ──
+  const [createDraftModalOpen, setCreateDraftModalOpen] = useState(false);
+  const [pendingDraftSourceId, setPendingDraftSourceId] = useState<string | null>(null);
+
   const { devApiKey } = useApiKeyActions({ 
     autoFetch: true,
     autoCreateMissing: false
@@ -42,6 +50,15 @@ export const EditorStudioComponent = () => {
   const addDocument = useReportStore(state => state.addDocument);
   const { handleExportPdf } = usePdfExport();
 
+  // Hook de versiones (se activa cuando tenemos parent_id)
+  const parentId = documentState.parent_id ?? documentId;
+  const { createDraft } = useTemplateVersions(parentId);
+
+  // ── Determinar si el documento actual es editable ─────────────────────────
+  // Solo se puede editar si es un draft. Producción e históricas son read-only.
+  const isReadOnly = !documentState.is_draft && operation !== types.documentNew;
+
+  // ── Guardar ───────────────────────────────────────────────────────────────
   const handleSave = async () => {
     Swal.fire({
       title: 'Guardando documento...',
@@ -60,6 +77,43 @@ export const EditorStudioComponent = () => {
     setHasUnsavedChanges(false);
   };
 
+  // ── Intentar editar una versión bloqueada ─────────────────────────────────
+  const handleAttemptEditLocked = useCallback(() => {
+    if (!documentState.id) return;
+    setPendingDraftSourceId(documentState.id);
+    setCreateDraftModalOpen(true);
+  }, [documentState.id]);
+
+  const handleConfirmCreateDraft = async () => {
+    if (!pendingDraftSourceId) return;
+    try {
+      Swal.fire({ title: 'Creando borrador...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+      await createDraft(pendingDraftSourceId);
+      Swal.close();
+      setCreateDraftModalOpen(false);
+      setPendingDraftSourceId(null);
+      // Abrir el panel de versiones para que el usuario encuentre el nuevo draft
+      setVersionPanelOpen(true);
+    } catch (err: any) {
+      Swal.close();
+      Swal.fire({ icon: 'error', title: 'Error', text: err?.message || 'No se pudo crear el borrador.' });
+    }
+  };
+
+  // ── Abrir versión desde el panel de historial ─────────────────────────────
+  const handleOpenVersion = useCallback((version: IDocument) => {
+    // Navegar al editor con la versión seleccionada
+    navigate(`${types.documentEdit}/${version.id}`);
+    setVersionPanelOpen(false);
+  }, [navigate]);
+
+  // ── Previsualizar PDF de una versión ──────────────────────────────────────
+  const handlePreviewVersion = useCallback((version: IDocument) => {
+    // Usa el id de la versión directamente (el backend lo resolverá)
+    handleExportPdf(devApiKey?.apiKey || '', version.id);
+  }, [devApiKey, handleExportPdf]);
+
+  // ── HTML final para vista previa ──────────────────────────────────────────
   const finalReportHtml = useMemo(() => 
     generateFinalHtml({
       html: documentState.html || "",
@@ -90,6 +144,16 @@ export const EditorStudioComponent = () => {
 
         <Col>
           <Space>
+            {/* Botón historial de versiones */}
+            {parentId && (
+              <Button
+                icon={<HistoryOutlined />}
+                onClick={() => setVersionPanelOpen(true)}
+              >
+                Versiones
+              </Button>
+            )}
+
             <Button
               type="primary"
               icon={isSplit ? <ColumnHeightOutlined /> : <ColumnWidthOutlined />}
@@ -110,6 +174,8 @@ export const EditorStudioComponent = () => {
             <Button 
               type={isExportDisabled ? "primary" : "default"}
               onClick={handleSave}
+              disabled={isReadOnly}
+              title={isReadOnly ? "Esta versión es de solo lectura. Crea un borrador para editar." : ""}
             >
               Guardar
             </Button>
@@ -123,6 +189,8 @@ export const EditorStudioComponent = () => {
             documentState={documentState}
             updateDocumentState={updateDocumentState}
             mode="full"
+            readOnly={isReadOnly}
+            onAttemptEditLocked={handleAttemptEditLocked}
           />
         ) : (
           <Row gutter={16} style={{ height: '100%', margin: 0 }}>
@@ -131,6 +199,8 @@ export const EditorStudioComponent = () => {
                 documentState={documentState}
                 updateDocumentState={updateDocumentState}
                 mode="split"
+                readOnly={isReadOnly}
+                onAttemptEditLocked={handleAttemptEditLocked}
               />
             </Col>
             <Col span={10} style={{ height: '100%' }}>
@@ -144,6 +214,31 @@ export const EditorStudioComponent = () => {
           </Row>
         )}
       </div>
+
+      {/* Panel de Historial de Versiones */}
+      <VersionHistoryPanel
+        parentId={parentId}
+        open={versionPanelOpen}
+        onClose={() => setVersionPanelOpen(false)}
+        onOpenVersion={handleOpenVersion}
+        onPreviewVersion={handlePreviewVersion}
+      />
+
+      {/* Modal: Crear borrador al intentar editar versión bloqueada */}
+      <Modal
+        title="¿Crear borrador?"
+        open={createDraftModalOpen}
+        onCancel={() => { setCreateDraftModalOpen(false); setPendingDraftSourceId(null); }}
+        onOk={handleConfirmCreateDraft}
+        okText="Sí, crear borrador"
+        cancelText="Cancelar"
+      >
+        <p>
+          Se creará un <strong>borrador (Draft)</strong> basado en esta versión para que puedas realizar cambios.
+          La versión de producción <strong>no se verá afectada</strong> hasta que decidas publicar el borrador.
+        </p>
+        <p>¿Deseas continuar?</p>
+      </Modal>
     </div>
   );
 };

@@ -14,8 +14,12 @@ type Props = {
     height?: string | number;
     schema?: object;
     path?: string;
-    onFormat?: number; // Nueva prop para formateo externo
+    onFormat?: number;
     autocompleteJson?: Record<string, any>;
+    /** Si true, el editor se muestra en modo solo lectura */
+    readOnly?: boolean;
+    /** Callback que se dispara cuando el usuario intenta editar en modo readOnly */
+    onAttemptEditLocked?: () => void;
 };
 
 export default function MonacoCodeEditor({
@@ -26,7 +30,9 @@ export default function MonacoCodeEditor({
     schema,
     path,
     onFormat,
-    autocompleteJson
+    autocompleteJson,
+    readOnly = false,
+    onAttemptEditLocked,
 }: Props) {
     const monaco = useMonaco();
     const { formatCode } = useCodeFormatter();
@@ -41,15 +47,29 @@ export default function MonacoCodeEditor({
             minimap: { enabled: true },
             fontLigatures: true,
             renderWhitespace: "selection",
+            readOnly: readOnly,
             scrollbar: {
                 horizontal: "auto",
                 vertical: "auto",
                 useShadows: false,
             },
-            quickSuggestions: true,
-            suggestOnTriggerCharacters: true,
-            parameterHints: { enabled: true },
+            quickSuggestions: !readOnly,
+            suggestOnTriggerCharacters: !readOnly,
+            parameterHints: { enabled: !readOnly },
         });
+
+        // Si está en modo bloqueado, capturar intentos de escritura
+        if (readOnly && onAttemptEditLocked) {
+            editor.onKeyDown((e) => {
+                // Ignorar teclas de navegación/selección
+                const navKeys = [monaco.KeyCode.ArrowUp, monaco.KeyCode.ArrowDown, monaco.KeyCode.ArrowLeft, monaco.KeyCode.ArrowRight, monaco.KeyCode.PageUp, monaco.KeyCode.PageDown, monaco.KeyCode.Home, monaco.KeyCode.End];
+                if (!navKeys.includes(e.keyCode)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onAttemptEditLocked();
+                }
+            });
+        }
 
         // Configurar shortcut Ctrl+Shift+F para formatear
         if (monaco) {
@@ -149,7 +169,17 @@ export default function MonacoCodeEditor({
 
 
     return (
-        <div style={{ height, minHeight: 0, overflow: "hidden" }}>
+        <div style={{ height, minHeight: 0, overflow: "hidden", position: 'relative' }}>
+            {readOnly && (
+                <div style={{
+                    position: 'absolute', top: 8, right: 12, zIndex: 10,
+                    background: 'rgba(0,0,0,0.55)', color: '#fff',
+                    padding: '2px 10px', borderRadius: 4, fontSize: 11,
+                    pointerEvents: 'none', letterSpacing: 1
+                }}>
+                    SOLO LECTURA
+                </div>
+            )}
             <Editor
                 theme="vs-dark"
                 language={language}
@@ -166,9 +196,10 @@ export default function MonacoCodeEditor({
                     minimap: { enabled: true },
                     fontSize: 14,
                     lineHeight: 1.5,
-                    suggestOnTriggerCharacters: true,
-                    quickSuggestions: true,
-                    parameterHints: { enabled: true },
+                    readOnly: readOnly,
+                    suggestOnTriggerCharacters: !readOnly,
+                    quickSuggestions: !readOnly,
+                    parameterHints: { enabled: !readOnly },
                     snippetSuggestions: "top",
                     quickSuggestionsDelay: 100,
                     suggest: {

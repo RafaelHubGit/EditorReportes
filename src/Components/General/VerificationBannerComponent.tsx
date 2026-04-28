@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import { REQUEST_EMAIL_VERIFICATION } from '../graphql/auth.operations'; // Nueva operación
 
 const VerificationBanner = ({ user }) => {

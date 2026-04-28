@@ -13,9 +13,11 @@ interface Props {
   updateDocumentState: (updates: Partial<IDocument>) => void;
   mode: 'full' | 'split';
   height?: string;
+  readOnly?: boolean;
+  onAttemptEditLocked?: () => void;
 }
 
-export const EditorTabs = ({ documentState, updateDocumentState, mode, height = 'calc(100vh - 210px)' }: Props) => {
+export const EditorTabs = ({ documentState, updateDocumentState, mode, height = 'calc(100vh - 210px)', readOnly, onAttemptEditLocked }: Props) => {
   const commonTabs = [
     {
       label: "HTML",
@@ -26,6 +28,8 @@ export const EditorTabs = ({ documentState, updateDocumentState, mode, height = 
             htmlCodeprop={documentState.html}
             setHtmlCodeProp={(html) => updateDocumentState({ html })}
             jsonStringProp={documentState.sampleData}
+            readOnly={readOnly}
+            onAttemptEditLocked={onAttemptEditLocked}
           />
         </div>
       )
@@ -38,6 +42,8 @@ export const EditorTabs = ({ documentState, updateDocumentState, mode, height = 
           <EditorCssComponent
             cssProp={documentState.css}
             setCssProp={(css) => updateDocumentState({ css })}
+            readOnly={readOnly}
+            onAttemptEditLocked={onAttemptEditLocked}
           />
         </div>
       )
@@ -50,6 +56,8 @@ export const EditorTabs = ({ documentState, updateDocumentState, mode, height = 
           <EditorJsonComponent
             jsonProp={JSON.stringify(documentState.sampleData)}
             setJsonProp={(json) => updateDocumentState({ sampleData: JSON.parse(json) })}
+            readOnly={readOnly}
+            onAttemptEditLocked={onAttemptEditLocked}
           />
         </div>
       )
