@@ -1,0 +1,27 @@
+
+
+
+
+
+
+1. se debe mostrar la pagina como de bienvenida, debe mostrar cuantos documentos se han creado, cuantos se han generado, cuantos documentos les queda del mes y todo lo demas
+3. documentacion
+
+
+
+12. cuantos planes se van a manejar? 
+12.1. monkey pdf tiene 4 y uno free por 30 dias
+13. en free y started la duracion maxima por pdf es de 30seg (sera para manejar el tiempo de ejecucion y el tamaño de los pdf?)
+
+
+
+
+
+nota!!!!:
+Clases especiales de Puppeteer
+Para que los números de página funcionen, tu footerHtml debería poder contener estas clases que Puppeteer reconoce automáticamente:
+
+<span class="pageNumber"></span> (Página actual)
+
+<span class="totalPages"></span> (Total de páginas)
+Si no las contemplas en tu esquema, el usuario no podrá hacer folios dinámicos.
